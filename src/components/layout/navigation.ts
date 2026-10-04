@@ -1,4 +1,4 @@
-import { HouseIcon } from 'lucide-react'
+import { HouseIcon, UsersIcon } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { FileRoutesByTo } from '#/routeTree.gen'
@@ -28,7 +28,13 @@ export const GENERAL_ITEMS: (NavItem & { icon: LucideIcon })[] = [
 ]
 
 /** Las secciones del menú. Una sección aparece cuando tiene su primer módulo. */
-export const SECTIONS: NavSection[] = []
+export const SECTIONS: NavSection[] = [
+  {
+    label: 'Clientes',
+    icon: UsersIcon,
+    items: [{ label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] }],
+  },
+]
 
 /** Las secciones con solo los ítems que el rol del usuario puede abrir. */
 export function visibleSections(

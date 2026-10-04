@@ -47,8 +47,8 @@ src/
 │           └── components/         tablas, formularios y vistas del módulo
 ├── components/
 │   ├── ui/                         primitivas de shadcn. Las genera el CLI
-│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, DateField, ColorField)
-│   ├── data-table/                 DataTable y createColumns
+│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, SwitchField, DateField, ColorField)
+│   ├── data-table/                 DataTable, su paginación, barra y filtros, y createColumns
 │   ├── upload/                     Dropzone: arrastrar o elegir un archivo
 │   └── layout/                     AppSidebar y sus piezas, AppHeader, navigation.ts, ErrorScreen
 ├── server/                         SOLO servidor
@@ -348,34 +348,52 @@ const form = useAppForm({
   `form.ts`. Se crea cuando lo necesita el primer formulario, no antes.
 - **Los errores de la API** se muestran con `<FieldError>{mutation.error.message}</FieldError>`.
 
-## Tablas: TanStack Table 9
+## Listados: paginados en la API, estado en la URL
 
-Todo listado usa **`DataTable`** (`components/data-table/`): orden por columna,
-búsqueda global y paginación.
+Todo listado se pagina, busca, filtra y ordena **en la API** (regla del
+proyecto). El ejemplo real es `modules/customer/customers/` con su ruta
+`routes/_app/customer/customers/index.tsx`.
+
+1. **La URL guarda el estado.** La ruta declara `validateSearch` con el esquema
+   del módulo (`customersSearchSchema`: `page`, `pageSize`, `search`, filtros,
+   `sortBy`, `sortOrder`), cada campo con `.catch(...)` para que una URL editada
+   a mano no rompa la página, y `stripSearchParams(defaults)` para no escribir
+   los valores por defecto.
+2. **El loader precarga esa página**: `loaderDeps: ({ search }) => search` y
+   `ensureQueryData(<module>Queries.list(deps))`. El componente la lee con
+   `useSuspenseQuery`, y la consulta lleva `placeholderData: keepPreviousData`
+   para que al cambiar de página la tabla se atenúe en vez de vaciarse.
+3. **La server function** llama a `callApiPage<T>(path + toQueryString(search))`
+   (`server/api.ts`), que devuelve `{ items, meta }`.
+4. **La tabla**: `DataTable` recibe `data`, `meta`, el orden y los callbacks;
+   `DataTableToolbar` (búsqueda con espera de 350 ms, filtros, «Limpiar» y
+   acciones) y `DataTableFilter` (lista con «Todos»). Cambiar la búsqueda o un
+   filtro vuelve a la página 1.
 
 ```tsx
-// components/VehicleTable.tsx (ilustrativo)
-const column = createColumns<Vehicle>()
+const column = createColumns<Customer>()
 
-const columns = column.columns([
-  column.accessor('plate', { header: 'Placa' }),
-  column.accessor('createdAt', {
-    header: 'Registrado',
-    cell: (info) => formatDateTime(info.getValue()),
-  }),
+column.columns([
+  column.accessor('name', { header: 'Nombre' }),           // se ordena en la API
+  column.accessor('phone', { header: 'Teléfono', enableSorting: false }),
 ])
-
-<DataTable columns={columns} data={data} searchPlaceholder="Buscar…" />
 ```
 
-- **Las columnas se declaran fuera del componente** y se envuelven en
-  `column.columns([...])`. Un arreglo literal no compila en la 9, porque cada
-  columna tiene un tipo de valor distinto.
-- **Lo que la tabla sabe hacer se declara en `features.ts`** con
-  `tableFeatures({...})`. Las funciones de orden y filtro se registran por
-  nombre: la 9 solo resuelve `'auto'` entre las registradas. Una funcionalidad
-  nueva (selección de filas, columnas ocultables) se agrega ahí.
-- En la 9, el estado se lee con `table.state`, no con `getState()`.
+- **Una columna que la API no sabe ordenar declara `enableSorting: false`**; el
+  `id` de las que sí se ordenan es el valor de `sortBy` que acepta la API.
+- **Las columnas se envuelven en `column.columns([...])`**: un arreglo literal no
+  compila en la 9. Si necesitan acciones del componente (editar, borrar), se
+  arman en una función y se memorizan con `useMemo`.
+- `features.ts` solo declara `rowSortingFeature`: la tabla no ordena, filtra ni
+  pagina filas por su cuenta.
+
+## Respuestas de la API
+
+La API responde `BaseResponseDto` en todo (`{ success, message, data, meta }`).
+`callApi<T>` devuelve solo `data`; `callApiEnvelope<T>` todo, para las
+mutaciones, que devuelven `message` y lo muestran con `toast.success`; los
+errores llegan como `ApiError` con el `message` de la API y se muestran con
+`<FieldError>`.
 
 ## Tipos de la API
 

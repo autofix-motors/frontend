@@ -49,6 +49,15 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla de clientes y listados en la API — Eduardo Huarcaya · 18:30
+
+Pantalla de clientes con búsqueda, filtros, orden y paginación guardados en la
+URL, y alta, edición y borrado en diálogos. `DataTable` pasa a paginar, buscar y
+ordenar en la API, y el cliente de la API lee el formato `BaseResponseDto`.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/clientes` (cambió el
+> formato de todas las respuestas).
+
 ### Base del proyecto a partir de la plantilla — Eduardo Huarcaya · 12:10
 
 Arranque de AutoFix Motors con la base técnica de un proyecto anterior, sin su
