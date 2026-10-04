@@ -3,6 +3,7 @@ import { ColorField } from './ColorField'
 import { DateField } from './DateField'
 import { SelectField } from './SelectField'
 import { SubmitButton } from './SubmitButton'
+import { SwitchField } from './SwitchField'
 import { TextField } from './TextField'
 import { TextareaField } from './TextareaField'
 import { fieldContext, formContext } from './context'
@@ -26,6 +27,7 @@ export const { useAppForm } = createFormHook({
     SelectField,
     DateField,
     ColorField,
+    SwitchField,
   },
   formComponents: { SubmitButton },
 })

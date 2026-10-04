@@ -1,4 +1,4 @@
-import { callApi, toApiError } from './api'
+import { callApi, callApiPage, toApiError, toQueryString } from './api'
 
 // Fuera del servidor de Start no hay petición de la que leer cookies: se simulan
 // las que traería el navegador.
@@ -15,7 +15,7 @@ const jsonResponse = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status })
 
 describe('toApiError', () => {
-  it('usa el mensaje de NestJS cuando es texto', async () => {
+  it('usa el mensaje de la respuesta base', async () => {
     const error = await toApiError(
       jsonResponse(404, { statusCode: 404, message: 'El registro no existe' }),
     )
@@ -113,12 +113,39 @@ describe('callApi', () => {
     expect(sentHeaders(fetchMock).Cookie).toBe('afm_refresh=r1')
   })
 
-  it('devuelve el cuerpo de una respuesta correcta', async () => {
+  it('devuelve solo data de la respuesta base', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(jsonResponse(200, [{ id: '1' }])),
+      vi.fn().mockResolvedValue(
+        jsonResponse(200, {
+          success: true,
+          message: 'Usuarios obtenidos',
+          data: [{ userId: '1' }],
+          statusCode: 200,
+        }),
+      ),
     )
-    await expect(callApi('/users')).resolves.toEqual([{ id: '1' }])
+    await expect(callApi('/users')).resolves.toEqual([{ userId: '1' }])
+  })
+
+  it('devuelve las filas y la paginación de un listado', async () => {
+    const meta = { page: 2, pageSize: 10, total: 11, totalPages: 2 }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse(200, {
+          success: true,
+          message: 'Clientes obtenidos',
+          data: [{ customerId: 'c1' }],
+          statusCode: 200,
+          meta,
+        }),
+      ),
+    )
+    await expect(callApiPage('/customers')).resolves.toEqual({
+      items: [{ customerId: 'c1' }],
+      meta,
+    })
   })
 
   it('traduce el vencimiento del tiempo máximo a un 504', async () => {
@@ -144,5 +171,22 @@ describe('callApi', () => {
       statusCode: 503,
       message: 'No se pudo conectar con el servidor',
     })
+  })
+})
+
+describe('toQueryString', () => {
+  it('omite los filtros vacíos', () => {
+    expect(
+      toQueryString({
+        page: 1,
+        search: '',
+        isActive: false,
+        documentType: undefined,
+      }),
+    ).toBe('?page=1&isActive=false')
+  })
+
+  it('queda vacío sin filtros', () => {
+    expect(toQueryString({ search: undefined })).toBe('')
   })
 })

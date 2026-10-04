@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["AppController_getHello"];
+        get: operations["AppController_health"];
         put?: never;
         post?: never;
         delete?: never;
@@ -84,15 +84,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_findAll"];
+        put?: never;
+        post: operations["CustomersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/{customerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["CustomersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CustomersController_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        LoginDto: {
-            /** @example admin@taller.local */
-            email: string;
-            /** Format: password */
-            password: string;
+        BaseResponseDto: {
+            success: boolean;
+            /** @example Operación realizada */
+            message: string;
+            error?: Record<string, never>;
+            /** @example 200 */
+            statusCode: number;
         };
         /** @enum {string} */
         UserRole: "ADMIN" | "MECHANIC";
@@ -106,6 +140,79 @@ export interface components {
             /** @example ADMIN */
             role: components["schemas"]["UserRole"];
         };
+        LoginDto: {
+            /** @example admin@taller.local */
+            email: string;
+            /** Format: password */
+            password: string;
+        };
+        PaginationMeta: {
+            /** @example 1 */
+            page: number;
+            /** @example 10 */
+            pageSize: number;
+            /**
+             * @description Filas que cumplen los filtros
+             * @example 42
+             */
+            total: number;
+            /** @example 5 */
+            totalPages: number;
+        };
+        /** @enum {string} */
+        DocumentType: "DNI" | "RUC" | "CE" | "PASSPORT";
+        Customer: {
+            /** Format: uuid */
+            customerId: string;
+            documentType: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example 987654321 */
+            phone: string;
+            /** @example juan@correo.pe */
+            email: string | null;
+            address: string | null;
+            notes: string | null;
+            isActive: boolean;
+            /** @example 2 */
+            vehiclesCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateCustomerDto: {
+            documentType: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example 987654321 */
+            phone: string;
+            /** @example juan@correo.pe */
+            email?: string | null;
+            address?: string | null;
+            notes?: string | null;
+            /** @default true */
+            isActive: boolean;
+        };
+        UpdateCustomerDto: {
+            documentType?: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber?: string;
+            /** @example Juan Pérez Rojas */
+            name?: string;
+            /** @example 987654321 */
+            phone?: string;
+            /** @example juan@correo.pe */
+            email?: string | null;
+            address?: string | null;
+            notes?: string | null;
+            /** @default true */
+            isActive: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -115,7 +222,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getHello: {
+    AppController_health: {
         parameters: {
             query?: never;
             header?: never;
@@ -124,11 +231,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description La API está en línea */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
             };
         };
     };
@@ -150,7 +263,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentSession"];
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
                 };
             };
             /** @description Correo o contraseña incorrectos */
@@ -183,7 +298,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentSession"];
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
                 };
             };
             /** @description La sesión expiró o fue revocada */
@@ -205,11 +322,16 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Sesión cerrada */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
             };
         };
     };
@@ -227,11 +349,186 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentSession"];
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
                 };
             };
             /** @description Sin sesión o sesión expirada */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                documentType?: components["schemas"]["DocumentType"];
+                isActive?: boolean;
+                sortBy?: "name" | "createdAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    CustomersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCustomerDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description Ya existe un cliente con ese documento */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cliente eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El cliente tiene vehículos u órdenes registradas */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCustomerDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un cliente con ese documento */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

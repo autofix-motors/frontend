@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 import { ApiError, callApi, fetchApi } from '#/server/api'
+import type { ApiEnvelope } from '#/server/api'
 import {
   accessToken,
   apiCookieHeader,
@@ -32,7 +33,8 @@ export const login = createServerFn({ method: 'POST' })
       headers: browserHeaders(),
     })
     storeSession(response.headers)
-    return (await response.json()) as CurrentSession
+    const envelope = (await response.json()) as ApiEnvelope<CurrentSession>
+    return envelope.data
   })
 
 /**
