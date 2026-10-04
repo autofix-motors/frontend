@@ -98,7 +98,7 @@ export interface components {
         UserRole: "ADMIN" | "MECHANIC";
         CurrentSession: {
             /** Format: uuid */
-            id: string;
+            userId: string;
             /** @example Administrador */
             name: string;
             /** @example admin@taller.local */

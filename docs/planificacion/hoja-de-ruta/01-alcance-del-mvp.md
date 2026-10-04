@@ -11,11 +11,11 @@ al frontend: qué pantallas hay, dónde viven y quién las ve.
 | Sección del menú | Pantalla | Ruta | Rol |
 |---|---|---|---|
 | — | Inicio (dashboard) | `/` | Todos; los ingresos del mes solo `ADMIN` |
-| Taller | Órdenes de trabajo | `/services/work-orders` | `ADMIN` ve todas; `MECHANIC` solo las suyas |
-| Taller | Detalle de una OT | `/services/work-orders/$workOrderId` | Ídem |
-| Taller | Catálogo de servicios | `/services/service-catalog` | `ADMIN` |
-| Clientes | Clientes | `/customers/customers` | `ADMIN` |
-| Clientes | Vehículos | `/customers/vehicles` | `ADMIN` |
+| Taller | Órdenes de trabajo | `/workshop/work-orders` | `ADMIN` ve todas; `MECHANIC` solo las suyas |
+| Taller | Detalle de una OT | `/workshop/work-orders/$workOrderId` | Ídem |
+| Taller | Catálogo de servicios | `/workshop/service-catalog` | `ADMIN` |
+| Clientes | Clientes | `/customer/customers` | `ADMIN` |
+| Clientes | Vehículos | `/customer/vehicles` | `ADMIN` |
 | Inventario | Repuestos e insumos | `/inventory/products` | Todos; costo y margen solo `ADMIN` |
 | Inventario | Movimientos | `/inventory/stock-movements` | `ADMIN` |
 | Inventario | Herramientas | `/inventory/tools` | Todos (consulta); `ADMIN` edita |

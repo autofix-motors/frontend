@@ -83,6 +83,10 @@ exporta `Sidebar` y los dos terminarían importados en el mismo archivo.
 
 (Los nombres con `WorkOrder` son ejemplos de cómo se vería un módulo futuro.)
 
+- **El id de una entidad es `<entidad>Id`, nunca `id`**, igual que en el
+  backend: `session.userId`, `vehicle.vehicleId`, y en rutas y parámetros
+  también (`/workshop/work-orders/$workOrderId`). Así el mismo dato se llama
+  igual en la base, la API y la pantalla.
 - **Los campos que vienen de la API se llaman como en la API**: `createdAt`,
   `mileageIn`. No se renombran en el camino: el tipo generado ya los nombra.
 - **Los términos del negocio usan la traducción del backend**, que está en su
