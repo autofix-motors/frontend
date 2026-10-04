@@ -21,8 +21,8 @@ import {
 import { formatDateTime } from '#/lib/dates'
 import type { Page } from '#/server/api'
 import {
+  CUSTOMER_FILTERS_CLEARED,
   DOCUMENT_TYPE_LABELS,
-  defaultCustomersSearch,
   documentTypeOptions,
 } from '../customers.schemas'
 import type { Customer, CustomersSearch } from '../customers.schemas'
@@ -181,14 +181,7 @@ export function CustomerTable({
             onSearchChange={(text) => filter({ search: text || undefined })}
             searchPlaceholder="Buscar por nombre o documento"
             isFiltered={isFiltered}
-            onReset={() =>
-              onSearchChange({
-                ...defaultCustomersSearch,
-                pageSize: search.pageSize,
-                sortBy: search.sortBy,
-                sortOrder: search.sortOrder,
-              })
-            }
+            onReset={() => onSearchChange(CUSTOMER_FILTERS_CLEARED)}
             actions={
               <Button
                 onClick={() => {

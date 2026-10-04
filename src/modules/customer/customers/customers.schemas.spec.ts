@@ -1,4 +1,5 @@
 import {
+  CUSTOMER_FILTERS_CLEARED,
   customerFormSchema,
   customerInputSchema,
   customersSearchSchema,
@@ -57,15 +58,38 @@ describe('customerInputSchema', () => {
 })
 
 describe('customersSearchSchema', () => {
-  it('completa los valores por defecto', () => {
-    expect(customersSearchSchema.parse({})).toEqual({
+  it('completa los valores por defecto, sin las claves opcionales', () => {
+    // toStrictEqual distingue una clave ausente de una en undefined: es lo que
+    // rompió «Limpiar» cuando se armaba con estos valores.
+    expect(customersSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      search: undefined,
-      documentType: undefined,
-      isActive: undefined,
       sortBy: 'name',
       sortOrder: 'asc',
+    })
+  })
+
+  it('«Limpiar» quita la búsqueda y los filtros y conserva el orden', () => {
+    const current = customersSearchSchema.parse({
+      page: 3,
+      pageSize: 20,
+      search: 'trans',
+      documentType: 'RUC',
+      isActive: true,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    })
+    // Así lo combina la ruta al navegar: el cambio sobre la búsqueda actual.
+    // JSON hace lo que la URL: las claves en undefined no viajan.
+    const next = customersSearchSchema.parse({
+      ...current,
+      ...CUSTOMER_FILTERS_CLEARED,
+    })
+    expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
+      page: 1,
+      pageSize: 20,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
     })
   })
 

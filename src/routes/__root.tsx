@@ -37,6 +37,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         rel: 'stylesheet',
         href: appCss,
       },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
     ],
   }),
   shellComponent: RootDocument,
@@ -44,11 +45,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    // suppressHydrationWarning solo en <html> y <body>, y solo para sus propios
+    // atributos: las extensiones del navegador (correctores, traductores) les
+    // agregan atributos antes de que React hidrate, y eso no es un error de la
+    // app. El contenido se sigue comparando.
+    <html lang="es" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <TooltipProvider>
           {children}
           <TanStackDevtools

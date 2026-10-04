@@ -166,5 +166,23 @@ export const customersSearchSchema = z.object({
 
 export type CustomersSearch = z.infer<typeof customersSearchSchema>
 
+/**
+ * Los valores por defecto: no se escriben en la URL. Ojo: Zod 4 omite las
+ * claves opcionales que quedan `undefined`, así que aquí no aparecen `search`
+ * ni los filtros.
+ */
 export const defaultCustomersSearch: CustomersSearch =
   customersSearchSchema.parse({})
+
+/**
+ * Lo que aplica «Limpiar»: quita la búsqueda y los filtros, y vuelve a la
+ * primera página; conserva el orden y el tamaño de página. Las claves van
+ * explícitas en `undefined` porque el cambio se mezcla con la búsqueda actual:
+ * una clave que falta la dejaría como estaba.
+ */
+export const CUSTOMER_FILTERS_CLEARED = {
+  search: undefined,
+  documentType: undefined,
+  isActive: undefined,
+  page: 1,
+} satisfies Partial<CustomersSearch>
