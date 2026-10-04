@@ -1,0 +1,10 @@
+allowBuilds:
+  esbuild: true
+  lightningcss: true
+
+# openapi-typescript 7.13 declara typescript ^5 pero funciona con la 6: se
+# comprobó generando los tipos de la API y compilándolos (2026-09-24). Se quita
+# cuando el paquete declare soporte para la 6. Ver docs/DEPENDENCIES.md.
+peerDependencyRules:
+  allowedVersions:
+    openapi-typescript>typescript: '6'

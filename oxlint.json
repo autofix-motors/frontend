@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "@typescript-eslint/no-floating-promises": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "ignorePatterns": [
+    "src/components/ui/**",
+    "src/routeTree.gen.ts",
+    "src/types/api.gen.ts"
+  ]
+}

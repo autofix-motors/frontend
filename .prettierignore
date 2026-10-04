@@ -1,0 +1,9 @@
+# Generado por herramientas: se regenera, no se formatea a mano.
+src/components/ui/
+# También los genera shadcn: `shadcn add` y los temas los vuelven a escribir.
+src/styles.css
+src/lib/utils.ts
+src/hooks/use-mobile.ts
+src/routeTree.gen.ts
+src/types/api.gen.ts
+pnpm-lock.yaml
