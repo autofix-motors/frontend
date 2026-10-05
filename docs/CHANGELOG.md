@@ -49,6 +49,19 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla de repuestos e insumos — Eduardo Huarcaya · 20:05
+commits [`b027b58`](../../commit/b027b58) · [`d4d4935`](../../commit/d4d4935)
+
+Pantalla «Repuestos e insumos» (`/inventory/products`, sección nueva
+«Inventario»): búsqueda por código, nombre y marca, filtros por tipo, estado y
+stock bajo, y alta, edición y borrado para el administrador; el mecánico la ve
+en solo lectura y sin costo ni margen. Stock con su unidad («4.50 L») y badge
+«Stock bajo». Nuevo campo `QuantityField`; el formulario no tiene stock.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/repuestos`
+> (`/products`). No se probó en navegador: Postgres local no acepta
+> conexiones.
+
 ### Pantalla del catálogo de servicios — Eduardo Huarcaya · 19:50
 commits [`3ad0ae6`](../../commit/3ad0ae6)
 

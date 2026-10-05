@@ -47,7 +47,7 @@ src/
 │           └── components/         tablas, formularios y vistas del módulo
 ├── components/
 │   ├── ui/                         primitivas de shadcn. Las genera el CLI
-│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, MoneyField, ColorField)
+│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, MoneyField, QuantityField, ColorField)
 │   ├── data-table/                 DataTable, su paginación, barra y filtros (DataTableFilter, DataTableComboboxFilter), y createColumns
 │   ├── combobox/                   AsyncCombobox: elegir un registro buscándolo en la API
 │   ├── upload/                     Dropzone: arrastrar o elegir un archivo
@@ -61,7 +61,9 @@ src/
 ├── types/api.gen.ts                generado del OpenAPI. No se edita
 ├── lib/utils.ts                    cn(). Lo genera shadcn
 ├── lib/dates.ts                    formatDateOnly y formatDateTime
-├── lib/money.ts                    formatMoney y moneyError: montos en soles
+├── lib/decimal.ts                  las reglas de los decimales de la API (Decimal(10, 2)) y el agrupado de miles
+├── lib/money.ts                    formatMoney, moneyError y moneySchema: montos en soles
+├── lib/quantity.ts                 formatQuantity, quantityError y quantitySchema: cantidades
 ├── lib/api-types.ts                WithNullable: corrige campos que el OpenAPI declara sin tipo
 ├── router.tsx                      crea el router; registra ErrorScreen como error por defecto
 ├── routeTree.gen.ts                generado por TanStack Router. No se edita
@@ -126,6 +128,10 @@ frontend de `backend/src/modules/core/auth/`, y se llaman igual.
   (`modules/core/auth/auth.schemas.ts`), y un formulario que su rol no puede
   guardar se ve en solo lectura. La API lo vuelve a comprobar: esto es para la
   experiencia, no para la seguridad.
+- **Un dato que la API no le manda a un rol no tiene columna para ese rol**:
+  el costo y el margen de un repuesto solo vienen para `ADMIN`, así que la
+  tabla arma esas columnas solo con `canManage` (`ProductTable`), en vez de
+  pintar columnas vacías para el mecánico.
 - **Lo que la API rechaza solo para un registro se deshabilita en ese
   registro**, en vez de ocultarlo: en la fila del usuario de la sesión
   (`session.userId`, que la ruta lee con `Route.useRouteContext()`), «Eliminar»
@@ -367,8 +373,17 @@ const form = useAppForm({
 - **Un monto en soles** se escribe con `MoneyField` (prefijo «S/», teclado
   numérico) y su valor es **texto** («120.50»), igual que lo manda y lo recibe
   la API: un `number` perdería el cero final y redondearía. El esquema lo
-  valida con `moneyError` (`lib/money.ts`), las mismas reglas que `IsMoney`
-  del backend, y se muestra con `formatMoney` («S/ 1,250.00»). Un filtro por
+  valida con `moneySchema('El costo')` (`lib/money.ts`), las mismas reglas que
+  `IsMoney` del backend, detrás del chequeo de vacío
+  (`z.string().trim().min(1, 'Ingresa…').pipe(moneySchema(…))`), y se muestra
+  con `formatMoney` («S/ 1,250.00»).
+- **Una cantidad** (stock mínimo, la cantidad de un movimiento) es igual, con
+  `QuantityField` (su prop `unit` muestra la abreviatura a la derecha),
+  `quantitySchema` y `formatQuantity` (`lib/quantity.ts`: «12», «4.50»). Con
+  su unidad, `formatStock` del módulo dueño
+  (`modules/inventory/products/products.schemas.ts`: «4.50 L»). Ejemplo real:
+  `ProductFormDialog`, que le pasa a `QuantityField` la unidad elegida con
+  `form.Subscribe`. Un filtro por
   rango de montos (`PriceRangeFilter`) vive por ahora en
   `modules/workshop/service-catalog/components/`: se mueve a
   `components/data-table/` cuando lo use un segundo listado.
