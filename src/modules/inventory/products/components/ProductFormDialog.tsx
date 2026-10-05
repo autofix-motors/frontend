@@ -74,17 +74,13 @@ function ProductForm({
   const form = useAppForm({
     defaultValues: product ? productToForm(product) : emptyProductForm,
     validators: { onChange: productFormSchema },
-    onSubmit: async ({ value }) => {
-      if (product) {
-        await update.mutateAsync({
-          productId: product.productId,
-          values: value,
-        })
-      } else {
-        await create.mutateAsync(value)
-      }
-      onDone()
-    },
+    // Un rechazo de la API (código repetido) deja el diálogo abierto con su
+    // mensaje y no se relanza: quedaría como error sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      (product
+        ? update.mutateAsync({ productId: product.productId, values: value })
+        : create.mutateAsync(value)
+      ).then(onDone, () => undefined),
   })
 
   return (

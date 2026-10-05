@@ -15,10 +15,13 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const form = useAppForm({
     defaultValues,
     validators: { onChange: loginSchema },
-    onSubmit: async ({ value }) => {
-      await login.mutateAsync(value)
-      await router.navigate({ href: redirectTo })
-    },
+    // Credenciales incorrectas: el mensaje sale de `login.error` y el error no
+    // se relanza, para no dejarlo sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      login.mutateAsync(value).then(
+        () => router.navigate({ href: redirectTo }),
+        () => undefined,
+      ),
   })
 
   return (
