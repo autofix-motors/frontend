@@ -125,6 +125,11 @@ frontend de `backend/src/modules/core/auth/`, y se llaman igual.
   (`modules/core/auth/auth.schemas.ts`), y un formulario que su rol no puede
   guardar se ve en solo lectura. La API lo vuelve a comprobar: esto es para la
   experiencia, no para la seguridad.
+- **Lo que la API rechaza solo para un registro se deshabilita en ese
+  registro**, en vez de ocultarlo: en la fila del usuario de la sesión
+  (`session.userId`, que la ruta lee con `Route.useRouteContext()`), «Eliminar»
+  sale deshabilitado y su edición bloquea el rol y «Activo» (`disabled` en
+  `SelectField` y `SwitchField`). Ejemplo real: `modules/core/users/`.
 
 ## El recorrido de un dato, siempre el mismo
 

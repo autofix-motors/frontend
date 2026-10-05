@@ -49,6 +49,18 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla del personal — Eduardo Huarcaya · 19:35
+commits [`885eddb`](../../commit/885eddb)
+
+Pantalla «Personal» (`/core/users`, sección «Administración»): búsqueda,
+filtros por rol y estado, orden por último ingreso, alta con contraseña y
+confirmación, edición, «Cambiar contraseña» y borrado. En la fila del usuario de
+la sesión no se ofrece borrarse, desactivarse ni quitarse el rol.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/personal` (`/users`). Los
+> tipos se regeneraron del backend compilado, sin base; no se probó en el
+> navegador porque Postgres local no acepta conexiones.
+
 ### Pantalla de vehículos — Eduardo Huarcaya · 19:15
 commits [`6935e4b`](../../commit/6935e4b) · [`c9fe91b`](../../commit/c9fe91b)
 
