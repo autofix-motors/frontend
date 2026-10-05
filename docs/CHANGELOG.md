@@ -49,6 +49,20 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantallas de órdenes de trabajo — Eduardo Huarcaya · 21:55
+commits [`566edf3`](../../commit/566edf3) · [`e6cd491`](../../commit/e6cd491)
+
+Listado «Órdenes de trabajo» (`/workshop/work-orders`, primero en «Taller»;
+«Mis órdenes» para el mecánico) con búsqueda, estados, mecánico, vencidas y
+días de ingreso, y la primera página de detalle (`$workOrderId`): datos del
+ingreso, diagnóstico, botones de estado según el rol, línea de tiempo con notas
+públicas e internas, edición, asignación y borrado. «Ver órdenes» desde
+Vehículos y Clientes.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/ordenes-trabajo`
+> (`/work-orders`). Probado en navegador solo contra una API simulada: Postgres
+> local no acepta conexiones.
+
 ### Pantalla de herramientas — Eduardo Huarcaya · 21:10
 commits [`61d064e`](../../commit/61d064e)
 

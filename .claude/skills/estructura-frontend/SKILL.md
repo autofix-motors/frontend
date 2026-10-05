@@ -367,7 +367,13 @@ const form = useAppForm({
   `clearLabel` agrega abajo la opción de quitarlo y el `placeholder` dice qué
   significa vacío («En el almacén»: `ToolFormDialog`). Para elegir a una
   persona del personal, `usersQueries.options` (solo `ADMIN`: `/users` es
-  suyo).
+  suyo); para un vehículo, `vehiclesQueries.options(search)` (placa, marca y
+  modelo, con el dueño debajo: `CreateWorkOrderDialog`).
+- **Dos formularios en la misma página con un campo del mismo nombre** (la
+  nota del detalle de una orden y la del diálogo de estado) chocan en el id,
+  que es el nombre del campo: la etiqueta de uno apunta al otro. El que queda
+  siempre a la vista pasa su propio `id` (`TextareaField` y `SwitchField` lo
+  aceptan; ejemplo real: `AddNoteForm`).
 
   > Por dentro es `AsyncCombobox` (`components/combobox/`): un `Popover` de
   > Radix con el `Combobox` de Base UI en modo `inline`. No se usa el popup
@@ -459,6 +465,29 @@ column.columns([
   arman en una función y se memorizan con `useMemo`.
 - `features.ts` solo declara `rowSortingFeature`: la tabla no ordena, filtra ni
   pagina filas por su cuenta.
+
+## Una página de detalle
+
+Cuando un registro se trabaja en su propia pantalla y no en un diálogo. El
+ejemplo real es la orden de trabajo: `routes/_app/workshop/work-orders/$workOrderId.tsx`
+y `modules/workshop/work-orders/components/WorkOrderView.tsx`.
+
+- **La ruta es `$<entidad>Id.tsx`** junto al `index.tsx` del listado, y el
+  listado enlaza con `<Link to="…/$workOrderId" params={{ workOrderId }}>`.
+- **El loader precarga `<module>Queries.detail(id)`** con `ensureQueryData` y
+  la página lee con `useSuspenseQuery`, como un listado.
+- **«No existe» no es un error.** La server function del detalle convierte el
+  404 de la API en `throw notFound()` y la ruta declara su
+  `notFoundComponent` (con un 404 en la respuesta, sin la pantalla de error ni
+  errores en la consola); un id que ni es UUID, igual, desde el loader sin
+  llamar a la API.
+- **Las mutaciones devuelven el registro completo**, que pasa directo a la
+  caché del detalle (`setQueryData`) mientras se invalidan solo los listados:
+  la pantalla no vuelve a pedirlo. Al borrar, no se toca la caché del detalle
+  (la página sigue montada hasta navegar al listado y volver a pedirlo daría
+  un 404 de paso).
+- **El breadcrumb sale solo**: `breadcrumbFor` reconoce un parámetro justo
+  debajo de un módulo del menú y suma «Detalle».
 
 ## Respuestas de la API
 
