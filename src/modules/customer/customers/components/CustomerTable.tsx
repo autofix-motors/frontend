@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import {
   MoreHorizontalIcon,
   PencilIcon,
@@ -19,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
 import { formatDateTime } from '#/lib/dates'
+import { defaultVehiclesSearch } from '#/modules/customer/vehicles/vehicles.schemas'
 import type { Page } from '#/server/api'
 import {
   CUSTOMER_FILTERS_CLEARED,
@@ -69,6 +71,20 @@ function customerColumns({ onEdit, onDelete }: RowActions) {
     column.accessor('vehiclesCount', {
       header: 'Vehículos',
       enableSorting: false,
+      // Lleva al listado de vehículos filtrado por este cliente.
+      cell: (info) => (
+        <Link
+          to="/customer/vehicles"
+          search={{
+            ...defaultVehiclesSearch,
+            customerId: info.row.original.customerId,
+          }}
+          className="underline-offset-4 hover:underline"
+          aria-label={`Ver los vehículos de ${info.row.original.name}`}
+        >
+          {info.getValue()}
+        </Link>
+      ),
     }),
     column.accessor('isActive', {
       header: 'Estado',
