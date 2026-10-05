@@ -49,6 +49,19 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla de herramientas — Eduardo Huarcaya · 21:10
+commits [`61d064e`](../../commit/61d064e)
+
+Pantalla «Herramientas» (`/inventory/tools`, sección «Inventario»): búsqueda
+por código, nombre y marca, filtros por estado, ubicación y persona; alta,
+edición, borrado y, desde cada fila, «Asignar» y «Devolver al almacén» para el
+administrador. El mecánico la ve en solo lectura, con «Mis herramientas».
+Estados en español con badge. `ComboboxField` acepta `clearLabel`.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/herramientas`
+> (`/tools`). Probado en navegador solo contra una API simulada: Postgres
+> local no acepta conexiones.
+
 ### Pantalla de movimientos de stock — Eduardo Huarcaya · 20:45
 commits [`46d7dea`](../../commit/46d7dea) · [`045a0f9`](../../commit/045a0f9) · [`0998a68`](../../commit/0998a68)
 

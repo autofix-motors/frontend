@@ -363,7 +363,11 @@ const form = useAppForm({
   description }` (`customersQueries.options({ search, onlyActive })`), y
   `selectedOption` para mostrar el valor guardado al editar aunque no salga en
   la primera página. El valor del campo es el id (vacío si no se eligió).
-  `VehicleFormDialog` es el ejemplo real.
+  `VehicleFormDialog` es el ejemplo real. Si elegir es **opcional**,
+  `clearLabel` agrega abajo la opción de quitarlo y el `placeholder` dice qué
+  significa vacío («En el almacén»: `ToolFormDialog`). Para elegir a una
+  persona del personal, `usersQueries.options` (solo `ADMIN`: `/users` es
+  suyo).
 
   > Por dentro es `AsyncCombobox` (`components/combobox/`): un `Popover` de
   > Radix con el `Combobox` de Base UI en modo `inline`. No se usa el popup
@@ -433,6 +437,11 @@ proyecto). El ejemplo real es `modules/customer/customers/` con su ruta
    un «del» posterior al «al». La API los toma como días de Lima, con el «al»
    inclusivo. Ejemplo real:
    `modules/inventory/stock-movements/components/StockMovementTable.tsx`.
+   Si el filtro de otro módulo **no se le puede ofrecer a un rol** (el
+   personal, que solo lista `ADMIN`), ese rol recibe en su lugar un botón con
+   `aria-pressed` que filtra por su propio `session.userId` («Mis
+   herramientas»), y la ruta solo precarga el nombre para quien puede leerlo.
+   Ejemplo real: `modules/inventory/tools/components/ToolTable.tsx`.
 
 ```tsx
 const column = createColumns<Customer>()
