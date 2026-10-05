@@ -73,17 +73,13 @@ function VehicleForm({
   const form = useAppForm({
     defaultValues: vehicle ? vehicleToForm(vehicle) : emptyVehicleForm,
     validators: { onChange: vehicleFormSchema },
-    onSubmit: async ({ value }) => {
-      if (vehicle) {
-        await update.mutateAsync({
-          vehicleId: vehicle.vehicleId,
-          values: value,
-        })
-      } else {
-        await create.mutateAsync(value)
-      }
-      onDone()
-    },
+    // Un rechazo de la API (placa repetida, cliente inactivo) deja el diálogo
+    // abierto con su mensaje y no se relanza: quedaría sin capturar.
+    onSubmit: ({ value }) =>
+      (vehicle
+        ? update.mutateAsync({ vehicleId: vehicle.vehicleId, values: value })
+        : create.mutateAsync(value)
+      ).then(onDone, () => undefined),
   })
 
   return (
