@@ -75,17 +75,16 @@ function ServiceCatalogItemForm({
       ? serviceCatalogItemToForm(item)
       : emptyServiceCatalogItemForm,
     validators: { onChange: serviceCatalogItemFormSchema },
-    onSubmit: async ({ value }) => {
-      if (item) {
-        await update.mutateAsync({
-          serviceCatalogItemId: item.serviceCatalogItemId,
-          values: value,
-        })
-      } else {
-        await create.mutateAsync(value)
-      }
-      onDone()
-    },
+    // Un rechazo de la API (nombre repetido) deja el diálogo abierto con su
+    // mensaje y no se relanza: quedaría como error sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      (item
+        ? update.mutateAsync({
+            serviceCatalogItemId: item.serviceCatalogItemId,
+            values: value,
+          })
+        : create.mutateAsync(value)
+      ).then(onDone, () => undefined),
   })
 
   return (
