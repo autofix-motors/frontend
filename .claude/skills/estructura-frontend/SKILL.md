@@ -369,6 +369,14 @@ const form = useAppForm({
   persona del personal, `usersQueries.options` (solo `ADMIN`: `/users` es
   suyo); para un vehículo, `vehiclesQueries.options(search)` (placa, marca y
   modelo, con el dueño debajo: `CreateWorkOrderDialog`).
+- **Un valor sugerido al elegir en un combobox** (el precio del servicio o
+  del repuesto que se agrega a una orden): `listeners={{ onChange }}` en el
+  campo del combobox pide el detalle con
+  `queryClient.fetchQuery(<module>Queries.detail(id))` y llena los otros
+  campos con `form.setFieldValue`, que siguen editables. Si un rol no puede
+  cambiarlos, no ve esos campos (van vacíos y la API copia los del original)
+  y el valor se le muestra como `description`. Ejemplo real: `AddItemDialog`
+  (`modules/workshop/work-orders/`).
 - **Dos formularios en la misma página con un campo del mismo nombre** (la
   nota del detalle de una orden y la del diálogo de estado) chocan en el id,
   que es el nombre del campo: la etiqueta de uno apunta al otro. El que queda

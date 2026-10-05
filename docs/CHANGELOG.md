@@ -49,6 +49,20 @@ Reglas:
 
 ## 2026-10-04
 
+### Servicios y repuestos en el detalle de la orden — Eduardo Huarcaya · 22:30
+commits [`4eed703`](../../commit/4eed703) · [`ebde910`](../../commit/ebde910)
+
+Sección «Servicios y repuestos» en el detalle de la orden: tabla con
+subtotales, mano de obra, repuestos y total (costo y margen solo para
+`ADMIN`); agregar servicio o repuesto con precio sugerido y stock a la vista,
+editar y quitar (el repuesto vuelve al stock), mientras la orden se diagnostica
+o se repara. Columna «Total» en el listado. Una orden lista para recoger ya
+muestra «Cancelar orden».
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/items-orden`
+> (`/work-orders/:workOrderId/items`, `total`, `items` y `totals`). Probado en
+> navegador solo contra una API simulada: Postgres local no acepta conexiones.
+
 ### Pantallas de órdenes de trabajo — Eduardo Huarcaya · 21:55
 commits [`566edf3`](../../commit/566edf3) · [`e6cd491`](../../commit/e6cd491)
 
