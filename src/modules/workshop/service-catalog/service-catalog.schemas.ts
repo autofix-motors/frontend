@@ -1,19 +1,9 @@
 import { z } from 'zod'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
-import { moneyError } from '#/lib/money'
+import { moneyError, moneySchema } from '#/lib/money'
 import type { components } from '#/types/api.gen'
 
 export type ServiceCatalogItem = components['schemas']['ServiceCatalogItem']
-
-/** Un monto que acepta la API, con el mensaje de `moneyError` si no lo es. */
-const money = (label: string) =>
-  z
-    .string()
-    .trim()
-    .superRefine((value, ctx) => {
-      const message = moneyError(value, label)
-      if (message) ctx.addIssue({ code: 'custom', message })
-    })
 
 /**
  * El formulario de un servicio. El precio es texto, como lo maneja
@@ -29,7 +19,7 @@ export const serviceCatalogItemFormSchema = z.object({
     .string()
     .trim()
     .min(1, 'Ingresa el precio de mano de obra')
-    .pipe(money('El precio de mano de obra')),
+    .pipe(moneySchema('El precio de mano de obra')),
   description: z
     .string()
     .trim()
