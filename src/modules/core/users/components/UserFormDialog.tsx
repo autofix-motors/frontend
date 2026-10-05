@@ -73,10 +73,10 @@ function NewUserForm({ onDone }: { onDone: () => void }) {
   const form = useAppForm({
     defaultValues: emptyNewUserForm,
     validators: { onChange: newUserFormSchema },
-    onSubmit: async ({ value }) => {
-      await create.mutateAsync(value)
-      onDone()
-    },
+    // Un rechazo de la API (correo repetido) deja el diálogo abierto con su
+    // mensaje y no se relanza: quedaría como error sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      create.mutateAsync(value).then(onDone, () => undefined),
   })
 
   return (
@@ -163,7 +163,13 @@ function EditUserForm({
     defaultValues: userToForm(user),
     validators: { onChange: userFormSchema },
     onSubmit: async ({ value }) => {
-      await update.mutateAsync({ userId: user.userId, values: value })
+      try {
+        await update.mutateAsync({ userId: user.userId, values: value })
+      } catch {
+        // El mensaje queda en `update.error`; relanzarlo lo dejaría sin
+        // capturar en la consola.
+        return
+      }
       // El nombre y el correo propios se muestran en la barra lateral, que lee
       // la sesión del contexto del router: se vuelve a pedir.
       if (isSelf) await router.invalidate()

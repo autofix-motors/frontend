@@ -45,15 +45,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    // suppressHydrationWarning solo en <html> y <body>, y solo para sus propios
-    // atributos: las extensiones del navegador (correctores, traductores) les
-    // agregan atributos antes de que React hidrate, y eso no es un error de la
-    // app. El contenido se sigue comparando.
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es">
       <head>
         <HeadContent />
       </head>
-      <body suppressHydrationWarning>
+      <body>
         <TooltipProvider>
           {children}
           <TanStackDevtools
