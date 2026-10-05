@@ -71,8 +71,8 @@ const MANUAL_TRANSITIONS: Record<WorkOrderStatus, readonly WorkOrderStatus[]> =
     WAITING_APPROVAL: ['CANCELLED'],
     IN_PROGRESS: ['WAITING_PARTS', 'READY', 'CANCELLED'],
     WAITING_PARTS: ['IN_PROGRESS', 'CANCELLED'],
-    // Volver a reparación es el retrabajo.
-    READY: ['DELIVERED', 'IN_PROGRESS'],
+    // Volver a reparación es el retrabajo; cancelar vale antes de entregar.
+    READY: ['DELIVERED', 'IN_PROGRESS', 'CANCELLED'],
     DELIVERED: [],
     CANCELLED: [],
   }

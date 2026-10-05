@@ -54,6 +54,7 @@ describe('canTransition (copia de la tabla de la API)', () => {
     'WAITING_PARTS→CANCELLED',
     'READY→DELIVERED',
     'READY→IN_PROGRESS',
+    'READY→CANCELLED',
   ])
   const MECHANIC_ALLOWED = new Set(
     [...ADMIN_ALLOWED].filter(
@@ -80,6 +81,7 @@ describe('canTransition (copia de la tabla de la API)', () => {
     expect(allowedTransitions('READY', 'ADMIN')).toEqual([
       'DELIVERED',
       'IN_PROGRESS',
+      'CANCELLED',
     ])
     expect(allowedTransitions('READY', 'MECHANIC')).toEqual(['IN_PROGRESS'])
     expect(allowedTransitions('WAITING_APPROVAL', 'MECHANIC')).toEqual([])
