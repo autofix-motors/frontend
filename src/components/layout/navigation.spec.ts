@@ -43,6 +43,17 @@ describe('breadcrumbFor', () => {
   it('queda vacío en una ruta que no está en el menú', () => {
     expect(breadcrumbFor('/login')).toEqual([])
   })
+
+  it('el detalle de un módulo cuelga del módulo', () => {
+    expect(breadcrumbFor('/workshop/work-orders/$workOrderId')).toEqual([
+      'Taller',
+      'Órdenes de trabajo',
+      'Detalle',
+    ])
+    // Solo un parámetro directo: una ruta más honda no es el detalle.
+    expect(breadcrumbFor('/workshop/work-orders/$workOrderId/x')).toEqual([])
+    expect(breadcrumbFor('/workshop/work-orders/nuevo')).toEqual([])
+  })
 })
 
 it('cada módulo del menú tiene una ruta distinta', () => {
@@ -52,7 +63,7 @@ it('cada módulo del menú tiene una ruta distinta', () => {
   expect(new Set(paths).size).toBe(paths.length)
 })
 
-it('el mecánico solo ve el catálogo de servicios, los repuestos, sus movimientos y las herramientas', () => {
+it('el mecánico ve sus órdenes, el catálogo de servicios, los repuestos, sus movimientos y las herramientas', () => {
   const visible = visibleSections(SECTIONS, 'MECHANIC')
   expect(
     visible.map((section) => [
@@ -60,8 +71,12 @@ it('el mecánico solo ve el catálogo de servicios, los repuestos, sus movimient
       section.items.map((item) => item.label),
     ]),
   ).toEqual([
-    ['Taller', ['Catálogo de servicios']],
+    ['Taller', ['Órdenes de trabajo', 'Catálogo de servicios']],
     ['Inventario', ['Repuestos e insumos', 'Movimientos', 'Herramientas']],
+  ])
+  expect(breadcrumbFor('/workshop/work-orders/')).toEqual([
+    'Taller',
+    'Órdenes de trabajo',
   ])
   expect(breadcrumbFor('/workshop/service-catalog/')).toEqual([
     'Taller',

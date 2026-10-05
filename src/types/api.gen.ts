@@ -244,6 +244,86 @@ export interface paths {
         patch: operations["ServiceCatalogController_update"];
         trace?: never;
     };
+    "/work-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WorkOrdersController_findAll"];
+        put?: never;
+        post: operations["WorkOrdersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WorkOrdersController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["WorkOrdersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["WorkOrdersController_update"];
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/diagnosis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["WorkOrdersController_updateDiagnosis"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_changeStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_addNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/products": {
         parameters: {
             query?: never;
@@ -669,6 +749,177 @@ export interface components {
             laborPrice?: string | number;
             /** @default true */
             isActive: boolean;
+        };
+        /** @enum {string} */
+        WorkOrderStatus: "RECEIVED" | "DIAGNOSIS" | "WAITING_APPROVAL" | "IN_PROGRESS" | "WAITING_PARTS" | "READY" | "DELIVERED" | "CANCELLED";
+        WorkOrderVehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** @example ABK582 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+        };
+        WorkOrderCustomer: {
+            /** Format: uuid */
+            customerId: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example 987654321 */
+            phone: string;
+        };
+        WorkOrderUser: {
+            /** Format: uuid */
+            userId: string;
+            /** @example Carlos Huamán Quispe */
+            name: string;
+        };
+        WorkOrder: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Correlativo; se muestra como OT-000123
+             * @example 123
+             */
+            number: number;
+            /** @example AFM-7K3Q9X */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /**
+             * @description Kilometraje al ingreso, en km
+             * @example 84500
+             */
+            mileageIn: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason: string;
+            /**
+             * Format: date
+             * @example 2026-10-08
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            receivedAt: string;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /** @description La fecha prometida ya pasó (en Lima) y no se entregó ni se canceló */
+            isOverdue: boolean;
+            vehicle: components["schemas"]["WorkOrderVehicle"];
+            customer: components["schemas"]["WorkOrderCustomer"];
+            mechanic: components["schemas"]["WorkOrderUser"] | null;
+        };
+        WorkOrderEvent: {
+            /** Format: uuid */
+            workOrderEventId: string;
+            /** @description El estado al que pasó; null si es solo una nota */
+            status: components["schemas"]["WorkOrderStatus"] | null;
+            note: string | null;
+            /** @description Si el cliente lo ve en el seguimiento */
+            isPublic: boolean;
+            createdBy: components["schemas"]["WorkOrderUser"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        WorkOrderDetail: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Correlativo; se muestra como OT-000123
+             * @example 123
+             */
+            number: number;
+            /** @example AFM-7K3Q9X */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /**
+             * @description Kilometraje al ingreso, en km
+             * @example 84500
+             */
+            mileageIn: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason: string;
+            /**
+             * Format: date
+             * @example 2026-10-08
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            receivedAt: string;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /** @description La fecha prometida ya pasó (en Lima) y no se entregó ni se canceló */
+            isOverdue: boolean;
+            vehicle: components["schemas"]["WorkOrderVehicle"];
+            customer: components["schemas"]["WorkOrderCustomer"];
+            mechanic: components["schemas"]["WorkOrderUser"] | null;
+            diagnosis: string | null;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            cancelReason: string | null;
+            /** @description Quién la registró */
+            createdBy: components["schemas"]["WorkOrderUser"];
+            /** @description La línea de tiempo, de la más antigua a la más reciente */
+            events: components["schemas"]["WorkOrderEvent"][];
+        };
+        CreateWorkOrderDto: {
+            /**
+             * Format: uuid
+             * @description El vehículo que ingresa
+             */
+            vehicleId: string;
+            /** @example 84500 */
+            mileageIn: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason: string;
+            /**
+             * Format: date
+             * @description Cuándo se le prometió al cliente (AAAA-MM-DD). No puede ser anterior a hoy en Lima
+             * @example 2026-10-08
+             */
+            promisedDate?: string | null;
+            /**
+             * Format: uuid
+             * @description El mecánico asignado; vacío si todavía no se asigna
+             */
+            mechanicId?: string | null;
+        };
+        UpdateWorkOrderDto: {
+            /** @example 84500 */
+            mileageIn?: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason?: string;
+            /**
+             * Format: date
+             * @description Cuándo se le prometió al cliente (AAAA-MM-DD). No puede ser anterior a hoy en Lima
+             * @example 2026-10-08
+             */
+            promisedDate?: string | null;
+            /**
+             * Format: uuid
+             * @description El mecánico asignado; vacío si todavía no se asigna
+             */
+            mechanicId?: string | null;
+        };
+        UpdateWorkOrderDiagnosisDto: {
+            /** @example Pastillas delanteras gastadas al 90 %; discos dentro de medida */
+            diagnosis: string | null;
+        };
+        ChangeWorkOrderStatusDto: {
+            status: components["schemas"]["WorkOrderStatus"];
+            /** @description Obligatoria al cancelar: es el motivo */
+            note?: string | null;
+            /**
+             * @description Si el cliente lo ve en el seguimiento
+             * @default true
+             */
+            isPublic: boolean;
+        };
+        CreateWorkOrderNoteDto: {
+            /** @example Se pidió la pastilla de freno al proveedor */
+            note: string;
+            /** @description Si el cliente la ve en el seguimiento */
+            isPublic: boolean;
         };
         /** @enum {string} */
         ProductKind: "PART" | "SUPPLY";
@@ -1838,6 +2089,340 @@ export interface operations {
             };
             /** @description Ya existe un servicio con ese nombre */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                /** @description Uno o varios estados, separados por coma */
+                status?: string;
+                /** @description Solo para ADMIN: el mecánico ve siempre las suyas */
+                mechanicId?: string;
+                vehicleId?: string;
+                customerId?: string;
+                /** @description true: solo las vencidas (la fecha prometida ya pasó en Lima y no se entregó ni se canceló) */
+                overdue?: boolean;
+                /** @description Ingresadas desde este día (AAAA-MM-DD), en la hora de Lima */
+                from?: string;
+                /** @description Ingresadas hasta este día inclusive (AAAA-MM-DD), en la hora de Lima */
+                to?: string;
+                sortBy?: "receivedAt" | "promisedDate" | "number";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrder"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    WorkOrdersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkOrderDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description El dueño del vehículo o el mecánico están inactivos, o la fecha prometida ya pasó */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el vehículo o el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El vehículo ya tiene una orden abierta */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Orden de trabajo eliminada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró la orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden tiene ítems, presupuestos o pagos: se cancela */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkOrderDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description El mecánico está inactivo, o la fecha prometida ya pasó */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la orden o el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden ya se entregó o se canceló */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_updateDiagnosis: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkOrderDiagnosisDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se diagnostique */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeWorkOrderStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description Cancelar exige el motivo en la nota */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El mecánico no entrega ni cancela órdenes */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Desde su estado actual la orden no puede pasar al pedido, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_addNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkOrderNoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

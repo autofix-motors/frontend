@@ -50,3 +50,19 @@ export function formatDateTime(value: string | null | undefined): string {
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? '—' : DATE_TIME.format(date)
 }
+
+// «en-CA» escribe la fecha como AAAA-MM-DD.
+const LIMA_DAY = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Lima',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/**
+ * El día de hoy en Lima, `AAAA-MM-DD`: el mismo «hoy» con el que la API
+ * decide si una fecha ya pasó, aunque el navegador esté en otra zona.
+ */
+export function limaToday(now: Date = new Date()): string {
+  return LIMA_DAY.format(now)
+}

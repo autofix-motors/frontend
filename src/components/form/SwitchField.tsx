@@ -15,21 +15,25 @@ export function SwitchField({
   label,
   description,
   disabled,
+  id,
 }: {
   label: string
   description?: string
   disabled?: boolean
+  /** Si la página tiene otro campo con el mismo nombre (ver TextareaField). */
+  id?: string
 }) {
   const field = useFieldContext<boolean>()
+  const inputId = id ?? field.name
 
   return (
     <Field orientation="horizontal" data-disabled={disabled}>
       <FieldContent>
-        <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+        <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
         {description && <FieldDescription>{description}</FieldDescription>}
       </FieldContent>
       <Switch
-        id={field.name}
+        id={inputId}
         name={field.name}
         checked={field.state.value}
         onCheckedChange={field.handleChange}

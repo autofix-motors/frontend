@@ -39,6 +39,12 @@ export const SECTIONS: NavSection[] = [
     label: 'Taller',
     icon: WrenchIcon,
     items: [
+      // El mecánico ve las suyas («Mis órdenes»): la API se lo impone.
+      {
+        label: 'Órdenes de trabajo',
+        to: '/workshop/work-orders',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
       // El mecánico lo consulta (en solo lectura) para armar sus órdenes.
       {
         label: 'Catálogo de servicios',
@@ -103,7 +109,10 @@ export function visibleSections(
 
 /**
  * Dónde está el usuario, según el menú: las etiquetas desde la sección hasta
- * el módulo (`['Taller', 'Órdenes']`). Lo usa el breadcrumb.
+ * el módulo (`['Taller', 'Órdenes de trabajo']`). Lo usa el breadcrumb. Una
+ * ruta con un parámetro justo debajo de un módulo
+ * (`/workshop/work-orders/$workOrderId`, como la da `fullPath`) es su
+ * detalle: suma «Detalle» al módulo.
  */
 export function breadcrumbFor(path: string): string[] {
   const normalized = path.replace(/\/$/, '') || '/'
@@ -111,9 +120,12 @@ export function breadcrumbFor(path: string): string[] {
   const general = GENERAL_ITEMS.find((item) => item.to === normalized)
   if (general) return [general.label]
 
+  const parentPath = /^(.+)\/\$[^/]+$/.exec(normalized)?.[1]
   for (const section of SECTIONS) {
     const item = section.items.find((entry) => entry.to === normalized)
     if (item) return [section.label, item.label]
+    const parent = section.items.find((entry) => entry.to === parentPath)
+    if (parent) return [section.label, parent.label, 'Detalle']
   }
   return []
 }

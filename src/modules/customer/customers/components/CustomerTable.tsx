@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import {
+  ClipboardListIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
@@ -21,6 +22,7 @@ import {
 } from '#/components/ui/dropdown-menu'
 import { formatDateTime } from '#/lib/dates'
 import { defaultVehiclesSearch } from '#/modules/customer/vehicles/vehicles.schemas'
+import { defaultWorkOrdersSearch } from '#/modules/workshop/work-orders/work-orders.schemas'
 import type { Page } from '#/server/api'
 import {
   CUSTOMER_FILTERS_CLEARED,
@@ -111,6 +113,20 @@ function customerColumns({ onEdit, onDelete }: RowActions) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {/* Las órdenes que trajo, de todos sus vehículos. */}
+            <DropdownMenuItem asChild>
+              <Link
+                to="/workshop/work-orders"
+                search={{
+                  ...defaultWorkOrdersSearch,
+                  customerId: info.row.original.customerId,
+                }}
+              >
+                <ClipboardListIcon />
+                Ver órdenes
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => onEdit(info.row.original)}>
               <PencilIcon />
               Editar

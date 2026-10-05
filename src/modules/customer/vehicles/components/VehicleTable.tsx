@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import {
+  ClipboardListIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
@@ -26,6 +28,7 @@ import {
   DOCUMENT_TYPE_LABELS,
   customerOption,
 } from '#/modules/customer/customers/customers.schemas'
+import { defaultWorkOrdersSearch } from '#/modules/workshop/work-orders/work-orders.schemas'
 import type { Page } from '#/server/api'
 import { vehiclesQueries } from '../vehicles.queries'
 import { VEHICLE_FILTERS_CLEARED } from '../vehicles.schemas'
@@ -100,6 +103,20 @@ function vehicleColumns({ onEdit, onDelete }: RowActions) {
     column.accessor('workOrdersCount', {
       header: 'Órdenes',
       enableSorting: false,
+      // Lleva al listado de órdenes filtrado por este vehículo.
+      cell: (info) => (
+        <Link
+          to="/workshop/work-orders"
+          search={{
+            ...defaultWorkOrdersSearch,
+            vehicleId: info.row.original.vehicleId,
+          }}
+          className="underline-offset-4 hover:underline"
+          aria-label={`Ver las órdenes de ${info.row.original.plate}`}
+        >
+          {info.getValue()}
+        </Link>
+      ),
     }),
     column.accessor('createdAt', {
       header: 'Registrado',
@@ -116,6 +133,19 @@ function vehicleColumns({ onEdit, onDelete }: RowActions) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link
+                to="/workshop/work-orders"
+                search={{
+                  ...defaultWorkOrdersSearch,
+                  vehicleId: info.row.original.vehicleId,
+                }}
+              >
+                <ClipboardListIcon />
+                Ver órdenes
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => onEdit(info.row.original)}>
               <PencilIcon />
               Editar

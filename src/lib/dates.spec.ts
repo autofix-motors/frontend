@@ -1,4 +1,4 @@
-import { formatDateOnly, formatDateTime, isDateOnly } from './dates'
+import { formatDateOnly, formatDateTime, isDateOnly, limaToday } from './dates'
 
 describe('formatDateOnly', () => {
   it('muestra el mismo día que llega, sin correrlo por la zona horaria', () => {
@@ -41,5 +41,13 @@ describe('isDateOnly', () => {
     ]) {
       expect(isDateOnly(value)).toBe(false)
     }
+  })
+})
+
+describe('limaToday', () => {
+  it('es el día de Lima aunque en UTC ya sea el siguiente', () => {
+    // Las 23:30 del 4 en Lima son las 04:30 del 5 en UTC.
+    expect(limaToday(new Date('2026-10-05T04:30:00.000Z'))).toBe('2026-10-04')
+    expect(limaToday(new Date('2026-10-05T05:00:00.000Z'))).toBe('2026-10-05')
   })
 })
