@@ -1,4 +1,4 @@
-import { HouseIcon, UsersIcon } from 'lucide-react'
+import { HouseIcon, ShieldIcon, UsersIcon } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { FileRoutesByTo } from '#/routeTree.gen'
@@ -36,6 +36,11 @@ export const SECTIONS: NavSection[] = [
       { label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] },
       { label: 'Vehículos', to: '/customer/vehicles', roles: ['ADMIN'] },
     ],
+  },
+  {
+    label: 'Administración',
+    icon: ShieldIcon,
+    items: [{ label: 'Personal', to: '/core/users', roles: ['ADMIN'] }],
   },
 ]
 

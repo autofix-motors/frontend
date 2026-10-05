@@ -14,14 +14,16 @@ import { useFieldContext } from './context'
 export function SwitchField({
   label,
   description,
+  disabled,
 }: {
   label: string
   description?: string
+  disabled?: boolean
 }) {
   const field = useFieldContext<boolean>()
 
   return (
-    <Field orientation="horizontal">
+    <Field orientation="horizontal" data-disabled={disabled}>
       <FieldContent>
         <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
         {description && <FieldDescription>{description}</FieldDescription>}
@@ -32,6 +34,7 @@ export function SwitchField({
         checked={field.state.value}
         onCheckedChange={field.handleChange}
         onBlur={field.handleBlur}
+        disabled={disabled}
       />
     </Field>
   )

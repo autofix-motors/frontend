@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppCoreUsersIndexRouteImport } from './routes/_app/core/users/index'
 import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/customer/customers/index'
 import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
 
@@ -27,6 +28,11 @@ const LoginRoute = LoginRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCoreUsersIndexRoute = AppCoreUsersIndexRouteImport.update({
+  id: '/core/users/',
+  path: '/core/users/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCustomerCustomersIndexRoute =
@@ -45,12 +51,14 @@ const AppCustomerVehiclesIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/core/users/': typeof AppCoreUsersIndexRoute
   '/customer/customers/': typeof AppCustomerCustomersIndexRoute
   '/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AppIndexRoute
+  '/core/users': typeof AppCoreUsersIndexRoute
   '/customer/customers': typeof AppCustomerCustomersIndexRoute
   '/customer/vehicles': typeof AppCustomerVehiclesIndexRoute
 }
@@ -59,19 +67,31 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/core/users/': typeof AppCoreUsersIndexRoute
   '/_app/customer/customers/': typeof AppCustomerCustomersIndexRoute
   '/_app/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/customer/customers/' | '/customer/vehicles/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/core/users/'
+    | '/customer/customers/'
+    | '/customer/vehicles/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/customer/customers' | '/customer/vehicles'
+  to:
+    | '/login'
+    | '/'
+    | '/core/users'
+    | '/customer/customers'
+    | '/customer/vehicles'
   id:
     | '__root__'
     | '/_app'
     | '/login'
     | '/_app/'
+    | '/_app/core/users/'
     | '/_app/customer/customers/'
     | '/_app/customer/vehicles/'
   fileRoutesById: FileRoutesById
@@ -104,6 +124,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/core/users/': {
+      id: '/_app/core/users/'
+      path: '/core/users'
+      fullPath: '/core/users/'
+      preLoaderRoute: typeof AppCoreUsersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/customer/customers/': {
       id: '/_app/customer/customers/'
       path: '/customer/customers'
@@ -123,12 +150,14 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppCoreUsersIndexRoute: typeof AppCoreUsersIndexRoute
   AppCustomerCustomersIndexRoute: typeof AppCustomerCustomersIndexRoute
   AppCustomerVehiclesIndexRoute: typeof AppCustomerVehiclesIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppCoreUsersIndexRoute: AppCoreUsersIndexRoute,
   AppCustomerCustomersIndexRoute: AppCustomerCustomersIndexRoute,
   AppCustomerVehiclesIndexRoute: AppCustomerVehiclesIndexRoute,
 }
