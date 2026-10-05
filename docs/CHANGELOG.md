@@ -49,6 +49,18 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla del catálogo de servicios — Eduardo Huarcaya · 19:50
+commits [`3ad0ae6`](../../commit/3ad0ae6)
+
+Pantalla «Catálogo de servicios» (`/workshop/service-catalog`, sección nueva
+«Taller»): búsqueda, filtros por estado y rango de precio, orden por precio, y
+alta, edición y borrado para el administrador; el mecánico la ve en solo
+lectura. Precios con `formatMoney` («S/ 120.00») y el campo `MoneyField`.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/catalogo-servicios`
+> (`/service-catalog`). No se probó en navegador: Postgres local no acepta
+> conexiones.
+
 ### Pantalla del personal — Eduardo Huarcaya · 19:35
 commits [`885eddb`](../../commit/885eddb)
 

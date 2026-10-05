@@ -13,7 +13,7 @@ al frontend: qué pantallas hay, dónde viven y quién las ve.
 | — | Inicio (dashboard) | `/` | Todos; los ingresos del mes solo `ADMIN` |
 | Taller | Órdenes de trabajo | `/workshop/work-orders` | `ADMIN` ve todas; `MECHANIC` solo las suyas |
 | Taller | Detalle de una OT | `/workshop/work-orders/$workOrderId` | Ídem |
-| Taller | Catálogo de servicios | `/workshop/service-catalog` | `ADMIN` |
+| Taller | Catálogo de servicios | `/workshop/service-catalog` | Todos (consulta); `ADMIN` edita |
 | Clientes | Clientes | `/customer/customers` | `ADMIN` |
 | Clientes | Vehículos | `/customer/vehicles` | `ADMIN` |
 | Inventario | Repuestos e insumos | `/inventory/products` | Todos; costo y margen solo `ADMIN` |

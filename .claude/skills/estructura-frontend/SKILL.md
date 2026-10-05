@@ -47,7 +47,7 @@ src/
 │           └── components/         tablas, formularios y vistas del módulo
 ├── components/
 │   ├── ui/                         primitivas de shadcn. Las genera el CLI
-│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, ColorField)
+│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, MoneyField, ColorField)
 │   ├── data-table/                 DataTable, su paginación, barra y filtros (DataTableFilter, DataTableComboboxFilter), y createColumns
 │   ├── combobox/                   AsyncCombobox: elegir un registro buscándolo en la API
 │   ├── upload/                     Dropzone: arrastrar o elegir un archivo
@@ -61,6 +61,7 @@ src/
 ├── types/api.gen.ts                generado del OpenAPI. No se edita
 ├── lib/utils.ts                    cn(). Lo genera shadcn
 ├── lib/dates.ts                    formatDateOnly y formatDateTime
+├── lib/money.ts                    formatMoney y moneyError: montos en soles
 ├── lib/api-types.ts                WithNullable: corrige campos que el OpenAPI declara sin tipo
 ├── router.tsx                      crea el router; registra ErrorScreen como error por defecto
 ├── routeTree.gen.ts                generado por TanStack Router. No se edita
@@ -363,6 +364,14 @@ const form = useAppForm({
   > propio del Combobox (`ComboboxContent`): un `Dialog` de Radix toma como
   > «afuera» (y se cierra) todo clic fuera de su contenido que no venga de una
   > capa de Radix, y ese popup es de Base UI y se monta en `body`.
+- **Un monto en soles** se escribe con `MoneyField` (prefijo «S/», teclado
+  numérico) y su valor es **texto** («120.50»), igual que lo manda y lo recibe
+  la API: un `number` perdería el cero final y redondearía. El esquema lo
+  valida con `moneyError` (`lib/money.ts`), las mismas reglas que `IsMoney`
+  del backend, y se muestra con `formatMoney` («S/ 1,250.00»). Un filtro por
+  rango de montos (`PriceRangeFilter`) vive por ahora en
+  `modules/workshop/service-catalog/components/`: se mueve a
+  `components/data-table/` cuando lo use un segundo listado.
 - **Un campo nuevo** (`NumberField`…) se crea en `components/form/`, lee su
   estado con `useFieldContext<T>()` y se registra en `form.ts`. Se crea cuando
   lo necesita el primer formulario, no antes.
