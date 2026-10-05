@@ -54,10 +54,12 @@ function PasswordForm({ user, onDone }: { user: User; onDone: () => void }) {
   const form = useAppForm({
     defaultValues: emptyPasswordForm,
     validators: { onChange: passwordFormSchema },
-    onSubmit: async ({ value }) => {
-      await change.mutateAsync({ userId: user.userId, values: value })
-      onDone()
-    },
+    // Un rechazo de la API deja el diálogo abierto con su mensaje y no se
+    // relanza: quedaría como error sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      change
+        .mutateAsync({ userId: user.userId, values: value })
+        .then(onDone, () => undefined),
   })
 
   return (
