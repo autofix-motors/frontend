@@ -1,5 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import { callApiEnvelope, callApiPage, toQueryString } from '#/server/api'
+import {
+  callApi,
+  callApiEnvelope,
+  callApiPage,
+  toQueryString,
+} from '#/server/api'
 import {
   customerIdSchema,
   customerInputSchema,
@@ -16,6 +21,10 @@ export const listCustomers = createServerFn({ method: 'GET' })
   .handler(({ data }) =>
     callApiPage<Customer>(`/customers${toQueryString(data)}`),
   )
+
+export const getCustomer = createServerFn({ method: 'GET' })
+  .validator(customerIdSchema)
+  .handler(({ data }) => callApi<Customer>(`/customers/${data.customerId}`))
 
 export const createCustomer = createServerFn({ method: 'POST' })
   .validator(customerInputSchema)

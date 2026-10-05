@@ -8,15 +8,24 @@ import { toast } from 'sonner'
 import {
   createCustomer,
   deleteCustomer,
+  getCustomer,
   listCustomers,
   updateCustomer,
 } from './customers.fn'
+import { customerOption, defaultCustomersSearch } from './customers.schemas'
 import type { CustomerInput, CustomersSearch } from './customers.schemas'
+
+/** Qué clientes ofrece un combobox: los que coinciden con el texto. */
+type CustomerOptionsParams = { search: string; onlyActive: boolean }
 
 export const customersKeys = {
   all: ['customers'] as const,
   list: (search: CustomersSearch) =>
     [...customersKeys.all, 'list', search] as const,
+  detail: (customerId: string) =>
+    [...customersKeys.all, 'detail', customerId] as const,
+  options: (params: CustomerOptionsParams) =>
+    [...customersKeys.all, 'options', params] as const,
 }
 
 export const customersQueries = {
@@ -27,6 +36,31 @@ export const customersQueries = {
       // Al cambiar de página o de filtro, la tabla sigue mostrando la página
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
+    }),
+  detail: (customerId: string) =>
+    queryOptions({
+      queryKey: customersKeys.detail(customerId),
+      queryFn: () => getCustomer({ data: { customerId } }),
+    }),
+  /**
+   * Los clientes para elegir en un combobox, buscados en la API con el mismo
+   * listado (20 por vez, por nombre). Al asignar un vehículo solo se ofrecen
+   * los activos; un filtro los ofrece todos.
+   */
+  options: (params: CustomerOptionsParams) =>
+    queryOptions({
+      queryKey: customersKeys.options(params),
+      queryFn: async () => {
+        const page = await listCustomers({
+          data: {
+            ...defaultCustomersSearch,
+            pageSize: 20,
+            search: params.search || undefined,
+            isActive: params.onlyActive || undefined,
+          },
+        })
+        return page.items.map(customerOption)
+      },
     }),
 }
 

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ComboboxOption } from '#/components/combobox/AsyncCombobox'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
 import type { components } from '#/types/api.gen'
 
@@ -24,6 +25,24 @@ export const documentTypeOptions = DOCUMENT_TYPES.map((value) => ({
   value,
   label: DOCUMENT_TYPE_LABELS[value],
 }))
+
+/**
+ * Un cliente como opción de un combobox: el nombre y, debajo, el documento,
+ * que distingue a dos clientes con el mismo nombre. Sirve también para el
+ * cliente resumido que trae un vehículo.
+ */
+export function customerOption(
+  customer: Pick<
+    Customer,
+    'customerId' | 'name' | 'documentType' | 'documentNumber'
+  >,
+): ComboboxOption {
+  return {
+    value: customer.customerId,
+    label: customer.name,
+    description: `${DOCUMENT_TYPE_LABELS[customer.documentType]} ${customer.documentNumber}`,
+  }
+}
 
 /** Igual que en el backend: mayúsculas y sin espacios, guiones ni puntos. */
 export function normalizeDocumentNumber(value: string): string {

@@ -1,5 +1,6 @@
 import { createFormHook } from '@tanstack/react-form'
 import { ColorField } from './ColorField'
+import { ComboboxField } from './ComboboxField'
 import { DateField } from './DateField'
 import { SelectField } from './SelectField'
 import { SubmitButton } from './SubmitButton'
@@ -15,8 +16,8 @@ import { fieldContext, formContext } from './context'
  *   const form = useAppForm({ defaultValues, validators, onSubmit })
  *   <form.AppField name="name">{(f) => <f.TextField label="Nombre" />}</form.AppField>
  *
- * Un campo nuevo (NumberField, ComboboxField…) se crea en esta carpeta y se agrega
- * aquí, cuando lo necesite el primer formulario que lo use.
+ * Un campo nuevo (NumberField…) se crea en esta carpeta y se agrega aquí, cuando
+ * lo necesite el primer formulario que lo use.
  */
 export const { useAppForm } = createFormHook({
   fieldContext,
@@ -25,6 +26,7 @@ export const { useAppForm } = createFormHook({
     TextField,
     TextareaField,
     SelectField,
+    ComboboxField,
     DateField,
     ColorField,
     SwitchField,

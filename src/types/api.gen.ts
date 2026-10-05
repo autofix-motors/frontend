@@ -116,6 +116,54 @@ export interface paths {
         patch: operations["CustomersController_update"];
         trace?: never;
     };
+    "/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VehiclesController_findAll"];
+        put?: never;
+        post: operations["VehiclesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vehicles/brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VehiclesController_brands"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vehicles/{vehicleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VehiclesController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["VehiclesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["VehiclesController_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -212,6 +260,105 @@ export interface components {
             notes?: string | null;
             /** @default true */
             isActive: boolean;
+        };
+        VehicleCustomer: {
+            /** Format: uuid */
+            customerId: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            documentType: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber: string;
+        };
+        Vehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** Format: uuid */
+            customerId: string;
+            customer: components["schemas"]["VehicleCustomer"];
+            /** @example ABC123 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+            /** @example 2019 */
+            year: number | null;
+            /** @example Gris plata */
+            color: string | null;
+            /** @example JTDBT923771234567 */
+            vin: string | null;
+            notes: string | null;
+            /** @example 3 */
+            workOrdersCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        VehicleBrand: {
+            /** @example Toyota */
+            brand: string;
+            /** @example 12 */
+            vehiclesCount: number;
+        };
+        CreateVehicleDto: {
+            /**
+             * Format: uuid
+             * @description El dueño actual
+             */
+            customerId: string;
+            /**
+             * @description Se guarda en mayúsculas y sin espacios ni guiones
+             * @example ABC123
+             */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+            /**
+             * @description Hasta el año actual + 1
+             * @example 2019
+             */
+            year?: number | null;
+            /** @example Gris plata */
+            color?: string | null;
+            /**
+             * @description Número de serie del fabricante. Se guarda en mayúsculas y sin espacios
+             * @example JTDBT923771234567
+             */
+            vin?: string | null;
+            notes?: string | null;
+        };
+        UpdateVehicleDto: {
+            /**
+             * Format: uuid
+             * @description El dueño actual
+             */
+            customerId?: string;
+            /**
+             * @description Se guarda en mayúsculas y sin espacios ni guiones
+             * @example ABC123
+             */
+            plate?: string;
+            /** @example Toyota */
+            brand?: string;
+            /** @example Yaris */
+            model?: string;
+            /**
+             * @description Hasta el año actual + 1
+             * @example 2019
+             */
+            year?: number | null;
+            /** @example Gris plata */
+            color?: string | null;
+            /**
+             * @description Número de serie del fabricante. Se guarda en mayúsculas y sin espacios
+             * @example JTDBT923771234567
+             */
+            vin?: string | null;
+            notes?: string | null;
         };
     };
     responses: never;
@@ -528,6 +675,223 @@ export interface operations {
                 content?: never;
             };
             /** @description Ya existe un cliente con ese documento */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                /** @description El dueño */
+                customerId?: string;
+                /** @description Marca exacta, sin distinguir mayúsculas */
+                brand?: string;
+                sortBy?: "plate" | "brand" | "createdAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    VehiclesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVehicleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"];
+                    };
+                };
+            };
+            /** @description El cliente está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un vehículo con esa placa o ese VIN */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_brands: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["VehicleBrand"][];
+                    };
+                };
+            };
+        };
+    };
+    VehiclesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"];
+                    };
+                };
+            };
+            /** @description No se encontró el vehículo */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vehículo eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el vehículo */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El vehículo tiene órdenes de trabajo registradas */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVehicleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"];
+                    };
+                };
+            };
+            /** @description El cliente nuevo está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el vehículo o el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un vehículo con esa placa o ese VIN */
             409: {
                 headers: {
                     [name: string]: unknown;

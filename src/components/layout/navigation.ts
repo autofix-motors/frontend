@@ -32,7 +32,10 @@ export const SECTIONS: NavSection[] = [
   {
     label: 'Clientes',
     icon: UsersIcon,
-    items: [{ label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] }],
+    items: [
+      { label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] },
+      { label: 'Vehículos', to: '/customer/vehicles', roles: ['ADMIN'] },
+    ],
   },
 ]
 
