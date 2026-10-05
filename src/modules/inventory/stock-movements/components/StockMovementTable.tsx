@@ -126,8 +126,10 @@ function stockMovementColumns(canManage: boolean) {
       enableSorting: false,
       cell: (info) =>
         info.getValue() ? (
+          // Las celdas no parten líneas: la nota sí, hasta dos, para que una
+          // nota larga (proveedor y factura) no ensanche la tabla.
           <span
-            className="line-clamp-2 max-w-xs text-sm"
+            className="line-clamp-2 max-w-64 text-sm whitespace-normal"
             title={info.getValue() ?? undefined}
           >
             {info.getValue()}

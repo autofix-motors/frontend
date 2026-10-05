@@ -80,10 +80,12 @@ function AdjustmentForm({
   const form = useAppForm({
     defaultValues: emptyAdjustmentForm(product?.productId),
     validators: { onChange: adjustmentFormSchema },
-    onSubmit: async ({ value }) => {
-      await create.mutateAsync(value)
-      onDone()
-    },
+    // Si la API lo rechaza (stock insuficiente, producto inactivo), el
+    // diálogo sigue abierto con el mensaje de `create.error`. El error no se
+    // relanza: handleSubmit lo devolvería como una promesa rechazada que nadie
+    // espera, y quedaría como error sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      create.mutateAsync(value).then(onDone, () => undefined),
   })
 
   // El producto elegido, con su unidad y su stock actual.
