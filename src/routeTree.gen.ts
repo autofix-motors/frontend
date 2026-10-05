@@ -17,6 +17,7 @@ import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/cus
 import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
 import { Route as AppInventoryProductsIndexRouteImport } from './routes/_app/inventory/products/index'
 import { Route as AppInventoryStockMovementsIndexRouteImport } from './routes/_app/inventory/stock-movements/index'
+import { Route as AppInventoryToolsIndexRouteImport } from './routes/_app/inventory/tools/index'
 import { Route as AppWorkshopServiceCatalogIndexRouteImport } from './routes/_app/workshop/service-catalog/index'
 
 const AppRoute = AppRouteImport.update({
@@ -62,6 +63,11 @@ const AppInventoryStockMovementsIndexRoute =
     path: '/inventory/stock-movements/',
     getParentRoute: () => AppRoute,
   } as any)
+const AppInventoryToolsIndexRoute = AppInventoryToolsIndexRouteImport.update({
+  id: '/inventory/tools/',
+  path: '/inventory/tools/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppWorkshopServiceCatalogIndexRoute =
   AppWorkshopServiceCatalogIndexRouteImport.update({
     id: '/workshop/service-catalog/',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
   '/inventory/products/': typeof AppInventoryProductsIndexRoute
   '/inventory/stock-movements/': typeof AppInventoryStockMovementsIndexRoute
+  '/inventory/tools/': typeof AppInventoryToolsIndexRoute
   '/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
 }
 export interface FileRoutesByTo {
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/customer/vehicles': typeof AppCustomerVehiclesIndexRoute
   '/inventory/products': typeof AppInventoryProductsIndexRoute
   '/inventory/stock-movements': typeof AppInventoryStockMovementsIndexRoute
+  '/inventory/tools': typeof AppInventoryToolsIndexRoute
   '/workshop/service-catalog': typeof AppWorkshopServiceCatalogIndexRoute
 }
 export interface FileRoutesById {
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   '/_app/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
   '/_app/inventory/products/': typeof AppInventoryProductsIndexRoute
   '/_app/inventory/stock-movements/': typeof AppInventoryStockMovementsIndexRoute
+  '/_app/inventory/tools/': typeof AppInventoryToolsIndexRoute
   '/_app/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
 }
 export interface FileRouteTypes {
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/customer/vehicles/'
     | '/inventory/products/'
     | '/inventory/stock-movements/'
+    | '/inventory/tools/'
     | '/workshop/service-catalog/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/customer/vehicles'
     | '/inventory/products'
     | '/inventory/stock-movements'
+    | '/inventory/tools'
     | '/workshop/service-catalog'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/_app/customer/vehicles/'
     | '/_app/inventory/products/'
     | '/_app/inventory/stock-movements/'
+    | '/_app/inventory/tools/'
     | '/_app/workshop/service-catalog/'
   fileRoutesById: FileRoutesById
 }
@@ -198,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryStockMovementsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/inventory/tools/': {
+      id: '/_app/inventory/tools/'
+      path: '/inventory/tools'
+      fullPath: '/inventory/tools/'
+      preLoaderRoute: typeof AppInventoryToolsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/workshop/service-catalog/': {
       id: '/_app/workshop/service-catalog/'
       path: '/workshop/service-catalog'
@@ -215,6 +234,7 @@ interface AppRouteChildren {
   AppCustomerVehiclesIndexRoute: typeof AppCustomerVehiclesIndexRoute
   AppInventoryProductsIndexRoute: typeof AppInventoryProductsIndexRoute
   AppInventoryStockMovementsIndexRoute: typeof AppInventoryStockMovementsIndexRoute
+  AppInventoryToolsIndexRoute: typeof AppInventoryToolsIndexRoute
   AppWorkshopServiceCatalogIndexRoute: typeof AppWorkshopServiceCatalogIndexRoute
 }
 
@@ -225,6 +245,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCustomerVehiclesIndexRoute: AppCustomerVehiclesIndexRoute,
   AppInventoryProductsIndexRoute: AppInventoryProductsIndexRoute,
   AppInventoryStockMovementsIndexRoute: AppInventoryStockMovementsIndexRoute,
+  AppInventoryToolsIndexRoute: AppInventoryToolsIndexRoute,
   AppWorkshopServiceCatalogIndexRoute: AppWorkshopServiceCatalogIndexRoute,
 }
 

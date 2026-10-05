@@ -340,6 +340,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ToolsController_findAll"];
+        put?: never;
+        post: operations["ToolsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tools/{toolId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ToolsController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["ToolsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ToolsController_update"];
+        trace?: never;
+    };
+    "/tools/{toolId}/assignment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["ToolsController_assign"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -779,6 +827,77 @@ export interface components {
              * @example Inventario físico de fin de mes
              */
             note: string;
+        };
+        /** @enum {string} */
+        ToolStatus: "AVAILABLE" | "IN_REPAIR" | "RETIRED";
+        ToolAssignee: {
+            /** Format: uuid */
+            userId: string;
+            /** @example Jorge Quispe Huamán */
+            name: string;
+        };
+        Tool: {
+            /** Format: uuid */
+            toolId: string;
+            /** @example HER-TORQ-01 */
+            code: string;
+            /** @example Torquímetro de 1/2" 40-200 N·m */
+            name: string;
+            /** @example Stanley */
+            brand: string | null;
+            status: components["schemas"]["ToolStatus"];
+            notes: string | null;
+            /** @description Quién la tiene; null si está en el almacén */
+            assignedTo: components["schemas"]["ToolAssignee"] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateToolDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example HER-TORQ-01
+             */
+            code: string;
+            /** @example Torquímetro de 1/2" 40-200 N·m */
+            name: string;
+            /** @example Stanley */
+            brand?: string | null;
+            /** @default AVAILABLE */
+            status: components["schemas"]["ToolStatus"];
+            /**
+             * Format: uuid
+             * @description El usuario activo que la tiene. Vacío o null: en el almacén. Solo una herramienta operativa se asigna
+             */
+            assignedToId?: string | null;
+            notes?: string | null;
+        };
+        UpdateToolDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example HER-TORQ-01
+             */
+            code?: string;
+            /** @example Torquímetro de 1/2" 40-200 N·m */
+            name?: string;
+            /** @example Stanley */
+            brand?: string | null;
+            /** @default AVAILABLE */
+            status: components["schemas"]["ToolStatus"];
+            /**
+             * Format: uuid
+             * @description El usuario activo que la tiene. Vacío o null: en el almacén. Solo una herramienta operativa se asigna
+             */
+            assignedToId?: string | null;
+            notes?: string | null;
+        };
+        AssignToolDto: {
+            /**
+             * Format: uuid
+             * @description El usuario activo que se la lleva, o null para devolverla al almacén
+             */
+            assignedToId: string | null;
         };
     };
     responses: never;
@@ -2051,6 +2170,244 @@ export interface operations {
             };
             /** @description Stock insuficiente para un ajuste que resta */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                status?: components["schemas"]["ToolStatus"];
+                /** @description Solo las que tiene este usuario */
+                assignedToId?: string;
+                /** @description true: solo las asignadas a alguien; false: solo las que están en el almacén */
+                isAssigned?: boolean;
+                sortBy?: "code" | "name" | "status";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    ToolsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateToolDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description La herramienta no está operativa, o el usuario está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe una herramienta con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description No se encontró la herramienta */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Herramienta eliminada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró la herramienta */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Alguien la tiene: primero se devuelve al almacén */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateToolDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description La herramienta no está operativa, o el usuario está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la herramienta o el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe una herramienta con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignToolDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description La herramienta no está operativa, o el usuario está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la herramienta o el usuario */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

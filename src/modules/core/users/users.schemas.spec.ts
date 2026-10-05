@@ -6,6 +6,7 @@ import {
   newUserFormSchema,
   passwordFormSchema,
   updateUserInputSchema,
+  userOption,
   userFormSchema,
   usersSearchSchema,
 } from './users.schemas'
@@ -166,5 +167,22 @@ describe('usersSearchSchema', () => {
     expect(
       usersSearchSchema.parse({ role: 'OWNER', sortBy: 'email', page: 0 }),
     ).toMatchObject({ role: undefined, sortBy: 'name', page: 1 })
+  })
+})
+
+describe('userOption', () => {
+  it('muestra el nombre, y debajo el rol y el correo', () => {
+    expect(
+      userOption({
+        userId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
+        name: 'Juan Quispe',
+        role: 'MECHANIC',
+        email: 'jquispe@autofix.local',
+      }),
+    ).toEqual({
+      value: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
+      label: 'Juan Quispe',
+      description: 'Mecánico · jquispe@autofix.local',
+    })
   })
 })

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ComboboxOption } from '#/components/combobox/AsyncCombobox'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
 import { ROLE_LABELS } from '#/modules/core/auth/auth.schemas'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
@@ -15,6 +16,20 @@ export const roleOptions = USER_ROLES.map((value) => ({
   value,
   label: ROLE_LABELS[value],
 }))
+
+/**
+ * Un usuario como opción de un combobox: el nombre, y debajo el rol y el
+ * correo, para distinguir a dos con el mismo nombre.
+ */
+export function userOption(
+  user: Pick<User, 'userId' | 'name' | 'role' | 'email'>,
+): ComboboxOption {
+  return {
+    value: user.userId,
+    label: user.name,
+    description: `${ROLE_LABELS[user.role]} · ${user.email}`,
+  }
+}
 
 // Las mismas reglas que valida la API (create-user.dto.ts del backend), para
 // avisar al momento en el formulario.

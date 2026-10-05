@@ -71,6 +71,12 @@ export const SECTIONS: NavSection[] = [
         to: '/inventory/stock-movements',
         roles: ['ADMIN', 'MECHANIC'],
       },
+      // El mecánico consulta qué hay y quién tiene qué (en solo lectura).
+      {
+        label: 'Herramientas',
+        to: '/inventory/tools',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
     ],
   },
   {

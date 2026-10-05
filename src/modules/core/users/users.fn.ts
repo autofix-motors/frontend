@@ -1,5 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import { callApiEnvelope, callApiPage, toQueryString } from '#/server/api'
+import {
+  callApi,
+  callApiEnvelope,
+  callApiPage,
+  toQueryString,
+} from '#/server/api'
 import {
   changeUserPasswordRequestSchema,
   createUserInputSchema,
@@ -15,6 +20,10 @@ import type { User } from './users.schemas'
 export const listUsers = createServerFn({ method: 'GET' })
   .validator(usersSearchSchema)
   .handler(({ data }) => callApiPage<User>(`/users${toQueryString(data)}`))
+
+export const getUser = createServerFn({ method: 'GET' })
+  .validator(userIdSchema)
+  .handler(({ data }) => callApi<User>(`/users/${data.userId}`))
 
 export const createUser = createServerFn({ method: 'POST' })
   .validator(createUserInputSchema)

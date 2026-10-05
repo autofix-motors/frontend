@@ -22,6 +22,11 @@ type ComboboxFieldProps<TQueryKey extends QueryKey> = {
   placeholder?: string
   searchPlaceholder?: string
   emptyMessage?: string
+  /**
+   * Si el campo es opcional: ofrece quitar la elección con este texto (que
+   * la herramienta quede en el almacén). El valor vuelve a ser vacío.
+   */
+  clearLabel?: string
   disabled?: boolean
 }
 
@@ -38,6 +43,7 @@ export function ComboboxField<TQueryKey extends QueryKey>({
   placeholder = 'Selecciona una opción',
   searchPlaceholder = 'Buscar…',
   emptyMessage,
+  clearLabel,
   disabled,
 }: ComboboxFieldProps<TQueryKey>) {
   const field = useFieldContext<string>()
@@ -56,6 +62,7 @@ export function ComboboxField<TQueryKey extends QueryKey>({
         placeholder={placeholder}
         searchPlaceholder={searchPlaceholder}
         emptyMessage={emptyMessage}
+        clearLabel={clearLabel}
         disabled={disabled}
         aria-invalid={hasError}
         className="w-full"

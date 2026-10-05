@@ -10,9 +10,11 @@ import {
   changeUserPassword,
   createUser,
   deleteUser,
+  getUser,
   listUsers,
   updateUser,
 } from './users.fn'
+import { defaultUsersSearch, userOption } from './users.schemas'
 import type {
   CreateUserInput,
   PasswordFormValues,
@@ -20,9 +22,15 @@ import type {
   UsersSearch,
 } from './users.schemas'
 
+/** Qué usuarios ofrece un combobox: los que coinciden con el texto. */
+type UserOptionsParams = { search: string; onlyActive: boolean }
+
 export const usersKeys = {
   all: ['users'] as const,
   list: (search: UsersSearch) => [...usersKeys.all, 'list', search] as const,
+  detail: (userId: string) => [...usersKeys.all, 'detail', userId] as const,
+  options: (params: UserOptionsParams) =>
+    [...usersKeys.all, 'options', params] as const,
 }
 
 export const usersQueries = {
@@ -33,6 +41,32 @@ export const usersQueries = {
       // Al cambiar de página o de filtro, la tabla sigue mostrando la página
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
+    }),
+  detail: (userId: string) =>
+    queryOptions({
+      queryKey: usersKeys.detail(userId),
+      queryFn: () => getUser({ data: { userId } }),
+    }),
+  /**
+   * El personal para elegir en un combobox, buscado en la API con el mismo
+   * listado (20 por vez, por nombre o correo). Al asignar una herramienta
+   * solo se ofrecen los activos; un filtro los ofrece todos. Como `/users`,
+   * solo para el administrador.
+   */
+  options: (params: UserOptionsParams) =>
+    queryOptions({
+      queryKey: usersKeys.options(params),
+      queryFn: async () => {
+        const page = await listUsers({
+          data: {
+            ...defaultUsersSearch,
+            pageSize: 20,
+            search: params.search || undefined,
+            isActive: params.onlyActive || undefined,
+          },
+        })
+        return page.items.map(userOption)
+      },
     }),
 }
 
