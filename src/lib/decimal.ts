@@ -18,22 +18,26 @@ export function parseDecimal(
 }
 
 /**
- * Por qué el texto no cabe en un `Decimal(10, 2)` no negativo, o `null` si
- * cabe: las mismas reglas que `decimalError` del backend, para avisar al
- * momento. `invalidMessage` es el mensaje para lo que ni siquiera tiene forma
- * de número.
+ * Por qué el texto no cabe en un `Decimal(10, 2)`, o `null` si cabe: las
+ * mismas reglas que `decimalError` del backend, para avisar al momento.
+ * `invalidMessage` es el mensaje para lo que ni siquiera tiene forma de
+ * número. Sin `signed` exige que no sea negativo; con `signed` acepta el signo
+ * (un ajuste de stock que resta).
  */
 export function decimalError(
   value: string,
   label: string,
   invalidMessage: string,
+  { signed = false }: { signed?: boolean } = {},
 ): string | null {
   const parts = parseDecimal(value)
   if (!parts) return invalidMessage
-  if (parts.sign) return `${label} no puede ser negativo`
+  if (parts.sign && !signed) return `${label} no puede ser negativo`
   if (parts.decimals.length > 2) return `${label} tiene como máximo 2 decimales`
   if (parts.integer.replace(/^0+(?=\d)/, '').length > MAX_INTEGER_DIGITS) {
-    return `${label} es como máximo 99999999.99`
+    return signed
+      ? `${label} va de -99999999.99 a 99999999.99`
+      : `${label} es como máximo 99999999.99`
   }
   return null
 }

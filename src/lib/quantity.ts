@@ -45,3 +45,48 @@ export const quantitySchema = (label: string) =>
       const message = quantityError(value, label)
       if (message) ctx.addIssue({ code: 'custom', message })
     })
+
+/**
+ * Por qué el texto no es la cantidad de un movimiento de stock, o `null` si lo
+ * es: las mismas reglas que `IsMovementQuantity` del backend. Nunca 0; sin
+ * `signed` tiene que ser mayor que 0 (una compra) y con `signed` lleva su
+ * signo (un ajuste).
+ */
+export function movementQuantityError(
+  value: string,
+  label: string,
+  { signed }: { signed: boolean },
+): string | null {
+  // Sin signo, una negativa es lo mismo que un 0: no entra nada.
+  const positive = `${label} tiene que ser mayor que 0`
+  if (!signed && value.startsWith('-')) return positive
+  const error = decimalError(
+    value,
+    label,
+    signed
+      ? `${label} es una cantidad con signo y hasta 2 decimales, por ejemplo -2.50`
+      : `${label} es una cantidad con hasta 2 decimales, por ejemplo 4.50`,
+    { signed },
+  )
+  if (error) return error
+  // Ya se comprobó la forma: `Number` solo decide si es cero.
+  if (Number(value) === 0) {
+    return signed
+      ? `${label} no puede ser 0: positiva suma al stock y negativa resta`
+      : positive
+  }
+  return null
+}
+
+/** La cantidad de un movimiento de stock, como `quantitySchema`. */
+export const movementQuantitySchema = (
+  label: string,
+  options: { signed: boolean },
+) =>
+  z
+    .string()
+    .trim()
+    .superRefine((value, ctx) => {
+      const message = movementQuantityError(value, label, options)
+      if (message) ctx.addIssue({ code: 'custom', message })
+    })

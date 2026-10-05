@@ -276,6 +276,70 @@ export interface paths {
         patch: operations["ProductsController_update"];
         trace?: never;
     };
+    "/stock-movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StockMovementsController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stock-movements/{stockMovementId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StockMovementsController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stock-movements/purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StockMovementsController_purchase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stock-movements/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StockMovementsController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -647,6 +711,74 @@ export interface components {
             price?: string | number;
             /** @default true */
             isActive: boolean;
+        };
+        /** @enum {string} */
+        StockMovementType: "PURCHASE" | "WORK_ORDER" | "ADJUSTMENT";
+        StockMovementProduct: {
+            /** Format: uuid */
+            productId: string;
+            /** @example FA-TOY-90915 */
+            code: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name: string;
+            unit: components["schemas"]["UnitOfMeasure"];
+        };
+        StockMovementUser: {
+            /** Format: uuid */
+            userId: string;
+            /** @example Rosa Quispe Mamani */
+            name: string;
+        };
+        StockMovement: {
+            /** Format: uuid */
+            stockMovementId: string;
+            type: components["schemas"]["StockMovementType"];
+            /**
+             * @description Con signo, en la unidad del producto: positiva entra y negativa sale
+             * @example -2.00
+             */
+            quantity: string;
+            /**
+             * @description Costo unitario en soles: el de la compra, o el del producto al momento de un ajuste o un consumo. Solo para ADMIN
+             * @example 18.50
+             */
+            unitCost?: string | null;
+            /** @example Inventario físico de fin de mes */
+            note: string | null;
+            /**
+             * Format: uuid
+             * @description El ítem de la orden de trabajo que generó la salida. Solo en WORK_ORDER; vacío si el ítem se quitó de la orden
+             */
+            workOrderItemId: string | null;
+            product: components["schemas"]["StockMovementProduct"];
+            /** @description Quién lo registró */
+            createdBy: components["schemas"]["StockMovementUser"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CreatePurchaseDto: {
+            /** Format: uuid */
+            productId: string;
+            /** @description Lo que entra, en la unidad del producto: mayor que 0, con hasta 2 decimales */
+            quantity: string | number;
+            /** @description Costo unitario de la compra, en soles. Pasa a ser el costo del producto */
+            unitCost: string | number;
+            /**
+             * @description El proveedor, el número de factura…
+             * @example Distribuidora Autopartes Lima, factura F001-004512
+             */
+            note?: string | null;
+        };
+        CreateAdjustmentDto: {
+            /** Format: uuid */
+            productId: string;
+            /** @description Con signo, en la unidad del producto: positiva suma al stock y negativa resta. Distinta de 0, con hasta 2 decimales */
+            quantity: string | number;
+            /**
+             * @description El motivo del ajuste: inventario físico, merma, corrección…
+             * @example Inventario físico de fin de mes
+             */
+            note: string;
         };
     };
     responses: never;
@@ -1761,6 +1893,163 @@ export interface operations {
                 content?: never;
             };
             /** @description Ya existe un producto con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                type?: components["schemas"]["StockMovementType"];
+                productId?: string;
+                /** @description Desde este día (AAAA-MM-DD), en la hora de Lima */
+                from?: string;
+                /** @description Hasta este día inclusive (AAAA-MM-DD), en la hora de Lima */
+                to?: string;
+                sortBy?: "createdAt" | "quantity";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description La fecha desde es posterior a la fecha hasta */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stockMovementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"];
+                    };
+                };
+            };
+            /** @description No se encontró el movimiento */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_purchase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePurchaseDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"];
+                    };
+                };
+            };
+            /** @description El producto está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdjustmentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"];
+                    };
+                };
+            };
+            /** @description El producto está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stock insuficiente para un ajuste que resta */
             409: {
                 headers: {
                     [name: string]: unknown;

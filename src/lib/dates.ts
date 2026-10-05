@@ -16,6 +16,22 @@ export function formatDateOnly(value: string | null | undefined): string {
   return `${day}/${month}/${year}`
 }
 
+/**
+ * Si el texto es un día `AAAA-MM-DD` que existe en el calendario, como lo
+ * valida la API (`IsDateOnly`): «2026-02-30» tiene la forma, pero no existe.
+ */
+export function isDateOnly(value: string): boolean {
+  const match = DATE_ONLY.exec(value)
+  if (!match) return false
+  const [, year, month, day] = match.map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  )
+}
+
 const DATE_TIME = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
   month: '2-digit',

@@ -1,4 +1,4 @@
-import { formatDateOnly, formatDateTime } from './dates'
+import { formatDateOnly, formatDateTime, isDateOnly } from './dates'
 
 describe('formatDateOnly', () => {
   it('muestra el mismo día que llega, sin correrlo por la zona horaria', () => {
@@ -22,5 +22,24 @@ describe('formatDateTime', () => {
   it('muestra una raya cuando no hay fecha o no se entiende', () => {
     expect(formatDateTime(null)).toBe('—')
     expect(formatDateTime('ayer')).toBe('—')
+  })
+})
+
+describe('isDateOnly', () => {
+  it('acepta un día AAAA-MM-DD que existe', () => {
+    expect(isDateOnly('2026-10-04')).toBe(true)
+    expect(isDateOnly('2028-02-29')).toBe(true)
+  })
+
+  it('rechaza otra forma o un día que no existe, como la API', () => {
+    for (const value of [
+      '',
+      '04/10/2026',
+      '2026-10-04T00:00',
+      '2026-02-30',
+      '2026-13-01',
+    ]) {
+      expect(isDateOnly(value)).toBe(false)
+    }
   })
 })

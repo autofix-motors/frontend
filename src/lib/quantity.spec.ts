@@ -1,4 +1,8 @@
-import { formatQuantity, quantityError } from './quantity'
+import {
+  formatQuantity,
+  movementQuantityError,
+  quantityError,
+} from './quantity'
 
 describe('formatQuantity', () => {
   it('muestra la fracción solo cuando la hay', () => {
@@ -7,6 +11,7 @@ describe('formatQuantity', () => {
     expect(formatQuantity('0.5')).toBe('0.50')
     expect(formatQuantity('0.00')).toBe('0')
     expect(formatQuantity(2.25)).toBe('2.25')
+    expect(formatQuantity('-2.50')).toBe('-2.50')
   })
 
   it('agrupa los miles con coma', () => {
@@ -43,6 +48,36 @@ describe('quantityError', () => {
     )
     expect(quantityError('4,5', label)).toBe(
       'El stock mínimo es una cantidad con hasta 2 decimales, por ejemplo 4.50',
+    )
+  })
+})
+
+describe('movementQuantityError', () => {
+  const label = 'La cantidad'
+
+  it('una compra: mayor que 0', () => {
+    const purchase = { signed: false }
+    expect(movementQuantityError('12', label, purchase)).toBeNull()
+    expect(movementQuantityError('0.5', label, purchase)).toBeNull()
+    for (const value of ['0', '0.00', '-3']) {
+      expect(movementQuantityError(value, label, purchase)).toBe(
+        'La cantidad tiene que ser mayor que 0',
+      )
+    }
+  })
+
+  it('un ajuste: con signo y nunca 0', () => {
+    const adjustment = { signed: true }
+    expect(movementQuantityError('-2.5', label, adjustment)).toBeNull()
+    expect(movementQuantityError('3', label, adjustment)).toBeNull()
+    expect(movementQuantityError('-0', label, adjustment)).toBe(
+      'La cantidad no puede ser 0: positiva suma al stock y negativa resta',
+    )
+    expect(movementQuantityError('-100000000', label, adjustment)).toBe(
+      'La cantidad va de -99999999.99 a 99999999.99',
+    )
+    expect(movementQuantityError('-1.255', label, adjustment)).toBe(
+      'La cantidad tiene como máximo 2 decimales',
     )
   })
 })

@@ -65,6 +65,12 @@ export const SECTIONS: NavSection[] = [
         to: '/inventory/products',
         roles: ['ADMIN', 'MECHANIC'],
       },
+      // El mecánico consulta el kardex (en solo lectura y sin costos).
+      {
+        label: 'Movimientos',
+        to: '/inventory/stock-movements',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
     ],
   },
   {

@@ -1,5 +1,8 @@
+import { Link } from '@tanstack/react-router'
 import {
+  HistoryIcon,
   MoreHorizontalIcon,
+  PackagePlusIcon,
   PencilIcon,
   PlusIcon,
   Trash2Icon,
@@ -20,6 +23,8 @@ import {
 } from '#/components/ui/dropdown-menu'
 import { formatMoney } from '#/lib/money'
 import { cn } from '#/lib/utils'
+import { PurchaseDialog } from '#/modules/inventory/stock-movements/components/PurchaseDialog'
+import { defaultStockMovementsSearch } from '#/modules/inventory/stock-movements/stock-movements.schemas'
 import type { Page } from '#/server/api'
 import {
   PRODUCT_FILTERS_CLEARED,
@@ -56,14 +61,16 @@ const fromBooleanFilter = (value: boolean | undefined) =>
   value === undefined ? undefined : String(value)
 
 type RowActions = {
+  onPurchase: (product: Product) => void
   onEdit: (product: Product) => void
   onDelete: (product: Product) => void
 }
 
 /**
  * Las columnas. El costo y el margen solo para quien puede verlos (el
- * administrador: la API ni siquiera se los manda al mecánico), y las acciones
- * solo para quien puede modificar.
+ * administrador: la API ni siquiera se los manda al mecánico). Los dos roles
+ * ven los movimientos de cada producto; las demás acciones son solo de quien
+ * puede modificar.
  */
 function productColumns(canManage: boolean, actions: RowActions | undefined) {
   return column.columns([
@@ -161,37 +168,66 @@ function productColumns(canManage: boolean, actions: RowActions | undefined) {
           <Badge variant="outline">Inactivo</Badge>
         ),
     }),
-    ...(actions ? [actionsColumn(actions)] : []),
+    actionsColumn(actions),
   ])
 }
 
-function actionsColumn(actions: RowActions) {
+function actionsColumn(actions: RowActions | undefined) {
   return column.display({
     id: 'actions',
     header: () => <span className="sr-only">Acciones</span>,
-    cell: (info) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label="Acciones">
-            <MoreHorizontalIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => actions.onEdit(info.row.original)}>
-            <PencilIcon />
-            Editar
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => actions.onDelete(info.row.original)}
-          >
-            <Trash2Icon />
-            Eliminar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: (info) => {
+      const product = info.row.original
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label="Acciones">
+              <MoreHorizontalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {/* El kardex filtrado por este producto. */}
+            <DropdownMenuItem asChild>
+              <Link
+                to="/inventory/stock-movements"
+                search={{
+                  ...defaultStockMovementsSearch,
+                  productId: product.productId,
+                }}
+              >
+                <HistoryIcon />
+                Ver movimientos
+              </Link>
+            </DropdownMenuItem>
+            {actions && (
+              <>
+                {/* La API no registra compras de un producto inactivo. */}
+                <DropdownMenuItem
+                  disabled={!product.isActive}
+                  onSelect={() => actions.onPurchase(product)}
+                >
+                  <PackagePlusIcon />
+                  Registrar compra
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => actions.onEdit(product)}>
+                  <PencilIcon />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => actions.onDelete(product)}
+                >
+                  <Trash2Icon />
+                  Eliminar
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
   })
 }
 
@@ -208,7 +244,10 @@ type ProductTableProps = {
   canManage: boolean
 }
 
-/** Los repuestos e insumos con su búsqueda, filtros, alta, edición y borrado. */
+/**
+ * Los repuestos e insumos con su búsqueda, filtros, alta, edición y borrado,
+ * y el acceso a sus movimientos y a registrar una compra.
+ */
 export function ProductTable({
   page,
   search,
@@ -219,6 +258,7 @@ export function ProductTable({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Product>()
   const [deleting, setDeleting] = useState<Product>()
+  const [purchasing, setPurchasing] = useState<Product>()
 
   const columns = useMemo(
     () =>
@@ -226,6 +266,7 @@ export function ProductTable({
         canManage,
         canManage
           ? {
+              onPurchase: setPurchasing,
               onEdit: (product) => {
                 setEditing(product)
                 setFormOpen(true)
@@ -327,6 +368,11 @@ export function ProductTable({
           <DeleteProductDialog
             product={deleting}
             onOpenChange={(open) => !open && setDeleting(undefined)}
+          />
+          <PurchaseDialog
+            open={Boolean(purchasing)}
+            onOpenChange={(open) => !open && setPurchasing(undefined)}
+            product={purchasing}
           />
         </>
       )}
