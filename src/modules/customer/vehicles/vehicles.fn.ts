@@ -22,6 +22,10 @@ export const listVehicles = createServerFn({ method: 'GET' })
     callApiPage<Vehicle>(`/vehicles${toQueryString(data)}`),
   )
 
+export const getVehicle = createServerFn({ method: 'GET' })
+  .validator(vehicleIdSchema)
+  .handler(({ data }) => callApi<Vehicle>(`/vehicles/${data.vehicleId}`))
+
 export const listVehicleBrands = createServerFn({ method: 'GET' }).handler(() =>
   callApi<VehicleBrand[]>('/vehicles/brands'),
 )

@@ -4,6 +4,7 @@ import {
   maxVehicleYear,
   vehicleFormSchema,
   vehicleInputSchema,
+  vehicleOption,
   vehiclesSearchSchema,
 } from './vehicles.schemas'
 
@@ -124,6 +125,29 @@ describe('vehiclesSearchSchema', () => {
       customerId: undefined,
       brand: undefined,
       sortBy: 'plate',
+    })
+  })
+})
+
+describe('vehicleOption', () => {
+  it('la placa con la marca y el modelo, y abajo el dueño', () => {
+    expect(
+      vehicleOption({
+        vehicleId: 'v1',
+        plate: 'ABK582',
+        brand: 'Toyota',
+        model: 'Yaris',
+        customer: {
+          customerId: CUSTOMER_ID,
+          name: 'Juan Pérez Rojas',
+          documentType: 'DNI',
+          documentNumber: '45678912',
+        },
+      }),
+    ).toStrictEqual({
+      value: 'v1',
+      label: 'ABK582 · Toyota Yaris',
+      description: 'Juan Pérez Rojas',
     })
   })
 })

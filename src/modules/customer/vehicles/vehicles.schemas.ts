@@ -1,9 +1,27 @@
 import { z } from 'zod'
+import type { ComboboxOption } from '#/components/combobox/AsyncCombobox'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
 import type { components } from '#/types/api.gen'
 
 export type Vehicle = components['schemas']['Vehicle']
 export type VehicleBrand = components['schemas']['VehicleBrand']
+
+/**
+ * Un vehículo como opción de un combobox: la placa con la marca y el modelo, y
+ * abajo el dueño, que es con quien se habla al recibirlo.
+ */
+export function vehicleOption(
+  vehicle: Pick<
+    Vehicle,
+    'vehicleId' | 'plate' | 'brand' | 'model' | 'customer'
+  >,
+): ComboboxOption {
+  return {
+    value: vehicle.vehicleId,
+    label: `${vehicle.plate} · ${vehicle.brand} ${vehicle.model}`,
+    description: vehicle.customer.name,
+  }
+}
 
 /** Igual que en el backend: mayúsculas y sin espacios ni guiones. */
 export function normalizeIdentifier(value: string): string {

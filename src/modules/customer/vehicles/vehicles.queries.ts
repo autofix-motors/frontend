@@ -10,10 +10,12 @@ import { customersKeys } from '#/modules/customer/customers/customers.queries'
 import {
   createVehicle,
   deleteVehicle,
+  getVehicle,
   listVehicleBrands,
   listVehicles,
   updateVehicle,
 } from './vehicles.fn'
+import { defaultVehiclesSearch, vehicleOption } from './vehicles.schemas'
 import type { VehicleInput, VehiclesSearch } from './vehicles.schemas'
 
 export const vehiclesKeys = {
@@ -21,6 +23,10 @@ export const vehiclesKeys = {
   list: (search: VehiclesSearch) =>
     [...vehiclesKeys.all, 'list', search] as const,
   brands: () => [...vehiclesKeys.all, 'brands'] as const,
+  detail: (vehicleId: string) =>
+    [...vehiclesKeys.all, 'detail', vehicleId] as const,
+  options: (search: string) =>
+    [...vehiclesKeys.all, 'options', search] as const,
 }
 
 export const vehiclesQueries = {
@@ -36,6 +42,30 @@ export const vehiclesQueries = {
     queryOptions({
       queryKey: vehiclesKeys.brands(),
       queryFn: () => listVehicleBrands(),
+    }),
+  detail: (vehicleId: string) =>
+    queryOptions({
+      queryKey: vehiclesKeys.detail(vehicleId),
+      queryFn: () => getVehicle({ data: { vehicleId } }),
+    }),
+  /**
+   * Los vehículos para elegir en un combobox (el que ingresa en una orden de
+   * trabajo), buscados en la API con el mismo listado: 20 por vez, por placa,
+   * marca, modelo o dueño.
+   */
+  options: (search: string) =>
+    queryOptions({
+      queryKey: vehiclesKeys.options(search),
+      queryFn: async () => {
+        const page = await listVehicles({
+          data: {
+            ...defaultVehiclesSearch,
+            pageSize: 20,
+            search: search || undefined,
+          },
+        })
+        return page.items.map(vehicleOption)
+      },
     }),
 }
 
