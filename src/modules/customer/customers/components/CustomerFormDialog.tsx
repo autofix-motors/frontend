@@ -70,17 +70,15 @@ function CustomerForm({
   const form = useAppForm({
     defaultValues: customer ? customerToForm(customer) : emptyCustomerForm,
     validators: { onChange: customerFormSchema },
-    onSubmit: async ({ value }) => {
-      if (customer) {
-        await update.mutateAsync({
-          customerId: customer.customerId,
-          values: value,
-        })
-      } else {
-        await create.mutateAsync(value)
-      }
-      onDone()
-    },
+    // Si la API lo rechaza (documento repetido), el diálogo sigue abierto con
+    // el mensaje de `mutation.error`. El error no se relanza: handleSubmit lo
+    // devolvería como una promesa rechazada que nadie espera, y quedaría como
+    // error sin capturar en la consola.
+    onSubmit: ({ value }) =>
+      (customer
+        ? update.mutateAsync({ customerId: customer.customerId, values: value })
+        : create.mutateAsync(value)
+      ).then(onDone, () => undefined),
   })
 
   return (
