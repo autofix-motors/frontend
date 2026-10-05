@@ -49,6 +49,20 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla de movimientos de stock — Eduardo Huarcaya · 20:45
+commits [`46d7dea`](../../commit/46d7dea) · [`045a0f9`](../../commit/045a0f9) · [`0998a68`](../../commit/0998a68)
+
+Pantalla «Movimientos» (`/inventory/stock-movements`, sección «Inventario»):
+el kardex con búsqueda, filtros por producto, tipo y rango de fechas, y
+«Registrar compra» y «Registrar ajuste» para el administrador; el mecánico lo
+ve en solo lectura y sin costo. Cantidades con signo y color. En Repuestos,
+«Ver movimientos» y «Registrar compra» en cada fila. Nuevo filtro
+`DataTableDateRangeFilter`.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/movimientos-stock`
+> (`/stock-movements`). Probado en navegador solo contra una API simulada:
+> Postgres local no acepta conexiones.
+
 ### Pantalla de repuestos e insumos — Eduardo Huarcaya · 20:05
 commits [`b027b58`](../../commit/b027b58) · [`d4d4935`](../../commit/d4d4935)
 

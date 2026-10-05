@@ -48,7 +48,7 @@ src/
 ├── components/
 │   ├── ui/                         primitivas de shadcn. Las genera el CLI
 │   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, MoneyField, QuantityField, ColorField)
-│   ├── data-table/                 DataTable, su paginación, barra y filtros (DataTableFilter, DataTableComboboxFilter), y createColumns
+│   ├── data-table/                 DataTable, su paginación, barra y filtros (DataTableFilter, DataTableComboboxFilter, DataTableDateRangeFilter), y createColumns
 │   ├── combobox/                   AsyncCombobox: elegir un registro buscándolo en la API
 │   ├── upload/                     Dropzone: arrastrar o elegir un archivo
 │   └── layout/                     AppSidebar y sus piezas, AppHeader, navigation.ts, ErrorScreen
@@ -60,10 +60,10 @@ src/
 ├── hooks/use-mobile.ts             lo genera shadcn (lo usa la barra lateral)
 ├── types/api.gen.ts                generado del OpenAPI. No se edita
 ├── lib/utils.ts                    cn(). Lo genera shadcn
-├── lib/dates.ts                    formatDateOnly y formatDateTime
+├── lib/dates.ts                    formatDateOnly, formatDateTime e isDateOnly
 ├── lib/decimal.ts                  las reglas de los decimales de la API (Decimal(10, 2)) y el agrupado de miles
 ├── lib/money.ts                    formatMoney, moneyError y moneySchema: montos en soles
-├── lib/quantity.ts                 formatQuantity, quantityError y quantitySchema: cantidades
+├── lib/quantity.ts                 formatQuantity, quantitySchema y movementQuantitySchema: cantidades
 ├── lib/api-types.ts                WithNullable: corrige campos que el OpenAPI declara sin tipo
 ├── router.tsx                      crea el router; registra ErrorScreen como error por defecto
 ├── routeTree.gen.ts                generado por TanStack Router. No se edita
@@ -383,7 +383,10 @@ const form = useAppForm({
   su unidad, `formatStock` del módulo dueño
   (`modules/inventory/products/products.schemas.ts`: «4.50 L»). Ejemplo real:
   `ProductFormDialog`, que le pasa a `QuantityField` la unidad elegida con
-  `form.Subscribe`. Un filtro por
+  `form.Subscribe`. La cantidad de un **movimiento** (nunca 0; con signo en un
+  ajuste) se valida con `movementQuantitySchema('La cantidad', { signed })`,
+  y se muestra con su signo y color con `formatMovementQuantity`
+  (`modules/inventory/stock-movements/`). Un filtro por
   rango de montos (`PriceRangeFilter`) vive por ahora en
   `modules/workshop/service-catalog/components/`: se mueve a
   `components/data-table/` cuando lo use un segundo listado.
@@ -417,7 +420,13 @@ proyecto). El ejemplo real es `modules/customer/customers/` con su ruta
    `ComboboxField`; la URL solo guarda el id, así que el nombre se pide con la
    consulta de detalle del módulo dueño y la ruta lo precarga con
    `prefetchQuery` (no falla si el id ya no existe). Ejemplo real:
-   `modules/customer/vehicles/components/VehicleTable.tsx`.
+   `modules/customer/vehicles/components/VehicleTable.tsx`. Un **rango de
+   fechas** es `DataTableDateRangeFilter` («Del … al …», `from` y `to` en
+   `AAAA-MM-DD`, con `isDateOnly` de `lib/dates.ts` en el esquema de la URL):
+   no pasa por `Date`, espera a que se termine de escribir el año y no aplica
+   un «del» posterior al «al». La API los toma como días de Lima, con el «al»
+   inclusivo. Ejemplo real:
+   `modules/inventory/stock-movements/components/StockMovementTable.tsx`.
 
 ```tsx
 const column = createColumns<Customer>()
