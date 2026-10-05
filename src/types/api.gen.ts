@@ -212,6 +212,38 @@ export interface paths {
         patch: operations["VehiclesController_update"];
         trace?: never;
     };
+    "/service-catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ServiceCatalogController_findAll"];
+        put?: never;
+        post: operations["ServiceCatalogController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/service-catalog/{serviceCatalogItemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ServiceCatalogController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["ServiceCatalogController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ServiceCatalogController_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -458,6 +490,41 @@ export interface components {
              */
             vin?: string | null;
             notes?: string | null;
+        };
+        ServiceCatalogItem: {
+            /** Format: uuid */
+            serviceCatalogItemId: string;
+            /** @example Cambio de aceite y filtro */
+            name: string;
+            description: string | null;
+            /**
+             * @description Precio de mano de obra referencial, en soles
+             * @example 60.00
+             */
+            laborPrice: string;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateServiceCatalogItemDto: {
+            /** @example Cambio de aceite y filtro */
+            name: string;
+            description?: string | null;
+            /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            laborPrice: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        UpdateServiceCatalogItemDto: {
+            /** @example Cambio de aceite y filtro */
+            name?: string;
+            description?: string | null;
+            /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            laborPrice?: string | number;
+            /** @default true */
+            isActive: boolean;
         };
     };
     responses: never;
@@ -1214,6 +1281,189 @@ export interface operations {
                 content?: never;
             };
             /** @description Ya existe un vehículo con esa placa o ese VIN */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                isActive?: boolean;
+                /** @description Precio de mano de obra desde, en soles (incluido) */
+                minPrice?: string;
+                /** @description Precio de mano de obra hasta, en soles (incluido) */
+                maxPrice?: string;
+                sortBy?: "name" | "laborPrice" | "createdAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description El precio mínimo es mayor que el máximo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateServiceCatalogItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"];
+                    };
+                };
+            };
+            /** @description Ya existe un servicio con ese nombre */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCatalogItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"];
+                    };
+                };
+            };
+            /** @description No se encontró el servicio */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCatalogItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Servicio eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el servicio */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El servicio ya se usó en órdenes de trabajo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCatalogItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateServiceCatalogItemDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"];
+                    };
+                };
+            };
+            /** @description No se encontró el servicio */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un servicio con ese nombre */
             409: {
                 headers: {
                     [name: string]: unknown;

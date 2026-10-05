@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppCoreUsersIndexRouteImport } from './routes/_app/core/users/index'
 import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/customer/customers/index'
 import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
+import { Route as AppWorkshopServiceCatalogIndexRouteImport } from './routes/_app/workshop/service-catalog/index'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -47,6 +48,12 @@ const AppCustomerVehiclesIndexRoute =
     path: '/customer/vehicles/',
     getParentRoute: () => AppRoute,
   } as any)
+const AppWorkshopServiceCatalogIndexRoute =
+  AppWorkshopServiceCatalogIndexRouteImport.update({
+    id: '/workshop/service-catalog/',
+    path: '/workshop/service-catalog/',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/core/users/': typeof AppCoreUsersIndexRoute
   '/customer/customers/': typeof AppCustomerCustomersIndexRoute
   '/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
+  '/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -61,6 +69,7 @@ export interface FileRoutesByTo {
   '/core/users': typeof AppCoreUsersIndexRoute
   '/customer/customers': typeof AppCustomerCustomersIndexRoute
   '/customer/vehicles': typeof AppCustomerVehiclesIndexRoute
+  '/workshop/service-catalog': typeof AppWorkshopServiceCatalogIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,6 +79,7 @@ export interface FileRoutesById {
   '/_app/core/users/': typeof AppCoreUsersIndexRoute
   '/_app/customer/customers/': typeof AppCustomerCustomersIndexRoute
   '/_app/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
+  '/_app/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -79,6 +89,7 @@ export interface FileRouteTypes {
     | '/core/users/'
     | '/customer/customers/'
     | '/customer/vehicles/'
+    | '/workshop/service-catalog/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -86,6 +97,7 @@ export interface FileRouteTypes {
     | '/core/users'
     | '/customer/customers'
     | '/customer/vehicles'
+    | '/workshop/service-catalog'
   id:
     | '__root__'
     | '/_app'
@@ -94,6 +106,7 @@ export interface FileRouteTypes {
     | '/_app/core/users/'
     | '/_app/customer/customers/'
     | '/_app/customer/vehicles/'
+    | '/_app/workshop/service-catalog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCustomerVehiclesIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/workshop/service-catalog/': {
+      id: '/_app/workshop/service-catalog/'
+      path: '/workshop/service-catalog'
+      fullPath: '/workshop/service-catalog/'
+      preLoaderRoute: typeof AppWorkshopServiceCatalogIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -153,6 +173,7 @@ interface AppRouteChildren {
   AppCoreUsersIndexRoute: typeof AppCoreUsersIndexRoute
   AppCustomerCustomersIndexRoute: typeof AppCustomerCustomersIndexRoute
   AppCustomerVehiclesIndexRoute: typeof AppCustomerVehiclesIndexRoute
+  AppWorkshopServiceCatalogIndexRoute: typeof AppWorkshopServiceCatalogIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -160,6 +181,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCoreUsersIndexRoute: AppCoreUsersIndexRoute,
   AppCustomerCustomersIndexRoute: AppCustomerCustomersIndexRoute,
   AppCustomerVehiclesIndexRoute: AppCustomerVehiclesIndexRoute,
+  AppWorkshopServiceCatalogIndexRoute: AppWorkshopServiceCatalogIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

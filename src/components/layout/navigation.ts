@@ -1,4 +1,4 @@
-import { HouseIcon, ShieldIcon, UsersIcon } from 'lucide-react'
+import { HouseIcon, ShieldIcon, UsersIcon, WrenchIcon } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { FileRoutesByTo } from '#/routeTree.gen'
@@ -29,6 +29,18 @@ export const GENERAL_ITEMS: (NavItem & { icon: LucideIcon })[] = [
 
 /** Las secciones del menú. Una sección aparece cuando tiene su primer módulo. */
 export const SECTIONS: NavSection[] = [
+  {
+    label: 'Taller',
+    icon: WrenchIcon,
+    items: [
+      // El mecánico lo consulta (en solo lectura) para armar sus órdenes.
+      {
+        label: 'Catálogo de servicios',
+        to: '/workshop/service-catalog',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
+    ],
+  },
   {
     label: 'Clientes',
     icon: UsersIcon,

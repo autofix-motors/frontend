@@ -2,6 +2,7 @@ import { createFormHook } from '@tanstack/react-form'
 import { ColorField } from './ColorField'
 import { ComboboxField } from './ComboboxField'
 import { DateField } from './DateField'
+import { MoneyField } from './MoneyField'
 import { SelectField } from './SelectField'
 import { SubmitButton } from './SubmitButton'
 import { SwitchField } from './SwitchField'
@@ -28,6 +29,7 @@ export const { useAppForm } = createFormHook({
     SelectField,
     ComboboxField,
     DateField,
+    MoneyField,
     ColorField,
     SwitchField,
   },
