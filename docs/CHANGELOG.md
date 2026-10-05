@@ -49,6 +49,17 @@ Reglas:
 
 ## 2026-10-04
 
+### Pantalla de vehículos — Eduardo Huarcaya · 19:15
+commits [`6935e4b`](../../commit/6935e4b) · [`c9fe91b`](../../commit/c9fe91b)
+
+Pantalla de vehículos con búsqueda, filtros por cliente y marca, y alta,
+edición y borrado. Nuevo `ComboboxField` (y `DataTableComboboxFilter`) para
+elegir un registro buscándolo en la API. En Clientes, el número de vehículos
+abre el listado filtrado por ese cliente.
+
+> **IMPORTANTE** — Necesita el backend del PR `feature/vehiculos`
+> (`/vehicles`). Los tipos de la API se regeneraron.
+
 ### Pantalla de clientes y listados en la API — Eduardo Huarcaya · 18:30
 
 Pantalla de clientes con búsqueda, filtros, orden y paginación guardados en la

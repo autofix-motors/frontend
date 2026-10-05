@@ -47,8 +47,9 @@ src/
 │           └── components/         tablas, formularios y vistas del módulo
 ├── components/
 │   ├── ui/                         primitivas de shadcn. Las genera el CLI
-│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, SwitchField, DateField, ColorField)
-│   ├── data-table/                 DataTable, su paginación, barra y filtros, y createColumns
+│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, ColorField)
+│   ├── data-table/                 DataTable, su paginación, barra y filtros (DataTableFilter, DataTableComboboxFilter), y createColumns
+│   ├── combobox/                   AsyncCombobox: elegir un registro buscándolo en la API
 │   ├── upload/                     Dropzone: arrastrar o elegir un archivo
 │   └── layout/                     AppSidebar y sus piezas, AppHeader, navigation.ts, ErrorScreen
 ├── server/                         SOLO servidor
@@ -343,9 +344,23 @@ const form = useAppForm({
 - **Un campo que depende de otro** (un dato que solo es obligatorio según el
   valor de otro campo): `onChangeListenTo: ['<campo>']` en el campo que
   depende.
-- **Un campo nuevo** (`NumberField`, `ComboboxField`…) se crea en
-  `components/form/`, lee su estado con `useFieldContext<T>()` y se registra en
-  `form.ts`. Se crea cuando lo necesita el primer formulario, no antes.
+- **Un registro de otro módulo** (el cliente de un vehículo) se elige con
+  `ComboboxField`, que **busca en la API** mientras se escribe, en vez de traer
+  todos a un `SelectField`. Recibe `optionsQuery: (search) => queryOptions(...)`
+  del módulo dueño, que reutiliza su listado y devuelve `{ value, label,
+  description }` (`customersQueries.options({ search, onlyActive })`), y
+  `selectedOption` para mostrar el valor guardado al editar aunque no salga en
+  la primera página. El valor del campo es el id (vacío si no se eligió).
+  `VehicleFormDialog` es el ejemplo real.
+
+  > Por dentro es `AsyncCombobox` (`components/combobox/`): un `Popover` de
+  > Radix con el `Combobox` de Base UI en modo `inline`. No se usa el popup
+  > propio del Combobox (`ComboboxContent`): un `Dialog` de Radix toma como
+  > «afuera» (y se cierra) todo clic fuera de su contenido que no venga de una
+  > capa de Radix, y ese popup es de Base UI y se monta en `body`.
+- **Un campo nuevo** (`NumberField`…) se crea en `components/form/`, lee su
+  estado con `useFieldContext<T>()` y se registra en `form.ts`. Se crea cuando
+  lo necesita el primer formulario, no antes.
 - **Los errores de la API** se muestran con `<FieldError>{mutation.error.message}</FieldError>`.
 
 ## Listados: paginados en la API, estado en la URL
@@ -368,7 +383,12 @@ proyecto). El ejemplo real es `modules/customer/customers/` con su ruta
 4. **La tabla**: `DataTable` recibe `data`, `meta`, el orden y los callbacks;
    `DataTableToolbar` (búsqueda con espera de 350 ms, filtros, «Limpiar» y
    acciones) y `DataTableFilter` (lista con «Todos»). Cambiar la búsqueda o un
-   filtro vuelve a la página 1.
+   filtro vuelve a la página 1. Si el filtro es un registro de otro módulo
+   (vehículos por cliente), `DataTableComboboxFilter` busca en la API como
+   `ComboboxField`; la URL solo guarda el id, así que el nombre se pide con la
+   consulta de detalle del módulo dueño y la ruta lo precarga con
+   `prefetchQuery` (no falla si el id ya no existe). Ejemplo real:
+   `modules/customer/vehicles/components/VehicleTable.tsx`.
 
 ```tsx
 const column = createColumns<Customer>()
