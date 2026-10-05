@@ -244,6 +244,38 @@ export interface paths {
         patch: operations["ServiceCatalogController_update"];
         trace?: never;
     };
+    "/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProductsController_findAll"];
+        put?: never;
+        post: operations["ProductsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProductsController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["ProductsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ProductsController_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -523,6 +555,96 @@ export interface components {
             description?: string | null;
             /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
             laborPrice?: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        /** @enum {string} */
+        ProductKind: "PART" | "SUPPLY";
+        /** @enum {string} */
+        UnitOfMeasure: "UNIT" | "LITER" | "GALLON" | "KIT" | "METER";
+        Product: {
+            /** Format: uuid */
+            productId: string;
+            /** @example FA-TOY-90915 */
+            code: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name: string;
+            kind: components["schemas"]["ProductKind"];
+            unit: components["schemas"]["UnitOfMeasure"];
+            /** @example Toyota */
+            brand: string | null;
+            /**
+             * @description En la unidad del producto. Solo lo cambian los movimientos de stock
+             * @example 12.00
+             */
+            stock: string;
+            /**
+             * @description En la unidad del producto
+             * @example 4.00
+             */
+            minStock: string;
+            /** @description El stock está en el mínimo o debajo (stock <= minStock) */
+            isLowStock: boolean;
+            /**
+             * @description Último costo de compra, en soles. Solo para ADMIN
+             * @example 18.50
+             */
+            cost?: string;
+            /**
+             * @description Precio de venta, en soles
+             * @example 30.00
+             */
+            price: string;
+            /**
+             * @description Precio menos costo, en soles; negativo si se vende por debajo del costo. Solo para ADMIN
+             * @example 11.50
+             */
+            margin?: string;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateProductDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example FA-TOY-90915
+             */
+            code: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name: string;
+            kind: components["schemas"]["ProductKind"];
+            unit: components["schemas"]["UnitOfMeasure"];
+            /** @example Toyota */
+            brand?: string | null;
+            /** @description Stock mínimo, en la unidad del producto: de 0 a 99999999.99, con hasta 2 decimales. Con el stock en este valor o debajo, el producto sale como stock bajo */
+            minStock: string | number;
+            /** @description Último costo de compra, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            cost: string | number;
+            /** @description Precio de venta al cliente, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            price: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        UpdateProductDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example FA-TOY-90915
+             */
+            code?: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name?: string;
+            kind?: components["schemas"]["ProductKind"];
+            unit?: components["schemas"]["UnitOfMeasure"];
+            /** @example Toyota */
+            brand?: string | null;
+            /** @description Stock mínimo, en la unidad del producto: de 0 a 99999999.99, con hasta 2 decimales. Con el stock en este valor o debajo, el producto sale como stock bajo */
+            minStock?: string | number;
+            /** @description Último costo de compra, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            cost?: string | number;
+            /** @description Precio de venta al cliente, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            price?: string | number;
             /** @default true */
             isActive: boolean;
         };
@@ -1464,6 +1586,181 @@ export interface operations {
                 content?: never;
             };
             /** @description Ya existe un servicio con ese nombre */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                kind?: components["schemas"]["ProductKind"];
+                isActive?: boolean;
+                /** @description true: solo los de stock bajo (stock menor o igual al mínimo); false: solo los que están por encima del mínimo */
+                lowStock?: boolean;
+                sortBy?: "name" | "code" | "stock" | "price";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    ProductsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProductDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"];
+                    };
+                };
+            };
+            /** @description Ya existe un producto con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"];
+                    };
+                };
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Producto eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El producto tiene movimientos de stock o ítems de órdenes */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProductDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"];
+                    };
+                };
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un producto con ese código */
             409: {
                 headers: {
                     [name: string]: unknown;

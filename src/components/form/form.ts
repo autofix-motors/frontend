@@ -3,6 +3,7 @@ import { ColorField } from './ColorField'
 import { ComboboxField } from './ComboboxField'
 import { DateField } from './DateField'
 import { MoneyField } from './MoneyField'
+import { QuantityField } from './QuantityField'
 import { SelectField } from './SelectField'
 import { SubmitButton } from './SubmitButton'
 import { SwitchField } from './SwitchField'
@@ -30,6 +31,7 @@ export const { useAppForm } = createFormHook({
     ComboboxField,
     DateField,
     MoneyField,
+    QuantityField,
     ColorField,
     SwitchField,
   },

@@ -52,16 +52,23 @@ it('cada módulo del menú tiene una ruta distinta', () => {
   expect(new Set(paths).size).toBe(paths.length)
 })
 
-it('el mecánico solo ve el catálogo de servicios, en la sección «Taller»', () => {
+it('el mecánico solo ve el catálogo de servicios y los repuestos', () => {
   const visible = visibleSections(SECTIONS, 'MECHANIC')
   expect(
     visible.map((section) => [
       section.label,
       section.items.map((item) => item.label),
     ]),
-  ).toEqual([['Taller', ['Catálogo de servicios']]])
+  ).toEqual([
+    ['Taller', ['Catálogo de servicios']],
+    ['Inventario', ['Repuestos e insumos']],
+  ])
   expect(breadcrumbFor('/workshop/service-catalog/')).toEqual([
     'Taller',
     'Catálogo de servicios',
+  ])
+  expect(breadcrumbFor('/inventory/products')).toEqual([
+    'Inventario',
+    'Repuestos e insumos',
   ])
 })

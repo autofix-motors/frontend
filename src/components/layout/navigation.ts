@@ -1,4 +1,10 @@
-import { HouseIcon, ShieldIcon, UsersIcon, WrenchIcon } from 'lucide-react'
+import {
+  HouseIcon,
+  PackageIcon,
+  ShieldIcon,
+  UsersIcon,
+  WrenchIcon,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { FileRoutesByTo } from '#/routeTree.gen'
@@ -47,6 +53,18 @@ export const SECTIONS: NavSection[] = [
     items: [
       { label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] },
       { label: 'Vehículos', to: '/customer/vehicles', roles: ['ADMIN'] },
+    ],
+  },
+  {
+    label: 'Inventario',
+    icon: PackageIcon,
+    items: [
+      // El mecánico consulta el stock (en solo lectura y sin costos).
+      {
+        label: 'Repuestos e insumos',
+        to: '/inventory/products',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
     ],
   },
   {
