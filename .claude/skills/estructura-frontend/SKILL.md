@@ -393,7 +393,13 @@ const form = useAppForm({
 - **Un campo nuevo** (`NumberField`…) se crea en `components/form/`, lee su
   estado con `useFieldContext<T>()` y se registra en `form.ts`. Se crea cuando
   lo necesita el primer formulario, no antes.
-- **Los errores de la API** se muestran con `<FieldError>{mutation.error.message}</FieldError>`.
+- **Los errores de la API** se muestran con `<FieldError>{mutation.error.message}</FieldError>`,
+  y el `onSubmit` **no los relanza**: `mutateAsync(value).then(onDone, () => undefined)`.
+  Con `await mutateAsync` a secas, `void form.handleSubmit()` deja la promesa
+  rechazada sin capturar y cada 409 ensucia la consola.
+- **`staleTime` de 30 s por defecto** (`integrations/tanstack-query/root-provider.tsx`):
+  con 0, lo que precargó el servidor figuraba como «buscando» en el primer render
+  del navegador y la tabla hidrataba distinto (aviso de hidratación).
 
 ## Listados: paginados en la API, estado en la URL
 
