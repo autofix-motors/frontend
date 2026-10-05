@@ -8,10 +8,13 @@ import {
   toQueryString,
 } from '#/server/api'
 import {
+  addItemRequestSchema,
   addNoteRequestSchema,
   changeStatusRequestSchema,
   createWorkOrderInputSchema,
+  removeItemRequestSchema,
   updateDiagnosisRequestSchema,
+  updateItemRequestSchema,
   updateWorkOrderRequestSchema,
   workOrderIdSchema,
   workOrdersSearchSchema,
@@ -82,6 +85,33 @@ export const addWorkOrderNote = createServerFn({ method: 'POST' })
   .handler(({ data }) =>
     send(`/work-orders/${data.workOrderId}/notes`, 'POST', data.values),
   )
+
+export const addWorkOrderItem = createServerFn({ method: 'POST' })
+  .validator(addItemRequestSchema)
+  .handler(({ data }) =>
+    send(`/work-orders/${data.workOrderId}/items`, 'POST', data.values),
+  )
+
+export const updateWorkOrderItem = createServerFn({ method: 'POST' })
+  .validator(updateItemRequestSchema)
+  .handler(({ data }) =>
+    send(
+      `/work-orders/${data.workOrderId}/items/${data.workOrderItemId}`,
+      'PATCH',
+      data.values,
+    ),
+  )
+
+/** Quitar un ítem responde sin la orden (como todo DELETE): solo el mensaje. */
+export const removeWorkOrderItem = createServerFn({ method: 'POST' })
+  .validator(removeItemRequestSchema)
+  .handler(async ({ data }) => {
+    const { message } = await callApiEnvelope<null>(
+      `/work-orders/${data.workOrderId}/items/${data.workOrderItemId}`,
+      { method: 'DELETE' },
+    )
+    return { message }
+  })
 
 export const deleteWorkOrder = createServerFn({ method: 'POST' })
   .validator(workOrderIdSchema)

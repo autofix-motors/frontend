@@ -3,6 +3,7 @@ import {
   emptyServiceCatalogItemForm,
   serviceCatalogItemFormSchema,
   serviceCatalogItemInputSchema,
+  serviceCatalogItemOption,
   serviceCatalogItemToForm,
   serviceCatalogSearchSchema,
 } from './service-catalog.schemas'
@@ -148,6 +149,22 @@ describe('serviceCatalogSearchSchema', () => {
       minPrice: undefined,
       maxPrice: undefined,
       sortBy: 'name',
+    })
+  })
+})
+
+describe('serviceCatalogItemOption', () => {
+  it('el nombre, y debajo el precio de mano de obra que se sugiere', () => {
+    expect(
+      serviceCatalogItemOption({
+        serviceCatalogItemId: 's1',
+        name: 'Afinamiento',
+        laborPrice: '1180.5',
+      }),
+    ).toStrictEqual({
+      value: 's1',
+      label: 'Afinamiento',
+      description: 'Mano de obra: S/ 1,180.50',
     })
   })
 })

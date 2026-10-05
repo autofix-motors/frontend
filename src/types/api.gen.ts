@@ -324,6 +324,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/work-orders/{workOrderId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_addItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/items/{workOrderItemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["WorkOrdersController_removeItem"];
+        options?: never;
+        head?: never;
+        patch: operations["WorkOrdersController_updateItem"];
+        trace?: never;
+    };
     "/products": {
         parameters: {
             query?: never;
@@ -808,6 +840,11 @@ export interface components {
             vehicle: components["schemas"]["WorkOrderVehicle"];
             customer: components["schemas"]["WorkOrderCustomer"];
             mechanic: components["schemas"]["WorkOrderUser"] | null;
+            /**
+             * @description La suma de sus servicios y repuestos, en soles
+             * @example 275.50
+             */
+            total: string;
         };
         WorkOrderEvent: {
             /** Format: uuid */
@@ -820,6 +857,74 @@ export interface components {
             createdBy: components["schemas"]["WorkOrderUser"];
             /** Format: date-time */
             createdAt: string;
+        };
+        /** @enum {string} */
+        ItemType: "SERVICE" | "PRODUCT";
+        /** @enum {string} */
+        UnitOfMeasure: "UNIT" | "LITER" | "GALLON" | "KIT" | "METER";
+        WorkOrderItem: {
+            /** Format: uuid */
+            workOrderItemId: string;
+            type: components["schemas"]["ItemType"];
+            /**
+             * @description Copiada del servicio (su nombre) o del repuesto («código · nombre») al agregarlo
+             * @example FA-TOY-90915 · Filtro de aceite Toyota Yaris
+             */
+            description: string;
+            /**
+             * @description En la unidad del repuesto; en un servicio, cuántas veces se hace
+             * @example 1.00
+             */
+            quantity: string;
+            unit: components["schemas"]["UnitOfMeasure"] | null;
+            /**
+             * @description En soles, congelado
+             * @example 35.00
+             */
+            unitPrice: string;
+            /**
+             * @description Cantidad por precio unitario, redondeado a céntimos
+             * @example 35.00
+             */
+            subtotal: string;
+            /**
+             * @description Solo para ADMIN. Costo del repuesto al consumirlo, en soles; null en un servicio
+             * @example 18.50
+             */
+            unitCost?: string | null;
+            /** Format: uuid */
+            serviceCatalogItemId: string | null;
+            /** Format: uuid */
+            productId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        WorkOrderTotals: {
+            /**
+             * @description Mano de obra, en soles
+             * @example 180.00
+             */
+            labor: string;
+            /**
+             * @description Repuestos, en soles
+             * @example 95.50
+             */
+            parts: string;
+            /**
+             * @description Mano de obra más repuestos
+             * @example 275.50
+             */
+            total: string;
+            /**
+             * @description Solo para ADMIN. Lo que costaron los repuestos
+             * @example 61.00
+             */
+            partsCost?: string;
+            /**
+             * @description Solo para ADMIN. Repuestos menos su costo
+             * @example 34.50
+             */
+            partsMargin?: string;
         };
         WorkOrderDetail: {
             /** Format: uuid */
@@ -853,6 +958,11 @@ export interface components {
             vehicle: components["schemas"]["WorkOrderVehicle"];
             customer: components["schemas"]["WorkOrderCustomer"];
             mechanic: components["schemas"]["WorkOrderUser"] | null;
+            /**
+             * @description La suma de sus servicios y repuestos, en soles
+             * @example 275.50
+             */
+            total: string;
             diagnosis: string | null;
             /** Format: date-time */
             cancelledAt: string | null;
@@ -861,6 +971,9 @@ export interface components {
             createdBy: components["schemas"]["WorkOrderUser"];
             /** @description La línea de tiempo, de la más antigua a la más reciente */
             events: components["schemas"]["WorkOrderEvent"][];
+            /** @description Servicios y repuestos, en el orden en que se agregaron */
+            items: components["schemas"]["WorkOrderItem"][];
+            totals: components["schemas"]["WorkOrderTotals"];
         };
         CreateWorkOrderDto: {
             /**
@@ -921,10 +1034,35 @@ export interface components {
             /** @description Si el cliente la ve en el seguimiento */
             isPublic: boolean;
         };
+        CreateWorkOrderItemDto: {
+            type: components["schemas"]["ItemType"];
+            /**
+             * Format: uuid
+             * @description Obligatorio si type es SERVICE
+             */
+            serviceCatalogItemId?: string;
+            /**
+             * Format: uuid
+             * @description Obligatorio si type es PRODUCT
+             */
+            productId?: string;
+            /** @description Mayor que 0, con hasta 2 decimales; por omisión, 1. En la unidad del repuesto; en un servicio, cuántas veces se hace */
+            quantity?: string | number;
+            /** @description Solo ADMIN. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
+            unitPrice?: string | number;
+            /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
+            description?: string;
+        };
+        UpdateWorkOrderItemDto: {
+            /** @description Mayor que 0, con hasta 2 decimales; por omisión, 1. En la unidad del repuesto; en un servicio, cuántas veces se hace */
+            quantity?: string | number;
+            /** @description Solo ADMIN. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
+            unitPrice?: string | number;
+            /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
+            description?: string;
+        };
         /** @enum {string} */
         ProductKind: "PART" | "SUPPLY";
-        /** @enum {string} */
-        UnitOfMeasure: "UNIT" | "LITER" | "GALLON" | "KIT" | "METER";
         Product: {
             /** Format: uuid */
             productId: string;
@@ -2423,6 +2561,157 @@ export interface operations {
             };
             /** @description No existe, o el mecánico no la tiene asignada */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_addItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkOrderItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description El servicio o el repuesto está inactivo, o el ítem trae datos del otro tipo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El mecánico no fija el precio ni la descripción */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No existe, o el mecánico no la tiene asignada; o no existe el servicio o el repuesto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se cambien sus ítems, cambió mientras tanto, o no alcanza el stock */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_removeItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                workOrderItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ítem quitado; si es un repuesto, vuelve al stock */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada; o el ítem no es de esta orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_updateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                workOrderItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkOrderItemDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La cantidad de un repuesto no se cambia */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El mecánico no fija el precio ni la descripción */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No existe, o el mecánico no la tiene asignada; o el ítem no es de esta orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

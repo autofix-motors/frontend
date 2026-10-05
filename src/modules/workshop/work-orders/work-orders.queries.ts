@@ -7,21 +7,29 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { vehiclesKeys } from '#/modules/customer/vehicles/vehicles.queries'
+import { productsKeys } from '#/modules/inventory/products/products.queries'
+import { stockMovementsKeys } from '#/modules/inventory/stock-movements/stock-movements.queries'
 import {
+  addWorkOrderItem,
   addWorkOrderNote,
   changeWorkOrderStatus,
   createWorkOrder,
   deleteWorkOrder,
   getWorkOrder,
   listWorkOrders,
+  removeWorkOrderItem,
   updateWorkOrder,
   updateWorkOrderDiagnosis,
+  updateWorkOrderItem,
 } from './work-orders.fn'
 import type {
+  AddItemRequest,
   ChangeStatusRequest,
   CreateWorkOrderInput,
   DiagnosisFormValues,
+  ItemType,
   NoteFormValues,
+  UpdateItemRequest,
   UpdateWorkOrderInput,
   WorkOrderDetail,
   WorkOrdersSearch,
@@ -137,6 +145,72 @@ export function useDeleteWorkOrder() {
           queryKey: [...workOrdersKeys.all, 'list'],
         }),
         queryClient.invalidateQueries({ queryKey: vehiclesKeys.all }),
+      ])
+    },
+  })
+}
+
+/**
+ * Un repuesto que entra o sale de una orden mueve el stock: se invalidan los
+ * repuestos (su stock) y el kardex (el movimiento nuevo).
+ */
+async function onStockMoved(queryClient: QueryClient, type: ItemType) {
+  if (type !== 'PRODUCT') return
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: productsKeys.all }),
+    queryClient.invalidateQueries({ queryKey: stockMovementsKeys.all }),
+  ])
+}
+
+export function useAddWorkOrderItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (request: AddItemRequest) =>
+      addWorkOrderItem({ data: request }),
+    onSuccess: async (result, request) => {
+      await onChanged(queryClient, result)
+      await onStockMoved(queryClient, request.values.type)
+    },
+  })
+}
+
+export function useUpdateWorkOrderItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (request: UpdateItemRequest) =>
+      updateWorkOrderItem({ data: request }),
+    onSuccess: (result) => onChanged(queryClient, result),
+  })
+}
+
+/**
+ * Quitar responde solo el mensaje: el detalle se vuelve a pedir (para ver el
+ * ítem fuera y el evento en la línea de tiempo), junto con los listados.
+ */
+export function useRemoveWorkOrderItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (request: {
+      workOrderId: string
+      workOrderItemId: string
+      type: ItemType
+    }) =>
+      removeWorkOrderItem({
+        data: {
+          workOrderId: request.workOrderId,
+          workOrderItemId: request.workOrderItemId,
+        },
+      }),
+    onSuccess: async ({ message }, request) => {
+      toast.success(message)
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: workOrdersKeys.detail(request.workOrderId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [...workOrdersKeys.all, 'list'],
+        }),
+        onStockMoved(queryClient, request.type),
       ])
     },
   })

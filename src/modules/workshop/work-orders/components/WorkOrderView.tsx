@@ -38,6 +38,7 @@ import { ChangeStatusDialog } from './ChangeStatusDialog'
 import { DeleteWorkOrderDialog } from './DeleteWorkOrderDialog'
 import { DiagnosisSection } from './DiagnosisSection'
 import { EditWorkOrderDialog } from './EditWorkOrderDialog'
+import { WorkOrderItemsSection } from './WorkOrderItemsSection'
 import { WorkOrderTimeline } from './WorkOrderTimeline'
 import { OverdueBadge, WorkOrderStatusBadge } from './WorkOrderStatusBadge'
 
@@ -46,7 +47,8 @@ const kmFormat = new Intl.NumberFormat('es-PE')
 /**
  * El detalle de una orden: dónde se trabaja. Los botones de estado son los
  * que el rol puede usar desde el estado actual (la misma tabla que la API);
- * editar, asignar y borrar son del administrador.
+ * editar, asignar y borrar son del administrador. Los servicios y repuestos
+ * van primero: es lo que más se toca mientras la orden está en el taller.
  */
 export function WorkOrderView({
   workOrder,
@@ -200,6 +202,7 @@ export function WorkOrderView({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-4">
+          <WorkOrderItemsSection workOrder={workOrder} role={role} />
           <Card>
             <CardHeader>
               <CardTitle>Motivo del ingreso</CardTitle>

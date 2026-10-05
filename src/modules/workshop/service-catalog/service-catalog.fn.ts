@@ -1,5 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import { callApiEnvelope, callApiPage, toQueryString } from '#/server/api'
+import {
+  callApi,
+  callApiEnvelope,
+  callApiPage,
+  toQueryString,
+} from '#/server/api'
 import {
   serviceCatalogItemIdSchema,
   serviceCatalogItemInputSchema,
@@ -15,6 +20,14 @@ export const listServiceCatalog = createServerFn({ method: 'GET' })
   .validator(serviceCatalogSearchSchema)
   .handler(({ data }) =>
     callApiPage<ServiceCatalogItem>(`/service-catalog${toQueryString(data)}`),
+  )
+
+export const getServiceCatalogItem = createServerFn({ method: 'GET' })
+  .validator(serviceCatalogItemIdSchema)
+  .handler(({ data }) =>
+    callApi<ServiceCatalogItem>(
+      `/service-catalog/${data.serviceCatalogItemId}`,
+    ),
   )
 
 export const createServiceCatalogItem = createServerFn({ method: 'POST' })

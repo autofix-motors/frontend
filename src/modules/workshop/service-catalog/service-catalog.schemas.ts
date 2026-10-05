@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import type { ComboboxOption } from '#/components/combobox/AsyncCombobox'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
-import { moneyError, moneySchema } from '#/lib/money'
+import { formatMoney, moneyError, moneySchema } from '#/lib/money'
 import type { components } from '#/types/api.gen'
 
 export type ServiceCatalogItem = components['schemas']['ServiceCatalogItem']
@@ -60,6 +61,23 @@ export const serviceCatalogItemInputSchema =
 export type ServiceCatalogItemInput = z.input<
   typeof serviceCatalogItemInputSchema
 >
+
+/**
+ * Un servicio como opción de un combobox: su nombre, y debajo el precio de
+ * mano de obra, que es el que se sugiere al agregarlo a una orden.
+ */
+export function serviceCatalogItemOption(
+  item: Pick<
+    ServiceCatalogItem,
+    'serviceCatalogItemId' | 'name' | 'laborPrice'
+  >,
+): ComboboxOption {
+  return {
+    value: item.serviceCatalogItemId,
+    label: item.name,
+    description: `Mano de obra: ${formatMoney(item.laborPrice)}`,
+  }
+}
 
 export const serviceCatalogItemIdSchema = z.object({
   serviceCatalogItemId: z.uuid(),

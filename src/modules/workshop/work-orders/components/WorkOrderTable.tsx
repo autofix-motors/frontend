@@ -10,6 +10,7 @@ import { DataTableDateRangeFilter } from '#/components/data-table/DataTableDateR
 import { DataTableToolbar } from '#/components/data-table/DataTableToolbar'
 import { Button } from '#/components/ui/button'
 import { formatDateOnly, formatDateTime } from '#/lib/dates'
+import { formatMoney } from '#/lib/money'
 import { cn } from '#/lib/utils'
 import { usersQueries } from '#/modules/core/users/users.queries'
 import { userOption } from '#/modules/core/users/users.schemas'
@@ -139,6 +140,16 @@ const workOrderColumns = column.columns([
     cell: (info) => (
       <span className="whitespace-nowrap tabular-nums">
         {formatDateTime(info.getValue())}
+      </span>
+    ),
+  }),
+  // La API lo suma de los ítems de cada orden y no sabe ordenar por él.
+  column.accessor('total', {
+    header: 'Total',
+    enableSorting: false,
+    cell: (info) => (
+      <span className="whitespace-nowrap tabular-nums">
+        {formatMoney(info.getValue())}
       </span>
     ),
   }),

@@ -1,6 +1,17 @@
 import type { z } from 'zod'
 import {
   OPEN_STATUSES,
+  addItemFormSchema,
+  addItemRequestSchema,
+  canChangeItems,
+  canEditItem,
+  editItemFormSchema,
+  emptyAddItemForm,
+  formatItemQuantity,
+  itemToEditForm,
+  toAddItemRequest,
+  toUpdateItemRequest,
+  updateItemRequestSchema,
   WORK_ORDER_FILTERS_CLEARED,
   WORK_ORDER_STATUSES,
   allowedTransitions,
@@ -23,6 +34,10 @@ import {
 
 const VEHICLE_ID = '6f1c2a5e-8d3b-4c7a-9e1f-2b3c4d5e6f70'
 const USER_ID = '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b'
+const WORK_ORDER_ID = '9d8c7b6a-5f4e-4d3c-8b2a-1f0e9d8c7b6a'
+const ITEM_ID = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d'
+const SERVICE_ID = '7a1c4f0e-2b3d-4e5f-8a9b-0c1d2e3f4a5b'
+const PRODUCT_ID = '3f2e1d0c-9b8a-4f6e-8d4c-3b2a1f0e9d8c'
 
 const messagesOf = (schema: z.ZodType, values: unknown) => {
   const result = schema.safeParse(values)
@@ -328,5 +343,149 @@ describe('workOrdersSearchSchema', () => {
       sortBy: 'promisedDate',
       sortOrder: 'asc',
     })
+  })
+})
+
+describe('ítems: estados, permisos y cantidades', () => {
+  it('los ítems se cambian en los mismos estados que en la API', () => {
+    expect(WORK_ORDER_STATUSES.filter(canChangeItems)).toEqual([
+      'RECEIVED',
+      'DIAGNOSIS',
+      'IN_PROGRESS',
+      'WAITING_PARTS',
+    ])
+  })
+
+  it('el mecánico edita servicios; un repuesto solo el administrador', () => {
+    expect(canEditItem({ type: 'SERVICE' }, 'MECHANIC')).toBe(true)
+    expect(canEditItem({ type: 'PRODUCT' }, 'MECHANIC')).toBe(false)
+    expect(canEditItem({ type: 'PRODUCT' }, 'ADMIN')).toBe(true)
+  })
+
+  it('la cantidad de un repuesto lleva su unidad; la de un servicio, no', () => {
+    expect(formatItemQuantity({ quantity: '4.50', unit: 'LITER' })).toBe(
+      '4.50 L',
+    )
+    expect(formatItemQuantity({ quantity: '2.00', unit: 'UNIT' })).toBe('2 und')
+    expect(formatItemQuantity({ quantity: '1.00', unit: null })).toBe('1')
+  })
+})
+
+describe('agregar un ítem', () => {
+  it('exige el original y una cantidad mayor que 0', () => {
+    expect(messagesOf(addItemFormSchema('SERVICE'), emptyAddItemForm)).toEqual([
+      'Selecciona el servicio',
+    ])
+    expect(
+      messagesOf(addItemFormSchema('PRODUCT'), {
+        ...emptyAddItemForm,
+        sourceId: PRODUCT_ID,
+        quantity: '0',
+      }),
+    ).toEqual(['La cantidad tiene que ser mayor que 0'])
+    expect(
+      messagesOf(addItemFormSchema('PRODUCT'), {
+        ...emptyAddItemForm,
+        sourceId: PRODUCT_ID,
+        quantity: '1.255',
+        unitPrice: '-3',
+      }),
+    ).toEqual([
+      'La cantidad tiene como máximo 2 decimales',
+      'El precio unitario no puede ser negativo',
+    ])
+  })
+
+  it('el precio y la descripción vacíos no viajan: la API copia los del original', () => {
+    const request = toAddItemRequest(WORK_ORDER_ID, 'PRODUCT', {
+      sourceId: PRODUCT_ID,
+      quantity: '2',
+      unitPrice: '',
+      description: '  ',
+    })
+    expect(addItemRequestSchema.parse(request)).toStrictEqual({
+      workOrderId: WORK_ORDER_ID,
+      values: {
+        type: 'PRODUCT',
+        productId: PRODUCT_ID,
+        quantity: '2',
+        unitPrice: undefined,
+        description: undefined,
+      },
+    })
+  })
+
+  it('el id va en su campo según el tipo, con el precio del administrador', () => {
+    const request = toAddItemRequest(WORK_ORDER_ID, 'SERVICE', {
+      sourceId: SERVICE_ID,
+      quantity: '1',
+      unitPrice: '70.00',
+      description: 'Afinamiento (cliente frecuente)',
+    })
+    expect(addItemRequestSchema.parse(request).values).toStrictEqual({
+      type: 'SERVICE',
+      serviceCatalogItemId: SERVICE_ID,
+      quantity: '1',
+      unitPrice: '70.00',
+      description: 'Afinamiento (cliente frecuente)',
+    })
+  })
+})
+
+describe('editar un ítem', () => {
+  const service = {
+    workOrderItemId: ITEM_ID,
+    type: 'SERVICE' as const,
+    quantity: '1.00',
+    unitPrice: '80.00',
+    description: 'Cambio de aceite y filtro',
+  }
+
+  it('parte de lo que tiene, con «1» en vez de «1.00»', () => {
+    expect(itemToEditForm(service)).toStrictEqual({
+      quantity: '1',
+      unitPrice: '80.00',
+      description: 'Cambio de aceite y filtro',
+    })
+    expect(itemToEditForm({ ...service, quantity: '1.50' }).quantity).toBe(
+      '1.50',
+    )
+  })
+
+  it('solo valida lo que quien edita puede cambiar', () => {
+    const mechanic = editItemFormSchema({
+      canEditQuantity: true,
+      canEditPrice: false,
+    })
+    expect(
+      messagesOf(mechanic, { quantity: '2', unitPrice: '', description: '' }),
+    ).toEqual([])
+    const adminOnPart = editItemFormSchema({
+      canEditQuantity: false,
+      canEditPrice: true,
+    })
+    expect(
+      messagesOf(adminOnPart, { quantity: '', unitPrice: '', description: '' }),
+    ).toEqual(['Ingresa el precio unitario', 'Escribe la descripción del ítem'])
+  })
+
+  it('manda solo lo que se puede cambiar: nunca la cantidad de un repuesto', () => {
+    const values = { quantity: '2', unitPrice: '75.00', description: 'Otro' }
+    expect(
+      toUpdateItemRequest(WORK_ORDER_ID, service, values, 'MECHANIC').values,
+    ).toStrictEqual({ quantity: '2' })
+    expect(
+      toUpdateItemRequest(
+        WORK_ORDER_ID,
+        { ...service, type: 'PRODUCT' },
+        values,
+        'ADMIN',
+      ).values,
+    ).toStrictEqual({ unitPrice: '75.00', description: 'Otro' })
+    expect(
+      updateItemRequestSchema.safeParse(
+        toUpdateItemRequest(WORK_ORDER_ID, service, values, 'ADMIN'),
+      ).success,
+    ).toBe(true)
   })
 })

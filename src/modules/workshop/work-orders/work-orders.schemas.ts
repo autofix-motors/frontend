@@ -1,7 +1,10 @@
 import { z } from 'zod'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
 import { isDateOnly, limaToday } from '#/lib/dates'
+import { moneyError } from '#/lib/money'
+import { formatQuantity, movementQuantitySchema } from '#/lib/quantity'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
+import { formatStock } from '#/modules/inventory/products/products.schemas'
 import type { components } from '#/types/api.gen'
 
 /** Una orden en el listado: datos de ingreso, vehículo, cliente y mecánico. */
@@ -10,6 +13,11 @@ export type WorkOrder = components['schemas']['WorkOrder']
 export type WorkOrderDetail = components['schemas']['WorkOrderDetail']
 export type WorkOrderEvent = components['schemas']['WorkOrderEvent']
 export type WorkOrderStatus = components['schemas']['WorkOrderStatus']
+/** Un servicio o repuesto de la orden. `unitCost` solo llega para ADMIN. */
+export type WorkOrderItem = components['schemas']['WorkOrderItem']
+/** Los montos de la orden. `partsCost` y `partsMargin` solo para ADMIN. */
+export type WorkOrderTotals = components['schemas']['WorkOrderTotals']
+export type ItemType = components['schemas']['ItemType']
 
 export const WORK_ORDER_STATUSES = [
   'RECEIVED',
@@ -408,3 +416,224 @@ export const WORK_ORDER_FILTERS_CLEARED = {
 export const OPEN_STATUSES = WORK_ORDER_STATUSES.filter(
   (status) => !isClosed(status),
 )
+
+// ── Servicios y repuestos ────────────────────────────────────────────────────
+
+/** Cómo se le muestra cada tipo de ítem al usuario. */
+export const ITEM_TYPE_LABELS: Record<ItemType, string> = {
+  SERVICE: 'Servicio',
+  PRODUCT: 'Repuesto',
+}
+
+/**
+ * COPIA de los estados en que la API deja cambiar los ítems
+ * (`ITEM_STATUSES` en work-order-status.ts): mientras se diagnostica y se
+ * repara. Sirve para mostrar los botones solo cuando la API los va a aceptar.
+ */
+export function canChangeItems(status: WorkOrderStatus): boolean {
+  return ['RECEIVED', 'DIAGNOSIS', 'IN_PROGRESS', 'WAITING_PARTS'].includes(
+    status,
+  )
+}
+
+/**
+ * Si `role` puede editar el ítem. De un servicio, el mecánico cambia la
+ * cantidad; de un repuesto solo se editan el precio y la descripción (la
+ * cantidad ya movió el stock), que son del administrador.
+ */
+export function canEditItem(
+  item: Pick<WorkOrderItem, 'type'>,
+  role: UserRole,
+): boolean {
+  return role === 'ADMIN' || item.type === 'SERVICE'
+}
+
+/** «2», «1.50» o, en un repuesto, con su unidad: «4.50 L». */
+export function formatItemQuantity(
+  item: Pick<WorkOrderItem, 'quantity' | 'unit'>,
+): string {
+  return item.unit
+    ? formatStock(item.quantity, item.unit)
+    : formatQuantity(item.quantity)
+}
+
+// Las reglas de los DTO de ítems de la API.
+const ITEM_DESCRIPTION_MAX_LENGTH = 200
+
+const itemQuantityField = z
+  .string()
+  .trim()
+  .min(1, 'Ingresa la cantidad')
+  .pipe(movementQuantitySchema('La cantidad', { signed: false }))
+
+/** El precio del administrador; vacío, se usa el del catálogo o el repuesto. */
+const itemPriceField = z
+  .string()
+  .trim()
+  .superRefine((value, ctx) => {
+    const message = value ? moneyError(value, 'El precio unitario') : null
+    if (message) ctx.addIssue({ code: 'custom', message })
+  })
+
+const itemDescriptionField = z
+  .string()
+  .trim()
+  .max(
+    ITEM_DESCRIPTION_MAX_LENGTH,
+    `La descripción tiene como máximo ${ITEM_DESCRIPTION_MAX_LENGTH} caracteres`,
+  )
+
+/** Un precio que no puede quedar vacío (al editar, el del ítem). */
+const requiredItemPriceField = z
+  .string()
+  .trim()
+  .min(1, 'Ingresa el precio unitario')
+  .pipe(itemPriceField)
+
+const requiredItemDescriptionField = itemDescriptionField.min(
+  1,
+  'Escribe la descripción del ítem',
+)
+
+/**
+ * Agregar un servicio o un repuesto. `sourceId` es el servicio del catálogo
+ * o el repuesto, según el tipo. El precio y la descripción solo los ve el
+ * administrador, y se llenan con los del original al elegirlo; para el
+ * mecánico quedan vacíos y la API copia los del original.
+ */
+export function addItemFormSchema(type: ItemType) {
+  return z.object({
+    sourceId: z
+      .string()
+      .min(
+        1,
+        type === 'SERVICE'
+          ? 'Selecciona el servicio'
+          : 'Selecciona el repuesto',
+      ),
+    quantity: itemQuantityField,
+    unitPrice: itemPriceField,
+    description: itemDescriptionField,
+  })
+}
+
+export type AddItemFormValues = z.infer<ReturnType<typeof addItemFormSchema>>
+
+export const emptyAddItemForm: AddItemFormValues = {
+  sourceId: '',
+  quantity: '1',
+  unitPrice: '',
+  description: '',
+}
+
+// Lo vacío no viaja: la API copia el precio y la descripción del original.
+const optionalPrice = itemPriceField.transform((value) => value || undefined)
+const optionalDescription = itemDescriptionField.transform(
+  (value) => value || undefined,
+)
+
+/** Lo que se le manda a la API al agregar, con el id en su campo según el tipo. */
+export const addItemRequestSchema = z.object({
+  workOrderId: z.uuid(),
+  values: z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('SERVICE'),
+      serviceCatalogItemId: z.uuid({ error: 'Selecciona el servicio' }),
+      quantity: itemQuantityField,
+      unitPrice: optionalPrice,
+      description: optionalDescription,
+    }),
+    z.object({
+      type: z.literal('PRODUCT'),
+      productId: z.uuid({ error: 'Selecciona el repuesto' }),
+      quantity: itemQuantityField,
+      unitPrice: optionalPrice,
+      description: optionalDescription,
+    }),
+  ]),
+})
+
+export type AddItemRequest = z.input<typeof addItemRequestSchema>
+
+/** Del formulario de alta a lo que espera la API. */
+export function toAddItemRequest(
+  workOrderId: string,
+  type: ItemType,
+  { sourceId, ...values }: AddItemFormValues,
+): AddItemRequest {
+  return {
+    workOrderId,
+    values:
+      type === 'SERVICE'
+        ? { type, serviceCatalogItemId: sourceId, ...values }
+        : { type, productId: sourceId, ...values },
+  }
+}
+
+/**
+ * Editar un ítem. Cada campo se valida solo si quien edita lo puede cambiar:
+ * la cantidad, en un servicio; el precio y la descripción, el administrador.
+ */
+export function editItemFormSchema({
+  canEditQuantity,
+  canEditPrice,
+}: {
+  canEditQuantity: boolean
+  canEditPrice: boolean
+}) {
+  return z.object({
+    quantity: canEditQuantity ? itemQuantityField : z.string(),
+    unitPrice: canEditPrice ? requiredItemPriceField : z.string(),
+    description: canEditPrice ? requiredItemDescriptionField : z.string(),
+  })
+}
+
+export type EditItemFormValues = z.infer<ReturnType<typeof editItemFormSchema>>
+
+/** Los valores actuales del ítem; «1» en vez de «1.00», como se escribiría. */
+export function itemToEditForm(
+  item: Pick<WorkOrderItem, 'quantity' | 'unitPrice' | 'description'>,
+): EditItemFormValues {
+  return {
+    quantity: item.quantity.replace(/\.00$/, ''),
+    unitPrice: item.unitPrice,
+    description: item.description,
+  }
+}
+
+export const updateItemRequestSchema = z.object({
+  workOrderId: z.uuid(),
+  workOrderItemId: z.uuid(),
+  values: z.object({
+    quantity: itemQuantityField.optional(),
+    unitPrice: requiredItemPriceField.optional(),
+    description: requiredItemDescriptionField.optional(),
+  }),
+})
+
+export type UpdateItemRequest = z.input<typeof updateItemRequestSchema>
+
+/** Lo que se manda al editar: solo lo que quien edita puede cambiar. */
+export function toUpdateItemRequest(
+  workOrderId: string,
+  item: Pick<WorkOrderItem, 'workOrderItemId' | 'type'>,
+  values: EditItemFormValues,
+  role: UserRole,
+): UpdateItemRequest {
+  return {
+    workOrderId,
+    workOrderItemId: item.workOrderItemId,
+    values: {
+      ...(item.type === 'SERVICE' && { quantity: values.quantity }),
+      ...(role === 'ADMIN' && {
+        unitPrice: values.unitPrice,
+        description: values.description,
+      }),
+    },
+  }
+}
+
+export const removeItemRequestSchema = z.object({
+  workOrderId: z.uuid(),
+  workOrderItemId: z.uuid(),
+})
