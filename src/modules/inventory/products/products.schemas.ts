@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ComboboxOption } from '#/components/combobox/AsyncCombobox'
 import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
 import { moneySchema } from '#/lib/money'
 import { formatQuantity, quantitySchema } from '#/lib/quantity'
@@ -68,6 +69,21 @@ export function formatStock(value: string, unit: UnitOfMeasure): string {
   return quantity === '—'
     ? quantity
     : `${quantity} ${UNIT_OF_MEASURE_SYMBOLS[unit]}`
+}
+
+/**
+ * Un producto como opción de un combobox: el código y el nombre, y debajo el
+ * stock actual con su unidad, que es lo que se mira antes de registrar una
+ * compra o un ajuste.
+ */
+export function productOption(
+  product: Pick<Product, 'productId' | 'code' | 'name' | 'stock' | 'unit'>,
+): ComboboxOption {
+  return {
+    value: product.productId,
+    label: `${product.code} · ${product.name}`,
+    description: `Stock: ${formatStock(product.stock, product.unit)}`,
+  }
 }
 
 /**

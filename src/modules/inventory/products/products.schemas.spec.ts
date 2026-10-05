@@ -3,6 +3,7 @@ import {
   emptyProductForm,
   formatStock,
   productFormSchema,
+  productOption,
   productInputSchema,
   productToForm,
   productsSearchSchema,
@@ -53,6 +54,16 @@ describe('formatStock', () => {
 
   it('no le pone unidad a una cantidad que no se entiende', () => {
     expect(formatStock('', 'UNIT')).toBe('—')
+  })
+})
+
+describe('productOption', () => {
+  it('muestra el código y el nombre, y debajo el stock con su unidad', () => {
+    expect(productOption({ ...product, stock: '4.50' })).toStrictEqual({
+      value: '6f1c2a5e-8d3b-4c7a-9e1f-2b3c4d5e6f70',
+      label: 'ACE-2050-GL · Aceite de motor 20W-50',
+      description: 'Stock: 4.50 gal',
+    })
   })
 })
 
