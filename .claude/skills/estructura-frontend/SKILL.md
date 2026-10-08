@@ -202,7 +202,7 @@ y las cookies en `server/session.ts`.
   protegido.
 - **`_app.tsx` exige sesión en su `beforeLoad`** con `getSession`, y la deja en
   el contexto: cualquier página la lee con `Route.useRouteContext()`, sin
-  volver a pedirla. La sesión es `CurrentSession` (`id`, `name`, `email`,
+  volver a pedirla. La sesión es `CurrentSession` (`userId`, `name`, `email`,
   `role`). Sin sesión, redirige a `/login?redirect=<ruta>`, que al entrar
   vuelve a esa ruta (solo rutas de la app: `safeRedirect`).
 - **La sesión no es una consulta.** Por eso `auth.queries.ts` solo tiene las
@@ -234,13 +234,13 @@ export const uploadVehiclePhoto = createServerFn({ method: 'POST' })
     return data
   })
   .handler(({ data }) =>
-    callApi<Vehicle>(`/vehicles/${data.get('id')}/photo`, { method: 'PUT', body: data }),
+    callApi<Vehicle>(`/vehicles/${data.get('vehicleId')}/photo`, { method: 'PUT', body: data }),
   )
 
 // vehicles.queries.ts (ilustrativo): la mutación arma el FormData
-mutationFn: ({ id, file }: { id: string; file: File }) => {
+mutationFn: ({ vehicleId, file }: { vehicleId: string; file: File }) => {
   const data = new FormData()
-  data.set('id', id)
+  data.set('vehicleId', vehicleId)
   data.set('file', file)
   return uploadVehiclePhoto({ data })
 }
