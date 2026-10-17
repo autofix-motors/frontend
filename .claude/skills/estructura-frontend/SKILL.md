@@ -408,6 +408,12 @@ const form = useAppForm({
   rango de montos (`PriceRangeFilter`) vive por ahora en
   `modules/workshop/service-catalog/components/`: se mueve a
   `components/data-table/` cuando lo use un segundo listado.
+- **Una opción obligatoria sin valor por omisión** (qué respondió el cliente
+  y por dónde) empieza en `''` y el esquema la deja entrar y la rechaza con su
+  mensaje: `z.union([z.literal(''), z.enum(OPCIONES)]).pipe(z.enum(OPCIONES,
+  { error: 'Indica…' }))`. El Select muestra su texto de ayuda mientras está
+  vacío. Ejemplo real: `decideQuoteFormSchema`
+  (`modules/workshop/work-orders/`).
 - **Un campo nuevo** (`NumberField`…) se crea en `components/form/`, lee su
   estado con `useFieldContext<T>()` y se registra en `form.ts`. Se crea cuando
   lo necesita el primer formulario, no antes.

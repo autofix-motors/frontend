@@ -47,6 +47,26 @@ Reglas:
 
 ---
 
+## 2026-10-16
+
+### Funcionalidades por rol — Eduardo Huarcaya · 23:30
+commits [`f1b20d2`](../../commit/f1b20d2)
+
+Dos README en `docs/roles/` con lo que el administrador y el mecánico ven y
+pueden hacer hoy, pantalla por pantalla, lo que todavía no existe y las
+observaciones del análisis para decidir.
+
+### Presupuestos en el detalle de la orden — Eduardo Huarcaya · 23:30
+commits [`00b6685`](../../commit/00b6685)
+
+Sección «Presupuestos» en el detalle de la orden: historial de versiones con
+sus ítems congelados y la respuesta del cliente; «Enviar presupuesto» y
+«Registrar respuesta del cliente» para `ADMIN`; aviso en la cabecera mientras
+la orden espera aprobación. Validado contra la API real.
+
+> **IMPORTANTE** — Necesita el backend con presupuestos (`35f6e2c`): los tipos
+> de `api.gen.ts` ya incluyen `quotes` en el detalle de la orden.
+
 ## 2026-10-04
 
 ### Servicios y repuestos en el detalle de la orden — Eduardo Huarcaya · 22:30
