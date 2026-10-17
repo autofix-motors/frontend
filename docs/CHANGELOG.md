@@ -49,6 +49,18 @@ Reglas:
 
 ## 2026-10-16
 
+### Login de cliente y personal, y contraseñas temporales — Eduardo Huarcaya · 23:45
+commits [`5f5b96a`](../../commit/5f5b96a)
+
+Un solo login (cliente por omisión, «Soy interno» para el personal) por
+documento o correo; cambio obligatorio de la contraseña temporal y cambio
+voluntario desde el menú; DNI y «Restablecer contraseña» en Personal; acceso
+al portal desde Clientes con el mensaje listo para WhatsApp. Portal mínimo en
+`/portal`.
+
+> **IMPORTANTE** — Necesita el backend con el acceso al portal (`0f18b8d`) y
+> su migración aplicada: el contrato del login y de usuarios cambió.
+
 ### Tema visual del preset de shadcn — Eduardo Huarcaya · 23:55
 commits [`acf8f07`](../../commit/acf8f07)
 
