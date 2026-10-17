@@ -49,6 +49,17 @@ Reglas:
 
 ## 2026-10-16
 
+### Tema visual del preset de shadcn — Eduardo Huarcaya · 23:55
+commits [`acf8f07`](../../commit/acf8f07)
+
+Nuevo tema con el preset `b5AxWq7dEu`: estilo `radix-nova`, color base
+neutral con el primario en azul índigo, Inter para el texto y Noto Serif para
+los títulos. Se regeneraron los componentes de `components/ui/` y se quitó la
+importación de Fraunces y Manrope, que no se usaban.
+
+> **IMPORTANTE** — Dependencia nueva `@fontsource-variable/noto-serif`
+> (instalada por el preset): correr `pnpm install`.
+
 ### Funcionalidades por rol — Eduardo Huarcaya · 23:30
 commits [`f1b20d2`](../../commit/f1b20d2)
 
