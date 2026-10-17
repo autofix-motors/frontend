@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/customer-login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_customerLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -84,39 +100,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["UsersController_findAll"];
-        put?: never;
-        post: operations["UsersController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{userId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["UsersController_findOne"];
-        put?: never;
-        post?: never;
-        delete: operations["UsersController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["UsersController_update"];
-        trace?: never;
-    };
-    "/users/{userId}/password": {
+    "/auth/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -124,9 +108,41 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["UsersController_changePassword"];
+        put: operations["AuthController_changePassword"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customer-accounts/{customerId}/temporary-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerAccountsController_issueTemporaryPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customer-accounts/{customerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CustomerAccountsController_remove"];
         options?: never;
         head?: never;
         patch?: never;
@@ -162,6 +178,54 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["CustomersController_update"];
+        trace?: never;
+    };
+    "/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_findAll"];
+        put?: never;
+        post: operations["UsersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["UsersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["UsersController_update"];
+        trace?: never;
+    };
+    "/users/{userId}/temporary-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["UsersController_issueTemporaryPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/vehicles": {
@@ -545,22 +609,55 @@ export interface components {
             statusCode: number;
         };
         /** @enum {string} */
-        UserRole: "ADMIN" | "MECHANIC";
+        SessionRole: "ADMIN" | "MECHANIC" | "CUSTOMER";
         CurrentSession: {
-            /** Format: uuid */
-            userId: string;
-            /** @example Administrador */
-            name: string;
-            /** @example admin@taller.local */
-            email: string;
             /** @example ADMIN */
-            role: components["schemas"]["UserRole"];
+            role: components["schemas"]["SessionRole"];
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example juan@correo.pe */
+            email: string | null;
+            /** @description Tiene la contraseña temporal: hasta cambiarla solo puede ver su sesión y cambiarla */
+            mustChangePassword: boolean;
+            /**
+             * Format: uuid
+             * @description Del personal; vacío si es un cliente
+             */
+            userId: string | null;
+            /**
+             * Format: uuid
+             * @description Del cliente; vacío si es del personal
+             */
+            customerId: string | null;
         };
         LoginDto: {
-            /** @example admin@taller.local */
-            email: string;
+            /**
+             * @description Número de documento o correo
+             * @example 45678912
+             */
+            identifier: string;
             /** Format: password */
             password: string;
+        };
+        ChangeOwnPasswordDto: {
+            /** Format: password */
+            currentPassword: string;
+            /** Format: password */
+            newPassword: string;
+        };
+        PortalCredentials: {
+            /**
+             * @description El número de documento del cliente: con él inicia sesión
+             * @example 45678912
+             */
+            loginIdentifier: string;
+            /** @example Hk7mQ4pZr2Tx */
+            temporaryPassword: string;
+            /**
+             * Format: date-time
+             * @description Después de esto ya no sirve: hay que generar otra
+             */
+            expiresAt: string;
         };
         PaginationMeta: {
             /** @example 1 */
@@ -575,59 +672,22 @@ export interface components {
             /** @example 5 */
             totalPages: number;
         };
-        User: {
-            /** Format: uuid */
-            userId: string;
-            /** @example jquispe@autofix.local */
-            email: string;
-            /** @example Juan Quispe Mamani */
-            name: string;
-            /** @example 987654321 */
-            phone: string | null;
-            role: components["schemas"]["UserRole"];
-            isActive: boolean;
-            /**
-             * Format: date-time
-             * @description Vacío si nunca inició sesión
-             */
-            lastLoginAt: string | null;
-            /**
-             * @description Órdenes de trabajo donde es el mecánico asignado
-             * @example 4
-             */
-            assignedWorkOrdersCount: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        CreateUserDto: {
-            /** @example jquispe@autofix.local */
-            email: string;
-            /** @example Juan Quispe Mamani */
-            name: string;
-            /** @example 987654321 */
-            phone?: string | null;
-            role: components["schemas"]["UserRole"];
-            /** Format: password */
-            password: string;
-        };
-        UpdateUserDto: {
-            /** @example jquispe@autofix.local */
-            email?: string;
-            /** @example Juan Quispe Mamani */
-            name?: string;
-            /** @example 987654321 */
-            phone?: string | null;
-            role?: components["schemas"]["UserRole"];
-            isActive?: boolean;
-        };
-        ChangeUserPasswordDto: {
-            /** Format: password */
-            password: string;
-        };
         /** @enum {string} */
         DocumentType: "DNI" | "RUC" | "CE" | "PASSPORT";
+        PortalAccess: {
+            /**
+             * Format: date-time
+             * @description Cuándo se habilitó
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Vacío si todavía no entró
+             */
+            lastLoginAt: string | null;
+            /** @description Todavía tiene la contraseña temporal: no entró o no la cambió */
+            mustChangePassword: boolean;
+        };
         Customer: {
             /** Format: uuid */
             customerId: string;
@@ -645,6 +705,8 @@ export interface components {
             isActive: boolean;
             /** @example 2 */
             vehiclesCount: number;
+            /** @description Vacío si no tiene acceso al portal */
+            portalAccess: components["schemas"]["PortalAccess"] | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -679,6 +741,89 @@ export interface components {
             notes?: string | null;
             /** @default true */
             isActive: boolean;
+        };
+        /** @enum {string} */
+        UserRole: "ADMIN" | "MECHANIC";
+        User: {
+            /** Format: uuid */
+            userId: string;
+            /** @example jquispe@autofix.local */
+            email: string;
+            /**
+             * @description DNI. Vacío en el personal registrado antes de pedirlo
+             * @example 45678912
+             */
+            documentNumber: string | null;
+            /** @example Juan Quispe Mamani */
+            name: string;
+            /** @example 987654321 */
+            phone: string | null;
+            role: components["schemas"]["UserRole"];
+            isActive: boolean;
+            /**
+             * Format: date-time
+             * @description Vacío si nunca inició sesión
+             */
+            lastLoginAt: string | null;
+            /** @description Todavía tiene la contraseña temporal: no entró o no la cambió */
+            mustChangePassword: boolean;
+            /**
+             * @description Órdenes de trabajo donde es el mecánico asignado
+             * @example 4
+             */
+            assignedWorkOrdersCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        IssuedUser: {
+            /** @example Hk7mQ4pZr2Tx */
+            temporaryPassword: string;
+            /**
+             * Format: date-time
+             * @description Después de esto ya no sirve: hay que generar otra
+             */
+            expiresAt: string;
+            user: components["schemas"]["User"];
+        };
+        CreateUserDto: {
+            /** @example jquispe@autofix.local */
+            email: string;
+            /**
+             * @description DNI: con él o con el correo inicia sesión
+             * @example 45678912
+             */
+            documentNumber: string;
+            /** @example Juan Quispe Mamani */
+            name: string;
+            /** @example 987654321 */
+            phone?: string | null;
+            role: components["schemas"]["UserRole"];
+        };
+        UpdateUserDto: {
+            /** @example jquispe@autofix.local */
+            email?: string;
+            /**
+             * @description DNI: con él o con el correo inicia sesión
+             * @example 45678912
+             */
+            documentNumber?: string;
+            /** @example Juan Quispe Mamani */
+            name?: string;
+            /** @example 987654321 */
+            phone?: string | null;
+            role?: components["schemas"]["UserRole"];
+            isActive?: boolean;
+        };
+        TemporaryPassword: {
+            /** @example Hk7mQ4pZr2Tx */
+            temporaryPassword: string;
+            /**
+             * Format: date-time
+             * @description Después de esto ya no sirve: hay que generar otra
+             */
+            expiresAt: string;
         };
         VehicleCustomer: {
             /** Format: uuid */
@@ -1442,7 +1587,46 @@ export interface operations {
                     };
                 };
             };
-            /** @description Correo o contraseña incorrectos */
+            /** @description Usuario o contraseña incorrectos */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Demasiados intentos seguidos */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_customerLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
+                };
+            };
+            /** @description Usuario o contraseña incorrectos, temporal vencida o acceso suspendido */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1537,38 +1721,7 @@ export interface operations {
             };
         };
     };
-    UsersController_findAll: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                /** @description Búsqueda libre */
-                search?: string;
-                role?: components["schemas"]["UserRole"];
-                isActive?: boolean;
-                sortBy?: "name" | "createdAt" | "lastLoginAt";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["User"][];
-                        meta: components["schemas"]["PaginationMeta"];
-                    };
-                };
-            };
-        };
-    };
-    UsersController_create: {
+    AuthController_changePassword: {
         parameters: {
             query?: never;
             header?: never;
@@ -1577,22 +1730,29 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateUserDto"];
+                "application/json": components["schemas"]["ChangeOwnPasswordDto"];
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["User"];
+                        data: components["schemas"]["CurrentSession"];
                     };
                 };
             };
-            /** @description Ya existe un usuario con ese correo */
-            409: {
+            /** @description La actual no es correcta, o la nueva no es válida */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Demasiados intentos seguidos */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1600,12 +1760,12 @@ export interface operations {
             };
         };
     };
-    UsersController_findOne: {
+    CustomerAccountsController_issueTemporaryPassword: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                userId: string;
+                customerId: string;
             };
             cookie?: never;
         };
@@ -1617,11 +1777,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["User"];
+                        data: components["schemas"]["PortalCredentials"];
                     };
                 };
             };
-            /** @description No se encontró el usuario */
+            /** @description El cliente está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el cliente */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1630,18 +1797,18 @@ export interface operations {
             };
         };
     };
-    UsersController_remove: {
+    CustomerAccountsController_remove: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                userId: string;
+                customerId: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Usuario eliminado */
+            /** @description Acceso al portal quitado */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1653,105 +1820,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Quien borra intenta borrarse */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No se encontró el usuario */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description El usuario tiene historial, o es el último administrador activo */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateUserDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["User"];
-                    };
-                };
-            };
-            /** @description Quien edita intenta desactivarse o quitarse el rol */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No se encontró el usuario */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Ya existe un usuario con ese correo, o es el último administrador activo */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_changePassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangeUserPasswordDto"];
-            };
-        };
-        responses: {
-            /** @description Contraseña actualizada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        /** @example null */
-                        data: Record<string, never> | null;
-                    };
-                };
-            };
-            /** @description No se encontró el usuario */
+            /** @description El cliente no tiene acceso al portal */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1926,6 +1995,223 @@ export interface operations {
             };
             /** @description Ya existe un cliente con ese documento */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                role?: components["schemas"]["UserRole"];
+                isActive?: boolean;
+                sortBy?: "name" | "createdAt" | "lastLoginAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["User"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    UsersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUserDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["IssuedUser"];
+                    };
+                };
+            };
+            /** @description Ya existe un usuario con ese correo o DNI */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["User"];
+                    };
+                };
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuario eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description Quien borra intenta borrarse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El usuario tiene historial, o es el último administrador activo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["User"];
+                    };
+                };
+            };
+            /** @description Quien edita intenta desactivarse o quitarse el rol */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un usuario con ese correo o DNI, o es el último administrador activo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_issueTemporaryPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["TemporaryPassword"];
+                    };
+                };
+            };
+            /** @description No se encontró el usuario */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

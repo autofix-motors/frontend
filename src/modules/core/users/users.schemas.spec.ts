@@ -1,10 +1,8 @@
 import {
   USER_FILTERS_CLEARED,
-  changeUserPasswordRequestSchema,
   createUserInputSchema,
   emptyNewUserForm,
   newUserFormSchema,
-  passwordFormSchema,
   updateUserInputSchema,
   userOption,
   userFormSchema,
@@ -14,9 +12,8 @@ import {
 const valid = {
   ...emptyNewUserForm,
   email: 'jquispe@autofix.local',
+  documentNumber: '45678912',
   name: 'Juan Quispe',
-  password: 'Mecanico123',
-  passwordConfirmation: 'Mecanico123',
 }
 
 const messagesOf = (
@@ -32,27 +29,13 @@ describe('newUserFormSchema', () => {
     expect(messagesOf(newUserFormSchema, valid)).toEqual([])
   })
 
-  it('exige una contraseña de al menos 8 caracteres, igual que la API', () => {
+  it('exige el DNI de 8 dígitos, sin importar puntos ni espacios', () => {
     expect(
-      messagesOf(newUserFormSchema, {
-        ...valid,
-        password: 'corta',
-        passwordConfirmation: 'corta',
-      }),
-    ).toEqual(['La contraseña tiene al menos 8 caracteres'])
-  })
-
-  it('marca la confirmación cuando no coincide', () => {
-    const result = newUserFormSchema.safeParse({
-      ...valid,
-      passwordConfirmation: 'Mecanico124',
-    })
-    expect(result.error?.issues).toMatchObject([
-      {
-        path: ['passwordConfirmation'],
-        message: 'Las contraseñas no coinciden',
-      },
-    ])
+      messagesOf(newUserFormSchema, { ...valid, documentNumber: '45.678 912' }),
+    ).toEqual([])
+    expect(
+      messagesOf(newUserFormSchema, { ...valid, documentNumber: '1234' }),
+    ).toEqual(['El DNI tiene 8 dígitos'])
   })
 
   it('rechaza un correo o un teléfono mal escritos', () => {
@@ -70,27 +53,29 @@ describe('newUserFormSchema', () => {
 })
 
 describe('createUserInputSchema', () => {
-  it('no manda la confirmación, normaliza el correo y el teléfono vacío va como null', () => {
+  it('normaliza el correo y el DNI, sin contraseña, y el teléfono vacío va como null', () => {
     expect(
       createUserInputSchema.parse({
         ...valid,
         email: ' JQuispe@AutoFix.Local ',
+        documentNumber: '45.678.912',
       }),
     ).toStrictEqual({
       email: 'jquispe@autofix.local',
+      documentNumber: '45678912',
       name: 'Juan Quispe',
       phone: null,
       role: 'MECHANIC',
-      password: 'Mecanico123',
     })
   })
 })
 
 describe('updateUserInputSchema', () => {
-  it('lleva el estado y no la contraseña', () => {
+  it('lleva el estado y el DNI, y no la contraseña', () => {
     expect(
       updateUserInputSchema.parse({
         email: 'jquispe@autofix.local',
+        documentNumber: '45678912',
         name: 'Juan Quispe',
         phone: '987 654 321',
         role: 'ADMIN',
@@ -98,34 +83,12 @@ describe('updateUserInputSchema', () => {
       }),
     ).toStrictEqual({
       email: 'jquispe@autofix.local',
+      documentNumber: '45678912',
       name: 'Juan Quispe',
       phone: '987 654 321',
       role: 'ADMIN',
       isActive: false,
     })
-  })
-})
-
-describe('changeUserPasswordRequestSchema', () => {
-  it('solo manda la contraseña nueva, no la confirmación', () => {
-    expect(
-      changeUserPasswordRequestSchema.parse({
-        userId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
-        values: {
-          password: 'OtraClave123',
-          passwordConfirmation: 'OtraClave123',
-        },
-      }).values,
-    ).toStrictEqual({ password: 'OtraClave123' })
-  })
-
-  it('rechaza una confirmación distinta', () => {
-    expect(
-      passwordFormSchema.safeParse({
-        password: 'OtraClave123',
-        passwordConfirmation: 'otraclave123',
-      }).success,
-    ).toBe(false)
   })
 })
 

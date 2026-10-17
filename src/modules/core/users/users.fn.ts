@@ -6,13 +6,12 @@ import {
   toQueryString,
 } from '#/server/api'
 import {
-  changeUserPasswordRequestSchema,
   createUserInputSchema,
   updateUserRequestSchema,
   userIdSchema,
   usersSearchSchema,
 } from './users.schemas'
-import type { User } from './users.schemas'
+import type { IssuedUser, TemporaryPassword, User } from './users.schemas'
 
 // El personal del taller, contra /users. Las mutaciones devuelven el mensaje de
 // la API para mostrarlo tal cual en el aviso.
@@ -28,11 +27,11 @@ export const getUser = createServerFn({ method: 'GET' })
 export const createUser = createServerFn({ method: 'POST' })
   .validator(createUserInputSchema)
   .handler(async ({ data }) => {
-    const { data: user, message } = await callApiEnvelope<User>('/users', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-    return { user, message }
+    const { data: issued, message } = await callApiEnvelope<IssuedUser>(
+      '/users',
+      { method: 'POST', body: JSON.stringify(data) },
+    )
+    return { issued, message }
   })
 
 export const updateUser = createServerFn({ method: 'POST' })
@@ -45,14 +44,16 @@ export const updateUser = createServerFn({ method: 'POST' })
     return { user, message }
   })
 
-export const changeUserPassword = createServerFn({ method: 'POST' })
-  .validator(changeUserPasswordRequestSchema)
+/** Genera una contraseña temporal nueva; la API cierra sus sesiones. */
+export const issueUserTemporaryPassword = createServerFn({ method: 'POST' })
+  .validator(userIdSchema)
   .handler(async ({ data }) => {
-    const { message } = await callApiEnvelope<null>(
-      `/users/${data.userId}/password`,
-      { method: 'PUT', body: JSON.stringify(data.values) },
-    )
-    return { message }
+    const { data: password, message } =
+      await callApiEnvelope<TemporaryPassword>(
+        `/users/${data.userId}/temporary-password`,
+        { method: 'POST' },
+      )
+    return { password, message }
   })
 
 export const deleteUser = createServerFn({ method: 'POST' })

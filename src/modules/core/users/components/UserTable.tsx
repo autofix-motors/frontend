@@ -19,14 +19,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
+import {
+  TemporaryPasswordDialog,
+  type TemporaryCredentials,
+} from '#/components/credentials/TemporaryPasswordDialog'
 import { formatDateTime } from '#/lib/dates'
 import { ROLE_LABELS } from '#/modules/core/auth/auth.schemas'
 import type { Page } from '#/server/api'
 import { USER_FILTERS_CLEARED, roleOptions } from '../users.schemas'
-import type { User, UsersSearch } from '../users.schemas'
-import { ChangePasswordDialog } from './ChangePasswordDialog'
+import type { TemporaryPassword, User, UsersSearch } from '../users.schemas'
 import { DeleteUserDialog } from './DeleteUserDialog'
+import { ResetPasswordDialog } from './ResetPasswordDialog'
 import { UserFormDialog } from './UserFormDialog'
+
+/** Lo que se le comparte a un usuario del personal con su temporal. */
+function staffCredentials(
+  user: User,
+  password: TemporaryPassword,
+): TemporaryCredentials {
+  return {
+    name: user.name,
+    phone: user.phone,
+    // Con el DNI si lo tiene; el personal registrado antes, con su correo.
+    loginIdentifier: user.documentNumber ?? user.email,
+    temporaryPassword: password.temporaryPassword,
+    expiresAt: password.expiresAt,
+    isStaff: true,
+  }
+}
 
 const column = createColumns<User>()
 
@@ -42,14 +62,14 @@ const muted = (text: string) => (
 type RowActions = {
   currentUserId: string
   onEdit: (user: User) => void
-  onChangePassword: (user: User) => void
+  onResetPassword: (user: User) => void
   onDelete: (user: User) => void
 }
 
 function userColumns({
   currentUserId,
   onEdit,
-  onChangePassword,
+  onResetPassword,
   onDelete,
 }: RowActions) {
   return column.columns([
@@ -68,6 +88,11 @@ function userColumns({
           </span>
         </div>
       ),
+    }),
+    column.accessor('documentNumber', {
+      header: 'DNI',
+      enableSorting: false,
+      cell: (info) => info.getValue() ?? muted('Sin DNI'),
     }),
     column.accessor('phone', {
       header: 'Teléfono',
@@ -90,12 +115,19 @@ function userColumns({
     column.accessor('isActive', {
       header: 'Estado',
       enableSorting: false,
-      cell: (info) =>
-        info.getValue() ? (
-          <Badge variant="secondary">Activo</Badge>
-        ) : (
-          <Badge variant="outline">Inactivo</Badge>
-        ),
+      cell: (info) => (
+        <div className="flex flex-wrap gap-1">
+          {info.getValue() ? (
+            <Badge variant="secondary">Activo</Badge>
+          ) : (
+            <Badge variant="outline">Inactivo</Badge>
+          )}
+          {/* Todavía no entró a cambiar la contraseña que se le generó. */}
+          {info.row.original.mustChangePassword && (
+            <Badge variant="outline">Contraseña temporal</Badge>
+          )}
+        </div>
+      ),
     }),
     column.accessor('lastLoginAt', {
       header: 'Último ingreso',
@@ -126,9 +158,9 @@ function userColumns({
                 <PencilIcon />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onChangePassword(user)}>
+              <DropdownMenuItem onSelect={() => onResetPassword(user)}>
                 <KeyRoundIcon />
-                Cambiar contraseña
+                Restablecer contraseña
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -167,7 +199,8 @@ export function UserTable({
 }: UserTableProps) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<User>()
-  const [changingPassword, setChangingPassword] = useState<User>()
+  const [resettingPassword, setResettingPassword] = useState<User>()
+  const [credentials, setCredentials] = useState<TemporaryCredentials>()
   const [deleting, setDeleting] = useState<User>()
 
   const columns = useMemo(
@@ -178,7 +211,7 @@ export function UserTable({
           setEditing(user)
           setFormOpen(true)
         },
-        onChangePassword: setChangingPassword,
+        onResetPassword: setResettingPassword,
         onDelete: setDeleting,
       }),
     [currentUserId],
@@ -265,11 +298,21 @@ export function UserTable({
         onOpenChange={setFormOpen}
         user={editing}
         currentUserId={currentUserId}
+        onCreated={({ user, ...password }) =>
+          setCredentials(staffCredentials(user, password))
+        }
       />
-      <ChangePasswordDialog
-        user={changingPassword}
-        isSelf={changingPassword?.userId === currentUserId}
-        onOpenChange={(open) => !open && setChangingPassword(undefined)}
+      <ResetPasswordDialog
+        user={resettingPassword}
+        isSelf={resettingPassword?.userId === currentUserId}
+        onOpenChange={(open) => !open && setResettingPassword(undefined)}
+        onIssued={(user, password) =>
+          setCredentials(staffCredentials(user, password))
+        }
+      />
+      <TemporaryPasswordDialog
+        credentials={credentials}
+        onClose={() => setCredentials(undefined)}
       />
       <DeleteUserDialog
         user={deleting}

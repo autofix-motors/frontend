@@ -6,6 +6,9 @@ import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { components } from '#/types/api.gen'
 
 export type User = components['schemas']['User']
+/** El usuario recién registrado, con su contraseña temporal. */
+export type IssuedUser = components['schemas']['IssuedUser']
+export type TemporaryPassword = components['schemas']['TemporaryPassword']
 
 export const USER_ROLES = [
   'ADMIN',
@@ -41,31 +44,19 @@ const email = z
   .max(254, 'El correo es demasiado largo')
   .pipe(z.email({ error: 'Ingresa un correo válido' }))
 
-const password = z
+/** El DNI como lo guarda la API: sin espacios, puntos ni guiones. */
+const documentNumber = z
   .string()
-  .min(8, 'La contraseña tiene al menos 8 caracteres')
-  .max(200, 'La contraseña es demasiado larga')
-
-/** Que la confirmación coincida; el error va en el campo de confirmación. */
-function confirmationMatches(
-  value: { password: string; passwordConfirmation: string },
-  ctx: z.RefinementCtx,
-) {
-  if (value.password !== value.passwordConfirmation) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['passwordConfirmation'],
-      message: 'Las contraseñas no coinciden',
-    })
-  }
-}
+  .transform((value) => value.replace(/[\s.-]/g, ''))
+  .pipe(z.string().regex(/^\d{8}$/, 'El DNI tiene 8 dígitos'))
 
 /**
- * Los datos de un usuario que se editan. La contraseña no está: tiene su propio
- * diálogo, «Cambiar contraseña».
+ * Los datos de un usuario que se editan. La contraseña no está: la genera el
+ * sistema al registrarlo o al restablecerla («Restablecer contraseña»).
  */
 export const userFormSchema = z.object({
   email,
+  documentNumber,
   name: z
     .string()
     .trim()
@@ -84,42 +75,30 @@ export const userFormSchema = z.object({
 
 export type UserFormValues = z.infer<typeof userFormSchema>
 
+export type UserFormInput = z.input<typeof userFormSchema>
+
 /**
- * El alta: los mismos datos, sin el estado (un usuario nuevo nace activo) y con
- * la contraseña inicial escrita dos veces.
+ * El alta: los mismos datos, sin el estado (un usuario nuevo nace activo). Sin
+ * contraseña: la genera el sistema y se le comparte.
  */
-export const newUserFormSchema = userFormSchema
-  .omit({ isActive: true })
-  .extend({ password, passwordConfirmation: z.string() })
-  .superRefine(confirmationMatches)
+export const newUserFormSchema = userFormSchema.omit({ isActive: true })
 
-export type NewUserFormValues = z.infer<typeof newUserFormSchema>
-
-/** La contraseña nueva que el administrador le asigna a un usuario. */
-export const passwordFormSchema = z
-  .object({ password, passwordConfirmation: z.string() })
-  .superRefine(confirmationMatches)
-
-export type PasswordFormValues = z.infer<typeof passwordFormSchema>
+export type NewUserFormValues = z.input<typeof newUserFormSchema>
 
 export const emptyNewUserForm: NewUserFormValues = {
   email: '',
+  documentNumber: '',
   name: '',
   phone: '',
   role: 'MECHANIC',
-  password: '',
-  passwordConfirmation: '',
-}
-
-export const emptyPasswordForm: PasswordFormValues = {
-  password: '',
-  passwordConfirmation: '',
 }
 
 /** Los valores del formulario para editar un usuario existente. */
-export function userToForm(user: User): UserFormValues {
+export function userToForm(user: User): UserFormInput {
   return {
     email: user.email,
+    // Vacío en el personal registrado antes de pedirlo: al guardar se exige.
+    documentNumber: user.documentNumber ?? '',
     name: user.name,
     phone: user.phone ?? '',
     role: user.role,
@@ -127,15 +106,11 @@ export function userToForm(user: User): UserFormValues {
   }
 }
 
-// Lo que se le manda a la API. La confirmación no viaja (la API rechaza una
-// propiedad que no declara) y el teléfono vacío va como null para borrarlo.
+// Lo que se le manda a la API: el teléfono vacío va como null para borrarlo.
 
 export const createUserInputSchema = newUserFormSchema.transform((value) => ({
-  email: value.email,
-  name: value.name,
+  ...value,
   phone: value.phone || null,
-  role: value.role,
-  password: value.password,
 }))
 
 export type CreateUserInput = z.input<typeof createUserInputSchema>
@@ -154,12 +129,6 @@ export const updateUserRequestSchema = z.object({
   values: updateUserInputSchema,
 })
 
-export const changeUserPasswordRequestSchema = z.object({
-  userId: z.uuid(),
-  values: passwordFormSchema.transform(({ password: value }) => ({
-    password: value,
-  })),
-})
 
 /**
  * La búsqueda, los filtros, el orden y la página del listado, tal como viven en

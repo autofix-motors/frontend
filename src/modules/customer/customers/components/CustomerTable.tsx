@@ -1,10 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import {
   ClipboardListIcon,
+  KeyRoundIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
   Trash2Icon,
+  UserCheckIcon,
+  UserXIcon,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { createColumns } from '#/components/data-table/features'
@@ -20,7 +23,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
+import {
+  TemporaryPasswordDialog,
+  type TemporaryCredentials,
+} from '#/components/credentials/TemporaryPasswordDialog'
 import { formatDateTime } from '#/lib/dates'
+import { IssuePortalAccessDialog } from '#/modules/core/customer-accounts/components/IssuePortalAccessDialog'
+import { RemovePortalAccessDialog } from '#/modules/core/customer-accounts/components/RemovePortalAccessDialog'
+import { portalCredentials } from '#/modules/core/customer-accounts/customer-accounts.schemas'
 import { defaultVehiclesSearch } from '#/modules/customer/vehicles/vehicles.schemas'
 import { defaultWorkOrdersSearch } from '#/modules/workshop/work-orders/work-orders.schemas'
 import type { Page } from '#/server/api'
@@ -42,10 +52,21 @@ const STATUS_OPTIONS = [
 
 type RowActions = {
   onEdit: (customer: Customer) => void
+  onIssuePortalAccess: (customer: Customer) => void
+  onRemovePortalAccess: (customer: Customer) => void
   onDelete: (customer: Customer) => void
 }
 
-function customerColumns({ onEdit, onDelete }: RowActions) {
+const muted = (text: string) => (
+  <span className="text-muted-foreground">{text}</span>
+)
+
+function customerColumns({
+  onEdit,
+  onIssuePortalAccess,
+  onRemovePortalAccess,
+  onDelete,
+}: RowActions) {
   return column.columns([
     column.accessor('documentNumber', {
       header: 'Documento',
@@ -98,6 +119,28 @@ function customerColumns({ onEdit, onDelete }: RowActions) {
           <Badge variant="outline">Inactivo</Badge>
         ),
     }),
+    column.accessor('portalAccess', {
+      header: 'Portal',
+      enableSorting: false,
+      cell: (info) => {
+        const access = info.getValue()
+        if (!access) return muted('Sin acceso')
+        // Con la temporal todavía: o no entró, o no terminó de cambiarla.
+        if (access.mustChangePassword) {
+          return <Badge variant="outline">Por activar</Badge>
+        }
+        return (
+          <div className="flex flex-col items-start gap-0.5">
+            <Badge variant="secondary">Activo</Badge>
+            {access.lastLoginAt && (
+              <span className="text-xs text-muted-foreground">
+                Entró el {formatDateTime(access.lastLoginAt)}
+              </span>
+            )}
+          </div>
+        )
+      },
+    }),
     column.accessor('createdAt', {
       header: 'Registrado',
       cell: (info) => formatDateTime(info.getValue()),
@@ -132,6 +175,30 @@ function customerColumns({ onEdit, onDelete }: RowActions) {
               Editar
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {/* La API no le da acceso a un cliente inactivo: se muestra
+                deshabilitado en vez de ofrecer un botón que falla. */}
+            <DropdownMenuItem
+              disabled={!info.row.original.isActive}
+              onSelect={() => onIssuePortalAccess(info.row.original)}
+            >
+              {info.row.original.portalAccess ? (
+                <KeyRoundIcon />
+              ) : (
+                <UserCheckIcon />
+              )}
+              {info.row.original.portalAccess
+                ? 'Restablecer contraseña del portal'
+                : 'Dar acceso al portal'}
+            </DropdownMenuItem>
+            {info.row.original.portalAccess && (
+              <DropdownMenuItem
+                onSelect={() => onRemovePortalAccess(info.row.original)}
+              >
+                <UserXIcon />
+                Quitar acceso al portal
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
               onSelect={() => onDelete(info.row.original)}
@@ -164,6 +231,9 @@ export function CustomerTable({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Customer>()
   const [deleting, setDeleting] = useState<Customer>()
+  const [issuingAccess, setIssuingAccess] = useState<Customer>()
+  const [removingAccess, setRemovingAccess] = useState<Customer>()
+  const [credentials, setCredentials] = useState<TemporaryCredentials>()
 
   const columns = useMemo(
     () =>
@@ -172,6 +242,8 @@ export function CustomerTable({
           setEditing(customer)
           setFormOpen(true)
         },
+        onIssuePortalAccess: setIssuingAccess,
+        onRemovePortalAccess: setRemovingAccess,
         onDelete: setDeleting,
       }),
     [],
@@ -259,6 +331,24 @@ export function CustomerTable({
         open={formOpen}
         onOpenChange={setFormOpen}
         customer={editing}
+        onPortalAccessIssued={(customer, issued) =>
+          setCredentials(portalCredentials(customer, issued))
+        }
+      />
+      <IssuePortalAccessDialog
+        customer={issuingAccess}
+        onOpenChange={(open) => !open && setIssuingAccess(undefined)}
+        onIssued={(customer, issued) =>
+          setCredentials(portalCredentials(customer, issued))
+        }
+      />
+      <RemovePortalAccessDialog
+        customer={removingAccess}
+        onOpenChange={(open) => !open && setRemovingAccess(undefined)}
+      />
+      <TemporaryPasswordDialog
+        credentials={credentials}
+        onClose={() => setCredentials(undefined)}
       />
       <DeleteCustomerDialog
         customer={deleting}

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { useAppForm } from '#/components/form/form'
 import { Button } from '#/components/ui/button'
 import {
@@ -9,7 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
-import { FieldError, FieldGroup } from '#/components/ui/field'
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '#/components/ui/field'
+import { Switch } from '#/components/ui/switch'
+import { useIssuePortalAccess } from '#/modules/core/customer-accounts/customer-accounts.queries'
+import type { PortalCredentials } from '#/modules/core/customer-accounts/customer-accounts.schemas'
 import { useCreateCustomer, useUpdateCustomer } from '../customers.queries'
 import {
   customerFormSchema,
@@ -24,6 +36,11 @@ type CustomerFormDialogProps = {
   onOpenChange: (open: boolean) => void
   /** El cliente a editar; sin él, el diálogo registra uno nuevo. */
   customer?: Customer
+  /** Si al registrarlo se le dio acceso al portal: su contraseña temporal. */
+  onPortalAccessIssued: (
+    customer: Customer,
+    credentials: PortalCredentials,
+  ) => void
 }
 
 /** Alta y edición de un cliente, en un diálogo sobre el listado. */
@@ -31,6 +48,7 @@ export function CustomerFormDialog({
   open,
   onOpenChange,
   customer,
+  onPortalAccessIssued,
 }: CustomerFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,6 +67,7 @@ export function CustomerFormDialog({
           <CustomerForm
             customer={customer}
             onDone={() => onOpenChange(false)}
+            onPortalAccessIssued={onPortalAccessIssued}
           />
         )}
       </DialogContent>
@@ -59,13 +78,36 @@ export function CustomerFormDialog({
 function CustomerForm({
   customer,
   onDone,
+  onPortalAccessIssued,
 }: {
   customer?: Customer
   onDone: () => void
+  onPortalAccessIssued: CustomerFormDialogProps['onPortalAccessIssued']
 }) {
   const create = useCreateCustomer()
   const update = useUpdateCustomer()
+  const issueAccess = useIssuePortalAccess()
   const mutation = customer ? update : create
+  // Solo al registrar: el acceso de uno existente se maneja desde su menú.
+  // No es un campo del cliente (no viaja en su alta): es un segundo paso.
+  const [withPortalAccess, setWithPortalAccess] = useState(false)
+
+  /**
+   * Registra y, si se pidió, le da acceso al portal. Si el acceso falla, el
+   * cliente ya quedó registrado: el diálogo se cierra igual y el aviso dice
+   * que se reintente desde su menú.
+   */
+  const register = async (values: Parameters<typeof create.mutateAsync>[0]) => {
+    const { customer: created } = await create.mutateAsync(values)
+    if (!withPortalAccess) return
+    await issueAccess.mutateAsync(created.customerId).then(
+      ({ credentials }) => onPortalAccessIssued(created, credentials),
+      (error: Error) =>
+        toast.error(
+          `El cliente quedó registrado, pero no se pudo darle acceso al portal: ${error.message}. Inténtalo desde su menú.`,
+        ),
+    )
+  }
 
   const form = useAppForm({
     defaultValues: customer ? customerToForm(customer) : emptyCustomerForm,
@@ -77,7 +119,7 @@ function CustomerForm({
     onSubmit: ({ value }) =>
       (customer
         ? update.mutateAsync({ customerId: customer.customerId, values: value })
-        : create.mutateAsync(value)
+        : register(value)
       ).then(onDone, () => undefined),
   })
 
@@ -148,6 +190,23 @@ function CustomerForm({
             />
           )}
         </form.AppField>
+        {!customer && (
+          <Field orientation="horizontal">
+            <FieldContent>
+              <FieldLabel htmlFor="with-portal-access">
+                Dar acceso al portal
+              </FieldLabel>
+              <FieldDescription>
+                Se le genera una contraseña temporal para enviarle por WhatsApp.
+              </FieldDescription>
+            </FieldContent>
+            <Switch
+              id="with-portal-access"
+              checked={withPortalAccess}
+              onCheckedChange={setWithPortalAccess}
+            />
+          </Field>
+        )}
         {mutation.error && <FieldError>{mutation.error.message}</FieldError>}
         <DialogFooter>
           <DialogClose asChild>

@@ -2,13 +2,29 @@ import { useRouter } from '@tanstack/react-router'
 import { useAppForm } from '#/components/form/form'
 import { FieldError, FieldGroup } from '#/components/ui/field'
 import { useLogin } from '../auth.queries'
-import { loginSchema } from '../auth.schemas'
-import type { LoginInput } from '../auth.schemas'
+import { afterLogin, loginSchema } from '../auth.schemas'
+import type { LoginAudience, LoginInput } from '../auth.schemas'
 
-const defaultValues: LoginInput = { email: '', password: '' }
+const defaultValues: LoginInput = { identifier: '', password: '' }
 
-/** El formulario de inicio de sesión. Al entrar, lleva a `redirectTo`. */
-export function LoginForm({ redirectTo }: { redirectTo: string }) {
+/** Qué se le pide a cada uno en el campo del usuario. */
+const IDENTIFIER_LABELS: Record<LoginAudience, string> = {
+  customer: 'Número de documento o correo',
+  staff: 'DNI o correo',
+}
+
+/**
+ * El formulario de inicio de sesión, del cliente o del personal. Al entrar
+ * lleva a su inicio (o a cambiar la contraseña temporal), o a `redirect` si
+ * corresponde a quien entró.
+ */
+export function LoginForm({
+  audience,
+  redirect,
+}: {
+  audience: LoginAudience
+  redirect?: string
+}) {
   const router = useRouter()
   const login = useLogin()
 
@@ -18,8 +34,8 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
     // Credenciales incorrectas: el mensaje sale de `login.error` y el error no
     // se relanza, para no dejarlo sin capturar en la consola.
     onSubmit: ({ value }) =>
-      login.mutateAsync(value).then(
-        () => router.navigate({ href: redirectTo }),
+      login.mutateAsync({ ...value, audience }).then(
+        (session) => router.navigate({ href: afterLogin(session, redirect) }),
         () => undefined,
       ),
   })
@@ -32,11 +48,10 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       }}
     >
       <FieldGroup>
-        <form.AppField name="email">
+        <form.AppField name="identifier">
           {(field) => (
             <field.TextField
-              label="Correo"
-              type="email"
+              label={IDENTIFIER_LABELS[audience]}
               autoComplete="username"
               autoFocus
             />

@@ -7,17 +7,16 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
-  changeUserPassword,
   createUser,
   deleteUser,
   getUser,
+  issueUserTemporaryPassword,
   listUsers,
   updateUser,
 } from './users.fn'
 import { defaultUsersSearch, userOption } from './users.schemas'
 import type {
   CreateUserInput,
-  PasswordFormValues,
   UpdateUserInput,
   UsersSearch,
 } from './users.schemas'
@@ -95,12 +94,13 @@ export function useUpdateUser() {
   })
 }
 
-export function useChangeUserPassword() {
+export function useIssueUserTemporaryPassword() {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: { userId: string; values: PasswordFormValues }) =>
-      changeUserPassword({ data: request }),
-    // El listado no muestra nada que cambie con la contraseña: no se recarga.
-    onSuccess: ({ message }) => toast.success(message),
+    mutationFn: (userId: string) =>
+      issueUserTemporaryPassword({ data: { userId } }),
+    // El listado muestra quién tiene la contraseña temporal.
+    onSuccess: ({ message }) => onChanged(queryClient, message),
   })
 }
 

@@ -10,7 +10,10 @@ import {
   refreshToken,
   storeSession,
 } from '#/server/session'
-import { loginSchema } from './auth.schemas'
+import {
+  changePasswordRequestSchema,
+  loginRequestSchema,
+} from './auth.schemas'
 import type { CurrentSession } from './auth.schemas'
 
 // Iniciar, cerrar y consultar la sesión. Los tokens nunca llegan al navegador:
@@ -24,17 +27,41 @@ function browserHeaders(): Record<string, string> {
   return userAgent ? { 'User-Agent': userAgent } : {}
 }
 
+/** Cada login, contra su endpoint: un mismo DNI puede ser de los dos. */
+const LOGIN_PATHS = {
+  customer: '/auth/customer-login',
+  staff: '/auth/login',
+} as const
+
 export const login = createServerFn({ method: 'POST' })
-  .validator(loginSchema)
-  .handler(async ({ data }) => {
-    const response = await fetchApi('/auth/login', {
+  .validator(loginRequestSchema)
+  .handler(async ({ data: { audience, ...credentials } }) => {
+    const response = await fetchApi(LOGIN_PATHS[audience], {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(credentials),
       headers: browserHeaders(),
     })
     storeSession(response.headers)
     const envelope = (await response.json()) as ApiEnvelope<CurrentSession>
     return envelope.data
+  })
+
+/**
+ * Cambia la propia contraseña. La API cierra las demás sesiones y abre una
+ * nueva, sin la marca de contraseña temporal: se guardan sus cookies igual que
+ * en el login. No es una renovación (eso solo lo hace getSession).
+ */
+export const changeOwnPassword = createServerFn({ method: 'POST' })
+  .validator(changePasswordRequestSchema)
+  .handler(async ({ data }) => {
+    const response = await fetchApi('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: browserHeaders(),
+    })
+    storeSession(response.headers)
+    const envelope = (await response.json()) as ApiEnvelope<CurrentSession>
+    return { session: envelope.data, message: envelope.message }
   })
 
 /**

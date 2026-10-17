@@ -19,7 +19,7 @@ import {
   userFormSchema,
   userToForm,
 } from '../users.schemas'
-import type { User } from '../users.schemas'
+import type { IssuedUser, User } from '../users.schemas'
 
 type UserFormDialogProps = {
   open: boolean
@@ -28,6 +28,8 @@ type UserFormDialogProps = {
   user?: User
   /** El usuario de la sesión: no puede desactivarse ni cambiarse el rol. */
   currentUserId: string
+  /** Al registrar uno nuevo: su contraseña temporal, para compartirla. */
+  onCreated: (issued: IssuedUser) => void
 }
 
 /** Alta y edición de un usuario, en un diálogo sobre el listado. */
@@ -36,6 +38,7 @@ export function UserFormDialog({
   onOpenChange,
   user,
   currentUserId,
+  onCreated,
 }: UserFormDialogProps) {
   const onDone = () => onOpenChange(false)
 
@@ -46,8 +49,8 @@ export function UserFormDialog({
           <DialogTitle>{user ? 'Editar usuario' : 'Nuevo usuario'}</DialogTitle>
           <DialogDescription>
             {user
-              ? 'La contraseña se cambia desde «Cambiar contraseña».'
-              : 'Inicia sesión con este correo y la contraseña que le asignes.'}
+              ? 'La contraseña se restablece desde «Restablecer contraseña».'
+              : 'Inicia sesión con su DNI o su correo. El sistema le genera una contraseña temporal que le compartes y él cambia al entrar.'}
           </DialogDescription>
         </DialogHeader>
         {/* Se monta al abrir: cada apertura empieza con los valores del
@@ -60,14 +63,19 @@ export function UserFormDialog({
               onDone={onDone}
             />
           ) : (
-            <NewUserForm onDone={onDone} />
+            <NewUserForm
+              onDone={(issued) => {
+                onDone()
+                onCreated(issued)
+              }}
+            />
           ))}
       </DialogContent>
     </Dialog>
   )
 }
 
-function NewUserForm({ onDone }: { onDone: () => void }) {
+function NewUserForm({ onDone }: { onDone: (issued: IssuedUser) => void }) {
   const create = useCreateUser()
 
   const form = useAppForm({
@@ -76,7 +84,10 @@ function NewUserForm({ onDone }: { onDone: () => void }) {
     // Un rechazo de la API (correo repetido) deja el diálogo abierto con su
     // mensaje y no se relanza: quedaría como error sin capturar en la consola.
     onSubmit: ({ value }) =>
-      create.mutateAsync(value).then(onDone, () => undefined),
+      create.mutateAsync(value).then(
+        ({ issued }) => onDone(issued),
+        () => undefined,
+      ),
   })
 
   return (
@@ -96,38 +107,25 @@ function NewUserForm({ onDone }: { onDone: () => void }) {
               <field.TextField label="Correo" type="email" autoComplete="off" />
             )}
           </form.AppField>
-          <form.AppField name="phone">
+          <form.AppField name="documentNumber">
             {(field) => (
-              <field.TextField label="Teléfono (opcional)" type="tel" />
+              <field.TextField label="DNI" inputMode="numeric" maxLength={12} />
             )}
           </form.AppField>
         </div>
-        <form.AppField name="role">
-          {(field) => <field.SelectField label="Rol" options={roleOptions} />}
-        </form.AppField>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="password">
+          <form.AppField name="phone">
             {(field) => (
               <field.TextField
-                label="Contraseña"
-                type="password"
-                autoComplete="new-password"
-                description="Al menos 8 caracteres."
+                label="Celular (opcional)"
+                type="tel"
+                description="Para enviarle su acceso por WhatsApp."
               />
             )}
           </form.AppField>
-          <form.AppField
-            name="passwordConfirmation"
-            // Se vuelve a comparar cuando cambia la contraseña, no solo la
-            // confirmación.
-            validators={{ onChangeListenTo: ['password'] }}
-          >
+          <form.AppField name="role">
             {(field) => (
-              <field.TextField
-                label="Repite la contraseña"
-                type="password"
-                autoComplete="new-password"
-              />
+              <field.SelectField label="Rol" options={roleOptions} />
             )}
           </form.AppField>
         </div>
@@ -194,12 +192,17 @@ function EditUserForm({
               <field.TextField label="Correo" type="email" autoComplete="off" />
             )}
           </form.AppField>
-          <form.AppField name="phone">
+          <form.AppField name="documentNumber">
             {(field) => (
-              <field.TextField label="Teléfono (opcional)" type="tel" />
+              <field.TextField label="DNI" inputMode="numeric" maxLength={12} />
             )}
           </form.AppField>
         </div>
+        <form.AppField name="phone">
+          {(field) => (
+            <field.TextField label="Celular (opcional)" type="tel" />
+          )}
+        </form.AppField>
         {/* La API no deja que nadie se quite el rol ni se desactive a sí
             mismo: en el propio usuario esos campos no se ofrecen. */}
         <form.AppField name="role">

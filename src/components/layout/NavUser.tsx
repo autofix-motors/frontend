@@ -1,4 +1,5 @@
-import { ChevronsUpDownIcon, LogOutIcon } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { ChevronsUpDownIcon, KeyRoundIcon, LogOutIcon } from 'lucide-react'
 import { Avatar, AvatarFallback } from '#/components/ui/avatar'
 import {
   DropdownMenu,
@@ -16,7 +17,7 @@ import {
 } from '#/components/ui/sidebar'
 import { useLogout } from '#/modules/core/auth/auth.queries'
 import { ROLE_LABELS } from '#/modules/core/auth/auth.schemas'
-import type { CurrentSession } from '#/modules/core/auth/auth.schemas'
+import type { StaffSession } from '#/modules/core/auth/auth.schemas'
 
 /** Las iniciales del nombre: «Eduardo Huarcaya» → «EH». */
 function initials(name: string): string {
@@ -28,7 +29,7 @@ function initials(name: string): string {
     .join('')
 }
 
-function UserSummary({ session }: { session: CurrentSession }) {
+function UserSummary({ session }: { session: StaffSession }) {
   return (
     <>
       <Avatar className="size-8 rounded-lg">
@@ -47,7 +48,7 @@ function UserSummary({ session }: { session: CurrentSession }) {
 }
 
 /** El usuario de la sesión, al pie de la barra lateral, con su menú. */
-export function NavUser({ session }: { session: CurrentSession }) {
+export function NavUser({ session }: { session: StaffSession }) {
   const { isMobile } = useSidebar()
   const logout = useLogout()
 
@@ -79,6 +80,12 @@ export function NavUser({ session }: { session: CurrentSession }) {
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/change-password">
+                <KeyRoundIcon />
+                Cambiar contraseña
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem
               disabled={logout.isPending}
               onSelect={() => logout.mutate()}

@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '#/components/ui/sidebar'
-import type { CurrentSession } from '#/modules/core/auth/auth.schemas'
+import type { StaffSession } from '#/modules/core/auth/auth.schemas'
 import { NavSections } from './NavSections'
 import { NavUser } from './NavUser'
 import { GENERAL_ITEMS, SECTIONS, visibleSections } from './navigation'
@@ -20,7 +20,7 @@ import { GENERAL_ITEMS, SECTIONS, visibleSections } from './navigation'
  * La barra lateral de la app. Se llama AppSidebar y no Sidebar para no chocar
  * con la primitiva de shadcn (`components/ui/sidebar.tsx`).
  */
-export function AppSidebar({ session }: { session: CurrentSession }) {
+export function AppSidebar({ session }: { session: StaffSession }) {
   const matchRoute = useMatchRoute()
   const sections = visibleSections(SECTIONS, session.role)
 

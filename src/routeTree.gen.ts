@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as PortalIndexRouteImport } from './routes/portal/index'
 import { Route as AppCoreUsersIndexRouteImport } from './routes/_app/core/users/index'
 import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/customer/customers/index'
 import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
@@ -26,15 +29,30 @@ const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChangePasswordRoute = ChangePasswordRouteImport.update({
+  id: '/change-password',
+  path: '/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortalRoute,
 } as any)
 const AppCoreUsersIndexRoute = AppCoreUsersIndexRouteImport.update({
   id: '/core/users/',
@@ -91,7 +109,10 @@ const AppWorkshopWorkOrdersWorkOrderIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
+  '/portal': typeof PortalRouteWithChildren
+  '/portal/': typeof PortalIndexRoute
   '/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   '/core/users/': typeof AppCoreUsersIndexRoute
   '/customer/customers/': typeof AppCustomerCustomersIndexRoute
@@ -103,8 +124,10 @@ export interface FileRoutesByFullPath {
   '/workshop/work-orders/': typeof AppWorkshopWorkOrdersIndexRoute
 }
 export interface FileRoutesByTo {
+  '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
   '/': typeof AppIndexRoute
+  '/portal': typeof PortalIndexRoute
   '/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   '/core/users': typeof AppCoreUsersIndexRoute
   '/customer/customers': typeof AppCustomerCustomersIndexRoute
@@ -118,8 +141,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
+  '/portal': typeof PortalRouteWithChildren
   '/_app/': typeof AppIndexRoute
+  '/portal/': typeof PortalIndexRoute
   '/_app/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   '/_app/core/users/': typeof AppCoreUsersIndexRoute
   '/_app/customer/customers/': typeof AppCustomerCustomersIndexRoute
@@ -134,7 +160,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/change-password'
     | '/login'
+    | '/portal'
+    | '/portal/'
     | '/workshop/work-orders/$workOrderId'
     | '/core/users/'
     | '/customer/customers/'
@@ -146,8 +175,10 @@ export interface FileRouteTypes {
     | '/workshop/work-orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/change-password'
     | '/login'
     | '/'
+    | '/portal'
     | '/workshop/work-orders/$workOrderId'
     | '/core/users'
     | '/customer/customers'
@@ -160,8 +191,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/change-password'
     | '/login'
+    | '/portal'
     | '/_app/'
+    | '/portal/'
     | '/_app/workshop/work-orders/$workOrderId'
     | '/_app/core/users/'
     | '/_app/customer/customers/'
@@ -175,7 +209,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  ChangePasswordRoute: typeof ChangePasswordRoute
   LoginRoute: typeof LoginRoute
+  PortalRoute: typeof PortalRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -187,11 +223,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/change-password': {
+      id: '/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof ChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/': {
@@ -200,6 +250,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/portal/': {
+      id: '/portal/'
+      path: '/'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof PortalRoute
     }
     '/_app/core/users/': {
       id: '/_app/core/users/'
@@ -295,9 +352,22 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface PortalRouteChildren {
+  PortalIndexRoute: typeof PortalIndexRoute
+}
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalIndexRoute: PortalIndexRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  ChangePasswordRoute: ChangePasswordRoute,
   LoginRoute: LoginRoute,
+  PortalRoute: PortalRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
