@@ -356,6 +356,38 @@ export interface paths {
         patch: operations["WorkOrdersController_updateItem"];
         trace?: never;
     };
+    "/work-orders/{workOrderId}/quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_sendQuote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/quotes/{quoteId}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_decideQuote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/products": {
         parameters: {
             query?: never;
@@ -926,6 +958,56 @@ export interface components {
              */
             partsMargin?: string;
         };
+        /** @enum {string} */
+        QuoteStatus: "PENDING" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+        /** @enum {string} */
+        DecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON";
+        QuoteItem: {
+            /** Format: uuid */
+            quoteItemId: string;
+            type: components["schemas"]["ItemType"];
+            /** @example FA-TOY-90915 · Filtro de aceite Toyota Yaris */
+            description: string;
+            /** @example 1.00 */
+            quantity: string;
+            /**
+             * @description En soles
+             * @example 35.00
+             */
+            unitPrice: string;
+            /**
+             * @description Cantidad por precio unitario, redondeado a céntimos
+             * @example 35.00
+             */
+            subtotal: string;
+        };
+        Quote: {
+            /** Format: uuid */
+            quoteId: string;
+            /**
+             * @description 1, 2, 3… dentro de cada orden
+             * @example 2
+             */
+            version: number;
+            status: components["schemas"]["QuoteStatus"];
+            /**
+             * @description En soles, congelado al enviarlo
+             * @example 450.00
+             */
+            total: string;
+            /** Format: date-time */
+            sentAt: string;
+            /** @description Quién lo envió */
+            sentBy: components["schemas"]["WorkOrderUser"];
+            /** Format: date-time */
+            decidedAt: string | null;
+            /** @description El administrador que registró la respuesta del cliente */
+            decidedBy: components["schemas"]["WorkOrderUser"] | null;
+            decisionChannel: components["schemas"]["DecisionChannel"] | null;
+            decisionNote: string | null;
+            /** @description Los ítems como estaban al enviarlo */
+            items: components["schemas"]["QuoteItem"][];
+        };
         WorkOrderDetail: {
             /** Format: uuid */
             workOrderId: string;
@@ -974,6 +1056,8 @@ export interface components {
             /** @description Servicios y repuestos, en el orden en que se agregaron */
             items: components["schemas"]["WorkOrderItem"][];
             totals: components["schemas"]["WorkOrderTotals"];
+            /** @description Los presupuestos enviados, de la versión más nueva a la más vieja */
+            quotes: components["schemas"]["Quote"][];
         };
         CreateWorkOrderDto: {
             /**
@@ -1060,6 +1144,21 @@ export interface components {
             unitPrice?: string | number;
             /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
             description?: string;
+        };
+        CreateQuoteDto: {
+            /**
+             * @description Para el cliente: va en la línea de tiempo pública, junto al total
+             * @example Incluye el cambio de la bomba de agua; el termostato va de regalo
+             */
+            note?: string | null;
+        };
+        /** @enum {string} */
+        QuoteDecision: "APPROVED" | "REJECTED";
+        DecideQuoteDto: {
+            decision: components["schemas"]["QuoteDecision"];
+            channel: components["schemas"]["DecisionChannel"];
+            /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
+            note?: string | null;
         };
         /** @enum {string} */
         ProductKind: "PART" | "SUPPLY";
@@ -2711,6 +2810,96 @@ export interface operations {
                 content?: never;
             };
             /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_sendQuote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateQuoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La orden no tiene ítems */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en diagnóstico, en reparación ni esperando repuestos, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_decideQuote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                quoteId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecideQuoteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No se encontró la orden, o el presupuesto no es de ella */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El presupuesto ya se decidió o fue reemplazado, la orden no espera aprobación, o cambió mientras tanto */
             409: {
                 headers: {
                     [name: string]: unknown;

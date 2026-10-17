@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import {
   ArrowLeftIcon,
+  ClockIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Trash2Icon,
@@ -22,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
 import { formatDateOnly, formatDateTime } from '#/lib/dates'
+import { formatMoney } from '#/lib/money'
 import { cn } from '#/lib/utils'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import {
@@ -31,14 +33,21 @@ import {
   defaultWorkOrdersSearch,
   formatWorkOrderNumber,
   isClosed,
+  pendingQuote,
 } from '../work-orders.schemas'
-import type { WorkOrderDetail, WorkOrderStatus } from '../work-orders.schemas'
+import type {
+  Quote,
+  WorkOrderDetail,
+  WorkOrderStatus,
+} from '../work-orders.schemas'
 import { AddNoteForm } from './AddNoteForm'
 import { ChangeStatusDialog } from './ChangeStatusDialog'
+import { DecideQuoteDialog } from './DecideQuoteDialog'
 import { DeleteWorkOrderDialog } from './DeleteWorkOrderDialog'
 import { DiagnosisSection } from './DiagnosisSection'
 import { EditWorkOrderDialog } from './EditWorkOrderDialog'
 import { WorkOrderItemsSection } from './WorkOrderItemsSection'
+import { WorkOrderQuotesSection } from './WorkOrderQuotesSection'
 import { WorkOrderTimeline } from './WorkOrderTimeline'
 import { OverdueBadge, WorkOrderStatusBadge } from './WorkOrderStatusBadge'
 
@@ -48,7 +57,9 @@ const kmFormat = new Intl.NumberFormat('es-PE')
  * El detalle de una orden: dónde se trabaja. Los botones de estado son los
  * que el rol puede usar desde el estado actual (la misma tabla que la API);
  * editar, asignar y borrar son del administrador. Los servicios y repuestos
- * van primero: es lo que más se toca mientras la orden está en el taller.
+ * van primero: es lo que más se toca mientras la orden está en el taller; los
+ * presupuestos, debajo. Mientras la orden espera aprobación, la cabecera lo
+ * avisa con el total pendiente.
  */
 export function WorkOrderView({
   workOrder,
@@ -60,10 +71,12 @@ export function WorkOrderView({
   const [target, setTarget] = useState<WorkOrderStatus>()
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [deciding, setDeciding] = useState<Quote>()
 
   const isAdmin = role === 'ADMIN'
   const transitions = allowedTransitions(workOrder.status, role)
   const closed = isClosed(workOrder.status)
+  const pending = pendingQuote(workOrder)
 
   return (
     <div className="flex flex-col gap-6">
@@ -131,6 +144,29 @@ export function WorkOrderView({
             )}
           </div>
         </div>
+        {pending && (
+          <div
+            role="status"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+          >
+            <p className="flex items-center gap-2">
+              <ClockIcon className="size-4 shrink-0" />
+              <span>
+                Esperando la respuesta del cliente al presupuesto v
+                {pending.version} por{' '}
+                <strong className="tabular-nums">
+                  {formatMoney(pending.total)}
+                </strong>
+                , enviado el {formatDateTime(pending.sentAt)}.
+              </span>
+            </p>
+            {isAdmin && (
+              <Button size="sm" onClick={() => setDeciding(pending)}>
+                Registrar respuesta del cliente
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -203,6 +239,11 @@ export function WorkOrderView({
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-4">
           <WorkOrderItemsSection workOrder={workOrder} role={role} />
+          <WorkOrderQuotesSection
+            workOrder={workOrder}
+            role={role}
+            onDecide={setDeciding}
+          />
           <Card>
             <CardHeader>
               <CardTitle>Motivo del ingreso</CardTitle>
@@ -261,6 +302,11 @@ export function WorkOrderView({
             open={deleting}
             onOpenChange={setDeleting}
             workOrder={workOrder}
+          />
+          <DecideQuoteDialog
+            workOrderId={workOrder.workOrderId}
+            quote={deciding}
+            onOpenChange={(open) => !open && setDeciding(undefined)}
           />
         </>
       )}

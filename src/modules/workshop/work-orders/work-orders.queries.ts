@@ -14,10 +14,12 @@ import {
   addWorkOrderNote,
   changeWorkOrderStatus,
   createWorkOrder,
+  decideQuote,
   deleteWorkOrder,
   getWorkOrder,
   listWorkOrders,
   removeWorkOrderItem,
+  sendQuote,
   updateWorkOrder,
   updateWorkOrderDiagnosis,
   updateWorkOrderItem,
@@ -26,9 +28,11 @@ import type {
   AddItemRequest,
   ChangeStatusRequest,
   CreateWorkOrderInput,
+  DecideQuoteRequest,
   DiagnosisFormValues,
   ItemType,
   NoteFormValues,
+  SendQuoteRequest,
   UpdateItemRequest,
   UpdateWorkOrderInput,
   WorkOrderDetail,
@@ -213,5 +217,21 @@ export function useRemoveWorkOrderItem() {
         onStockMoved(queryClient, request.type),
       ])
     },
+  })
+}
+
+export function useSendQuote() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (request: SendQuoteRequest) => sendQuote({ data: request }),
+    onSuccess: (result) => onChanged(queryClient, result),
+  })
+}
+
+export function useDecideQuote() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (request: DecideQuoteRequest) => decideQuote({ data: request }),
+    onSuccess: (result) => onChanged(queryClient, result),
   })
 }

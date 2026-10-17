@@ -1,6 +1,14 @@
 import type { z } from 'zod'
 import {
   OPEN_STATUSES,
+  canSendQuote,
+  decideQuoteFormSchema,
+  decideQuoteRequestSchema,
+  emptyDecideQuoteForm,
+  emptySendQuoteForm,
+  pendingQuote,
+  sendQuoteFormSchema,
+  sendQuoteRequestSchema,
   addItemFormSchema,
   addItemRequestSchema,
   canChangeItems,
@@ -487,5 +495,94 @@ describe('editar un ítem', () => {
         toUpdateItemRequest(WORK_ORDER_ID, service, values, 'ADMIN'),
       ).success,
     ).toBe(true)
+  })
+})
+
+describe('presupuestos', () => {
+  const QUOTE_ID = '5e4d3c2b-1a0f-4e9d-8c7b-6a5f4e3d2c1b'
+  const quote = (status: string, version: number) =>
+    ({ quoteId: `q-${version}`, version, status }) as never
+
+  it('se envía en diagnóstico o a mitad de la reparación (copia de la API)', () => {
+    expect(WORK_ORDER_STATUSES.filter(canSendQuote)).toEqual([
+      'DIAGNOSIS',
+      'IN_PROGRESS',
+      'WAITING_PARTS',
+    ])
+  })
+
+  it('la versión pendiente solo cuenta mientras la orden espera aprobación', () => {
+    const quotes = [quote('PENDING', 2), quote('REJECTED', 1)]
+    expect(pendingQuote({ status: 'WAITING_APPROVAL', quotes })?.version).toBe(
+      2,
+    )
+    // Cancelada mientras esperaba: ya no hay respuesta que registrar.
+    expect(pendingQuote({ status: 'CANCELLED', quotes })).toBeUndefined()
+    expect(
+      pendingQuote({
+        status: 'WAITING_APPROVAL',
+        quotes: [quote('APPROVED', 1)],
+      }),
+    ).toBeUndefined()
+  })
+
+  it('la nota del envío es opcional y vacía viaja como null', () => {
+    expect(messagesOf(sendQuoteFormSchema, emptySendQuoteForm)).toEqual([])
+    expect(messagesOf(sendQuoteFormSchema, { note: 'x'.repeat(2001) })).toEqual(
+      ['La nota tiene como máximo 2000 caracteres'],
+    )
+    expect(
+      sendQuoteRequestSchema.parse({ workOrderId: WORK_ORDER_ID, note: '  ' }),
+    ).toStrictEqual({ workOrderId: WORK_ORDER_ID, note: null })
+    expect(
+      sendQuoteRequestSchema.parse({
+        workOrderId: WORK_ORDER_ID,
+        note: ' Incluye la mano de obra ',
+      }),
+    ).toStrictEqual({
+      workOrderId: WORK_ORDER_ID,
+      note: 'Incluye la mano de obra',
+    })
+  })
+
+  it('la respuesta empieza vacía y pide qué respondió y por dónde', () => {
+    expect(emptyDecideQuoteForm).toStrictEqual({
+      decision: '',
+      channel: '',
+      note: '',
+    })
+    expect(messagesOf(decideQuoteFormSchema, emptyDecideQuoteForm)).toEqual([
+      'Indica si el cliente aprobó o rechazó el presupuesto',
+      'Indica por dónde respondió el cliente',
+    ])
+    expect(
+      messagesOf(decideQuoteFormSchema, {
+        decision: 'SUPERSEDED',
+        channel: 'EMAIL',
+        note: '',
+      }),
+    ).toHaveLength(2)
+  })
+
+  it('lo que se manda: la decisión, el canal y la nota vacía como null', () => {
+    expect(
+      decideQuoteRequestSchema.parse({
+        workOrderId: WORK_ORDER_ID,
+        quoteId: QUOTE_ID,
+        values: { decision: 'APPROVED', channel: 'WHATSAPP', note: ' ' },
+      }),
+    ).toStrictEqual({
+      workOrderId: WORK_ORDER_ID,
+      quoteId: QUOTE_ID,
+      values: { decision: 'APPROVED', channel: 'WHATSAPP', note: null },
+    })
+    // El servidor vuelve a validar: un vacío no llega a la API.
+    expect(
+      decideQuoteRequestSchema.safeParse({
+        workOrderId: WORK_ORDER_ID,
+        quoteId: QUOTE_ID,
+        values: emptyDecideQuoteForm,
+      }).success,
+    ).toBe(false)
   })
 })

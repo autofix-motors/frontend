@@ -637,3 +637,138 @@ export const removeItemRequestSchema = z.object({
   workOrderId: z.uuid(),
   workOrderItemId: z.uuid(),
 })
+
+// ── Presupuestos ─────────────────────────────────────────────────────────────
+
+/** Una versión del presupuesto, con sus ítems congelados al enviarla. */
+export type Quote = components['schemas']['Quote']
+export type QuoteItem = components['schemas']['QuoteItem']
+export type QuoteStatus = components['schemas']['QuoteStatus']
+export type DecisionChannel = components['schemas']['DecisionChannel']
+export type QuoteDecision = components['schemas']['QuoteDecision']
+
+export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
+  PENDING: 'Pendiente',
+  APPROVED: 'Aprobado',
+  REJECTED: 'Rechazado',
+  SUPERSEDED: 'Reemplazado',
+}
+
+/** Lo que espera al cliente en ámbar, como la orden que espera aprobación. */
+export const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
+  PENDING: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
+  APPROVED:
+    'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+  REJECTED: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
+  SUPERSEDED: 'bg-muted text-muted-foreground',
+}
+
+const DECISION_CHANNELS = [
+  'PHONE',
+  'WHATSAPP',
+  'IN_PERSON',
+] as const satisfies readonly DecisionChannel[]
+
+export const DECISION_CHANNEL_LABELS: Record<DecisionChannel, string> = {
+  PHONE: 'Llamada',
+  WHATSAPP: 'WhatsApp',
+  IN_PERSON: 'En el taller',
+}
+
+const QUOTE_DECISIONS = [
+  'APPROVED',
+  'REJECTED',
+] as const satisfies readonly QuoteDecision[]
+
+/** Qué le pasa a la orden con cada respuesta (como la API). */
+export const QUOTE_DECISION_EFFECTS: Record<QuoteDecision, string> = {
+  APPROVED: 'La orden pasa a «En reparación».',
+  REJECTED: 'La orden vuelve a «En diagnóstico» para ajustar el presupuesto.',
+}
+
+/**
+ * COPIA de los estados desde los que la API deja enviar un presupuesto
+ * (`SYSTEM_TRANSITIONS.QUOTE_SENT` en work-order-status.ts): al diagnosticar
+ * o, si aparece otro problema, a mitad de la reparación. Sirve para mostrar el
+ * botón solo cuando la API lo va a aceptar; que la orden tenga ítems lo mira
+ * la pantalla aparte.
+ */
+export function canSendQuote(status: WorkOrderStatus): boolean {
+  return ['DIAGNOSIS', 'IN_PROGRESS', 'WAITING_PARTS'].includes(status)
+}
+
+/**
+ * La versión que espera respuesta, si la hay. Solo cuenta mientras la orden
+ * espera aprobación: una que quedó pendiente en una orden cancelada ya no se
+ * responde.
+ */
+export function pendingQuote(
+  workOrder: Pick<WorkOrderDetail, 'status' | 'quotes'>,
+): Quote | undefined {
+  if (workOrder.status !== 'WAITING_APPROVAL') return undefined
+  return workOrder.quotes.find((quote) => quote.status === 'PENDING')
+}
+
+/** La nota para el cliente que acompaña al presupuesto; vacía no viaja. */
+export const sendQuoteFormSchema = z.object({ note: noteField })
+
+export type SendQuoteFormValues = z.infer<typeof sendQuoteFormSchema>
+
+export const emptySendQuoteForm: SendQuoteFormValues = { note: '' }
+
+export const sendQuoteRequestSchema = z.object({
+  workOrderId: z.uuid(),
+  note: noteField.transform((value) => value || null),
+})
+
+export type SendQuoteRequest = z.input<typeof sendQuoteRequestSchema>
+
+/**
+ * La respuesta del cliente. Las dos opciones empiezan vacías (`''`, y el
+ * Select muestra su texto de ayuda): quien registra tiene que elegir qué
+ * respondió y por dónde, no aceptar un valor por omisión. El `pipe` deja
+ * entrar el vacío al formulario y lo rechaza con su mensaje.
+ */
+export const decideQuoteFormSchema = z.object({
+  decision: z.union([z.literal(''), z.enum(QUOTE_DECISIONS)]).pipe(
+    z.enum(QUOTE_DECISIONS, {
+      error: 'Indica si el cliente aprobó o rechazó el presupuesto',
+    }),
+  ),
+  channel: z.union([z.literal(''), z.enum(DECISION_CHANNELS)]).pipe(
+    z.enum(DECISION_CHANNELS, {
+      error: 'Indica por dónde respondió el cliente',
+    }),
+  ),
+  note: noteField,
+})
+
+export type DecideQuoteFormValues = z.input<typeof decideQuoteFormSchema>
+
+export const emptyDecideQuoteForm: DecideQuoteFormValues = {
+  decision: '',
+  channel: '',
+  note: '',
+}
+
+/** Lo que se le manda a la API: la nota vacía como null. */
+export const decideQuoteRequestSchema = z.object({
+  workOrderId: z.uuid(),
+  quoteId: z.uuid(),
+  values: decideQuoteFormSchema.transform((value) => ({
+    ...value,
+    note: value.note || null,
+  })),
+})
+
+export type DecideQuoteRequest = z.input<typeof decideQuoteRequestSchema>
+
+export const DECISION_OPTIONS = QUOTE_DECISIONS.map((value) => ({
+  value,
+  label: QUOTE_STATUS_LABELS[value],
+}))
+
+export const CHANNEL_OPTIONS = DECISION_CHANNELS.map((value) => ({
+  value,
+  label: DECISION_CHANNEL_LABELS[value],
+}))

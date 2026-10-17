@@ -12,7 +12,9 @@ import {
   addNoteRequestSchema,
   changeStatusRequestSchema,
   createWorkOrderInputSchema,
+  decideQuoteRequestSchema,
   removeItemRequestSchema,
+  sendQuoteRequestSchema,
   updateDiagnosisRequestSchema,
   updateItemRequestSchema,
   updateWorkOrderRequestSchema,
@@ -98,6 +100,22 @@ export const updateWorkOrderItem = createServerFn({ method: 'POST' })
     send(
       `/work-orders/${data.workOrderId}/items/${data.workOrderItemId}`,
       'PATCH',
+      data.values,
+    ),
+  )
+
+export const sendQuote = createServerFn({ method: 'POST' })
+  .validator(sendQuoteRequestSchema)
+  .handler(({ data: { workOrderId, ...body } }) =>
+    send(`/work-orders/${workOrderId}/quotes`, 'POST', body),
+  )
+
+export const decideQuote = createServerFn({ method: 'POST' })
+  .validator(decideQuoteRequestSchema)
+  .handler(({ data }) =>
+    send(
+      `/work-orders/${data.workOrderId}/quotes/${data.quoteId}/decision`,
+      'POST',
       data.values,
     ),
   )
