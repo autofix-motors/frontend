@@ -663,6 +663,10 @@ export const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
   SUPERSEDED: 'bg-muted text-muted-foreground',
 }
 
+/**
+ * Los canales que registra el administrador. Sin PORTAL: ese lo registra el
+ * propio cliente desde su cuenta (la API lo rechaza aquí).
+ */
 const DECISION_CHANNELS = [
   'PHONE',
   'WHATSAPP',
@@ -673,6 +677,12 @@ export const DECISION_CHANNEL_LABELS: Record<DecisionChannel, string> = {
   PHONE: 'Llamada',
   WHATSAPP: 'WhatsApp',
   IN_PERSON: 'En el taller',
+  PORTAL: 'Portal del cliente',
+}
+
+/** Quién hizo algo en la orden: el personal por su nombre, o el cliente. */
+export function authorName(author: { name: string } | null): string {
+  return author?.name ?? 'El cliente (portal)'
 }
 
 const QUOTE_DECISIONS = [

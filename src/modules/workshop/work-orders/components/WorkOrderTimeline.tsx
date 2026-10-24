@@ -2,6 +2,7 @@ import { EyeIcon, LockIcon } from 'lucide-react'
 import { Badge } from '#/components/ui/badge'
 import { formatDateTime } from '#/lib/dates'
 import { cn } from '#/lib/utils'
+import { authorName } from '../work-orders.schemas'
 import type { WorkOrderEvent } from '../work-orders.schemas'
 import { WorkOrderStatusBadge } from './WorkOrderStatusBadge'
 
@@ -47,7 +48,7 @@ export function WorkOrderTimeline({ events }: { events: WorkOrderEvent[] }) {
               <p className="text-sm whitespace-pre-line">{event.note}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              {event.createdBy.name} · {formatDateTime(event.createdAt)}
+              {authorName(event.createdBy)} · {formatDateTime(event.createdAt)}
             </p>
           </div>
         </li>

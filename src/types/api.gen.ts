@@ -548,6 +548,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/portal/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_vehicles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/vehicles/{vehicleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_vehicle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/work-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_workOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/work-orders/{workOrderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_workOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/work-orders/{workOrderId}/quotes/{quoteId}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PortalController_decide"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tools": {
         parameters: {
             query?: never;
@@ -1031,7 +1111,8 @@ export interface components {
             note: string | null;
             /** @description Si el cliente lo ve en el seguimiento */
             isPublic: boolean;
-            createdBy: components["schemas"]["WorkOrderUser"];
+            /** @description Vacío si lo hizo el cliente desde su portal */
+            createdBy: components["schemas"]["WorkOrderUser"] | null;
             /** Format: date-time */
             createdAt: string;
         };
@@ -1106,7 +1187,7 @@ export interface components {
         /** @enum {string} */
         QuoteStatus: "PENDING" | "APPROVED" | "REJECTED" | "SUPERSEDED";
         /** @enum {string} */
-        DecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON";
+        DecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON" | "PORTAL";
         QuoteItem: {
             /** Format: uuid */
             quoteItemId: string;
@@ -1299,9 +1380,11 @@ export interface components {
         };
         /** @enum {string} */
         QuoteDecision: "APPROVED" | "REJECTED";
+        /** @enum {string} */
+        StaffDecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON";
         DecideQuoteDto: {
             decision: components["schemas"]["QuoteDecision"];
-            channel: components["schemas"]["DecisionChannel"];
+            channel: components["schemas"]["StaffDecisionChannel"];
             /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
             note?: string | null;
         };
@@ -1460,6 +1543,166 @@ export interface components {
              * @example Inventario físico de fin de mes
              */
             note: string;
+        };
+        PortalVehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** @example ABC123 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+            /** @example 2018 */
+            year: number | null;
+            /** @example Gris */
+            color: string | null;
+            /**
+             * @description Órdenes registradas en el taller
+             * @example 3
+             */
+            workOrdersCount: number;
+        };
+        PortalWorkOrderVehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** @example ABC123 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+        };
+        PortalWorkOrder: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Código de seguimiento
+             * @example AFM-7K3Q9X
+             */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /** @example Ruido al frenar */
+            reason: string;
+            vehicle: components["schemas"]["PortalWorkOrderVehicle"];
+            /** Format: date-time */
+            receivedAt: string;
+            /**
+             * Format: date
+             * @example 2026-10-20
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /**
+             * @description En soles
+             * @example 450.00
+             */
+            total: string;
+            /** @description Hay un presupuesto esperando su respuesta */
+            hasPendingQuote: boolean;
+        };
+        /** @enum {string} */
+        PortalWorkOrderState: "OPEN" | "CLOSED";
+        PortalLine: {
+            type: components["schemas"]["ItemType"];
+            /** @example Cambio de aceite y filtro */
+            description: string;
+            /** @example 1.00 */
+            quantity: string;
+            /** @description Solo en repuestos */
+            unit: components["schemas"]["UnitOfMeasure"] | null;
+            /** @example 35.00 */
+            unitPrice: string;
+            /** @example 35.00 */
+            subtotal: string;
+        };
+        PortalTotals: {
+            /**
+             * @description Mano de obra
+             * @example 120.00
+             */
+            labor: string;
+            /**
+             * @description Repuestos
+             * @example 330.00
+             */
+            parts: string;
+            /** @example 450.00 */
+            total: string;
+        };
+        PortalEvent: {
+            /** @description El estado al que pasó; null si es solo una nota */
+            status: components["schemas"]["WorkOrderStatus"] | null;
+            note: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PortalQuote: {
+            /** Format: uuid */
+            quoteId: string;
+            /** @example 2 */
+            version: number;
+            status: components["schemas"]["QuoteStatus"];
+            /** @example 450.00 */
+            total: string;
+            /** Format: date-time */
+            sentAt: string;
+            /** Format: date-time */
+            decidedAt: string | null;
+            decisionChannel: components["schemas"]["DecisionChannel"] | null;
+            decisionNote: string | null;
+            /** @description Como estaban al enviarlo */
+            items: components["schemas"]["PortalLine"][];
+        };
+        PortalWorkOrderDetail: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Código de seguimiento
+             * @example AFM-7K3Q9X
+             */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /** @example Ruido al frenar */
+            reason: string;
+            vehicle: components["schemas"]["PortalWorkOrderVehicle"];
+            /** Format: date-time */
+            receivedAt: string;
+            /**
+             * Format: date
+             * @example 2026-10-20
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /**
+             * @description En soles
+             * @example 450.00
+             */
+            total: string;
+            /** @description Hay un presupuesto esperando su respuesta */
+            hasPendingQuote: boolean;
+            /** @example 85000 */
+            mileageIn: number;
+            diagnosis: string | null;
+            /**
+             * @description El mecánico que atiende su vehículo
+             * @example Juan Quispe
+             */
+            mechanicName: string | null;
+            cancelReason: string | null;
+            items: components["schemas"]["PortalLine"][];
+            totals: components["schemas"]["PortalTotals"];
+            /** @description Solo los eventos públicos, del más antiguo al más nuevo */
+            events: components["schemas"]["PortalEvent"][];
+            /** @description Las versiones del presupuesto, de la más nueva a la más vieja */
+            quotes: components["schemas"]["PortalQuote"][];
+        };
+        DecidePortalQuoteDto: {
+            decision: components["schemas"]["QuoteDecision"];
+            /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
+            note?: string | null;
         };
         /** @enum {string} */
         ToolStatus: "AVAILABLE" | "IN_REPAIR" | "RETIRED";
@@ -3518,6 +3761,197 @@ export interface operations {
                 content?: never;
             };
             /** @description Stock insuficiente para un ajuste que resta */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_vehicles: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalVehicle"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_vehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalVehicle"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No es un vehículo del cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_workOrders: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                state?: components["schemas"]["PortalWorkOrderState"];
+                vehicleId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalWorkOrder"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_workOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalWorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No es una orden del cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_decide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                quoteId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecidePortalQuoteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalWorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No es una orden o un presupuesto del cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El presupuesto ya tiene respuesta, la orden ya no espera aprobación o cambió mientras tanto */
             409: {
                 headers: {
                     [name: string]: unknown;

@@ -161,13 +161,16 @@ function QuoteRow({
             <p className="text-xs text-muted-foreground">
               Enviado el {formatDateTime(quote.sentAt)} por {quote.sentBy.name}
             </p>
-            {quote.decidedAt && quote.decidedBy && (
+            {quote.decidedAt && (
               <p className="text-xs text-muted-foreground">
                 {QUOTE_STATUS_LABELS[quote.status]} el{' '}
                 {formatDateTime(quote.decidedAt)}
                 {quote.decisionChannel &&
                   ` · ${DECISION_CHANNEL_LABELS[quote.decisionChannel]}`}{' '}
-                · lo registró {quote.decidedBy.name}
+                ·{' '}
+                {quote.decidedBy
+                  ? `lo registró ${quote.decidedBy.name}`
+                  : 'respondió el cliente'}
               </p>
             )}
             {quote.decisionNote && (
