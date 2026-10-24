@@ -15,19 +15,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '#/components/ui/sidebar'
+import { initials } from '#/lib/initials'
 import { useLogout } from '#/modules/core/auth/auth.queries'
 import { ROLE_LABELS } from '#/modules/core/auth/auth.schemas'
 import type { StaffSession } from '#/modules/core/auth/auth.schemas'
-
-/** Las iniciales del nombre: «Eduardo Huarcaya» → «EH». */
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join('')
-}
 
 function UserSummary({ session }: { session: StaffSession }) {
   return (
