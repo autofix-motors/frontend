@@ -5,6 +5,7 @@ import { AppHeader } from '#/components/layout/AppHeader'
 import { AppSidebar } from '#/components/layout/AppSidebar'
 import { SidebarInset, SidebarProvider } from '#/components/ui/sidebar'
 import { getSession } from '#/modules/core/auth/auth.fn'
+import { homeFor, isStaffSession } from '#/modules/core/auth/auth.schemas'
 
 // La cookie donde shadcn guarda si la barra lateral quedó abierta o colapsada
 // (components/ui/sidebar.tsx). Leerla al renderizar en el servidor evita que la
@@ -24,6 +25,11 @@ export const Route = createFileRoute('/_app')({
     const session = await getSession()
     if (!session) {
       throw redirect({ to: '/login', search: { redirect: location.href } })
+    }
+    // La app es del personal: un cliente va a su portal, y con la contraseña
+    // temporal la API no deja hacer nada más que cambiarla.
+    if (!isStaffSession(session) || session.mustChangePassword) {
+      throw redirect({ href: homeFor(session) })
     }
     // Queda en el contexto: la leen la barra lateral y cualquier página con
     // Route.useRouteContext(), sin volver a pedirla.

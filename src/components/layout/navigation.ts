@@ -1,4 +1,10 @@
-import { HouseIcon } from 'lucide-react'
+import {
+  HouseIcon,
+  PackageIcon,
+  ShieldIcon,
+  UsersIcon,
+  WrenchIcon,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { FileRoutesByTo } from '#/routeTree.gen'
@@ -28,7 +34,63 @@ export const GENERAL_ITEMS: (NavItem & { icon: LucideIcon })[] = [
 ]
 
 /** Las secciones del menú. Una sección aparece cuando tiene su primer módulo. */
-export const SECTIONS: NavSection[] = []
+export const SECTIONS: NavSection[] = [
+  {
+    label: 'Taller',
+    icon: WrenchIcon,
+    items: [
+      // El mecánico ve las suyas («Mis órdenes»): la API se lo impone.
+      {
+        label: 'Órdenes de trabajo',
+        to: '/workshop/work-orders',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
+      // El mecánico lo consulta (en solo lectura) para armar sus órdenes.
+      {
+        label: 'Catálogo de servicios',
+        to: '/workshop/service-catalog',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
+    ],
+  },
+  {
+    label: 'Clientes',
+    icon: UsersIcon,
+    items: [
+      { label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] },
+      { label: 'Vehículos', to: '/customer/vehicles', roles: ['ADMIN'] },
+    ],
+  },
+  {
+    label: 'Inventario',
+    icon: PackageIcon,
+    items: [
+      // El mecánico consulta el stock (en solo lectura y sin costos).
+      {
+        label: 'Repuestos e insumos',
+        to: '/inventory/products',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
+      // El mecánico consulta el kardex (en solo lectura y sin costos).
+      {
+        label: 'Movimientos',
+        to: '/inventory/stock-movements',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
+      // El mecánico consulta qué hay y quién tiene qué (en solo lectura).
+      {
+        label: 'Herramientas',
+        to: '/inventory/tools',
+        roles: ['ADMIN', 'MECHANIC'],
+      },
+    ],
+  },
+  {
+    label: 'Administración',
+    icon: ShieldIcon,
+    items: [{ label: 'Personal', to: '/core/users', roles: ['ADMIN'] }],
+  },
+]
 
 /** Las secciones con solo los ítems que el rol del usuario puede abrir. */
 export function visibleSections(
@@ -47,7 +109,10 @@ export function visibleSections(
 
 /**
  * Dónde está el usuario, según el menú: las etiquetas desde la sección hasta
- * el módulo (`['Taller', 'Órdenes']`). Lo usa el breadcrumb.
+ * el módulo (`['Taller', 'Órdenes de trabajo']`). Lo usa el breadcrumb. Una
+ * ruta con un parámetro justo debajo de un módulo
+ * (`/workshop/work-orders/$workOrderId`, como la da `fullPath`) es su
+ * detalle: suma «Detalle» al módulo.
  */
 export function breadcrumbFor(path: string): string[] {
   const normalized = path.replace(/\/$/, '') || '/'
@@ -55,9 +120,12 @@ export function breadcrumbFor(path: string): string[] {
   const general = GENERAL_ITEMS.find((item) => item.to === normalized)
   if (general) return [general.label]
 
+  const parentPath = /^(.+)\/\$[^/]+$/.exec(normalized)?.[1]
   for (const section of SECTIONS) {
     const item = section.items.find((entry) => entry.to === normalized)
     if (item) return [section.label, item.label]
+    const parent = section.items.find((entry) => entry.to === parentPath)
+    if (parent) return [section.label, parent.label, 'Detalle']
   }
   return []
 }

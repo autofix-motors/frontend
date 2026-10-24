@@ -16,6 +16,22 @@ export function formatDateOnly(value: string | null | undefined): string {
   return `${day}/${month}/${year}`
 }
 
+/**
+ * Si el texto es un día `AAAA-MM-DD` que existe en el calendario, como lo
+ * valida la API (`IsDateOnly`): «2026-02-30» tiene la forma, pero no existe.
+ */
+export function isDateOnly(value: string): boolean {
+  const match = DATE_ONLY.exec(value)
+  if (!match) return false
+  const [, year, month, day] = match.map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  )
+}
+
 const DATE_TIME = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
   month: '2-digit',
@@ -33,4 +49,20 @@ export function formatDateTime(value: string | null | undefined): string {
   if (!value) return '—'
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? '—' : DATE_TIME.format(date)
+}
+
+// «en-CA» escribe la fecha como AAAA-MM-DD.
+const LIMA_DAY = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Lima',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/**
+ * El día de hoy en Lima, `AAAA-MM-DD`: el mismo «hoy» con el que la API
+ * decide si una fecha ya pasó, aunque el navegador esté en otra zona.
+ */
+export function limaToday(now: Date = new Date()): string {
+  return LIMA_DAY.format(now)
 }

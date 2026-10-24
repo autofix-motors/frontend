@@ -10,11 +10,31 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalVehiclesIndexRouteImport } from './routes/portal/vehicles/index'
+import { Route as PortalWorkOrdersIndexRouteImport } from './routes/portal/work-orders/index'
+import { Route as PortalWorkOrdersWorkOrderIdRouteImport } from './routes/portal/work-orders/$workOrderId'
+import { Route as AppCoreUsersIndexRouteImport } from './routes/_app/core/users/index'
+import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/customer/customers/index'
+import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
+import { Route as AppInventoryProductsIndexRouteImport } from './routes/_app/inventory/products/index'
+import { Route as AppInventoryStockMovementsIndexRouteImport } from './routes/_app/inventory/stock-movements/index'
+import { Route as AppInventoryToolsIndexRouteImport } from './routes/_app/inventory/tools/index'
+import { Route as AppWorkshopServiceCatalogIndexRouteImport } from './routes/_app/workshop/service-catalog/index'
+import { Route as AppWorkshopWorkOrdersIndexRouteImport } from './routes/_app/workshop/work-orders/index'
+import { Route as AppWorkshopWorkOrdersWorkOrderIdRouteImport } from './routes/_app/workshop/work-orders/$workOrderId'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangePasswordRoute = ChangePasswordRouteImport.update({
+  id: '/change-password',
+  path: '/change-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -22,37 +42,213 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalVehiclesIndexRoute = PortalVehiclesIndexRouteImport.update({
+  id: '/vehicles/',
+  path: '/vehicles/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalWorkOrdersIndexRoute = PortalWorkOrdersIndexRouteImport.update({
+  id: '/work-orders/',
+  path: '/work-orders/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalWorkOrdersWorkOrderIdRoute =
+  PortalWorkOrdersWorkOrderIdRouteImport.update({
+    id: '/work-orders/$workOrderId',
+    path: '/work-orders/$workOrderId',
+    getParentRoute: () => PortalRoute,
+  } as any)
+const AppCoreUsersIndexRoute = AppCoreUsersIndexRouteImport.update({
+  id: '/core/users/',
+  path: '/core/users/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomerCustomersIndexRoute =
+  AppCustomerCustomersIndexRouteImport.update({
+    id: '/customer/customers/',
+    path: '/customer/customers/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppCustomerVehiclesIndexRoute =
+  AppCustomerVehiclesIndexRouteImport.update({
+    id: '/customer/vehicles/',
+    path: '/customer/vehicles/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppInventoryProductsIndexRoute =
+  AppInventoryProductsIndexRouteImport.update({
+    id: '/inventory/products/',
+    path: '/inventory/products/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppInventoryStockMovementsIndexRoute =
+  AppInventoryStockMovementsIndexRouteImport.update({
+    id: '/inventory/stock-movements/',
+    path: '/inventory/stock-movements/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppInventoryToolsIndexRoute = AppInventoryToolsIndexRouteImport.update({
+  id: '/inventory/tools/',
+  path: '/inventory/tools/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorkshopServiceCatalogIndexRoute =
+  AppWorkshopServiceCatalogIndexRouteImport.update({
+    id: '/workshop/service-catalog/',
+    path: '/workshop/service-catalog/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppWorkshopWorkOrdersIndexRoute =
+  AppWorkshopWorkOrdersIndexRouteImport.update({
+    id: '/workshop/work-orders/',
+    path: '/workshop/work-orders/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppWorkshopWorkOrdersWorkOrderIdRoute =
+  AppWorkshopWorkOrdersWorkOrderIdRouteImport.update({
+    id: '/workshop/work-orders/$workOrderId',
+    path: '/workshop/work-orders/$workOrderId',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
+  '/portal': typeof PortalRouteWithChildren
+  '/portal/': typeof PortalIndexRoute
+  '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
+  '/portal/vehicles/': typeof PortalVehiclesIndexRoute
+  '/portal/work-orders/': typeof PortalWorkOrdersIndexRoute
+  '/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
+  '/core/users/': typeof AppCoreUsersIndexRoute
+  '/customer/customers/': typeof AppCustomerCustomersIndexRoute
+  '/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
+  '/inventory/products/': typeof AppInventoryProductsIndexRoute
+  '/inventory/stock-movements/': typeof AppInventoryStockMovementsIndexRoute
+  '/inventory/tools/': typeof AppInventoryToolsIndexRoute
+  '/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
+  '/workshop/work-orders/': typeof AppWorkshopWorkOrdersIndexRoute
 }
 export interface FileRoutesByTo {
+  '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
   '/': typeof AppIndexRoute
+  '/portal': typeof PortalIndexRoute
+  '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
+  '/portal/vehicles': typeof PortalVehiclesIndexRoute
+  '/portal/work-orders': typeof PortalWorkOrdersIndexRoute
+  '/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
+  '/core/users': typeof AppCoreUsersIndexRoute
+  '/customer/customers': typeof AppCustomerCustomersIndexRoute
+  '/customer/vehicles': typeof AppCustomerVehiclesIndexRoute
+  '/inventory/products': typeof AppInventoryProductsIndexRoute
+  '/inventory/stock-movements': typeof AppInventoryStockMovementsIndexRoute
+  '/inventory/tools': typeof AppInventoryToolsIndexRoute
+  '/workshop/service-catalog': typeof AppWorkshopServiceCatalogIndexRoute
+  '/workshop/work-orders': typeof AppWorkshopWorkOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
+  '/portal': typeof PortalRouteWithChildren
   '/_app/': typeof AppIndexRoute
+  '/portal/': typeof PortalIndexRoute
+  '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
+  '/portal/vehicles/': typeof PortalVehiclesIndexRoute
+  '/portal/work-orders/': typeof PortalWorkOrdersIndexRoute
+  '/_app/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
+  '/_app/core/users/': typeof AppCoreUsersIndexRoute
+  '/_app/customer/customers/': typeof AppCustomerCustomersIndexRoute
+  '/_app/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
+  '/_app/inventory/products/': typeof AppInventoryProductsIndexRoute
+  '/_app/inventory/stock-movements/': typeof AppInventoryStockMovementsIndexRoute
+  '/_app/inventory/tools/': typeof AppInventoryToolsIndexRoute
+  '/_app/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
+  '/_app/workshop/work-orders/': typeof AppWorkshopWorkOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths:
+    | '/'
+    | '/change-password'
+    | '/login'
+    | '/portal'
+    | '/portal/'
+    | '/portal/work-orders/$workOrderId'
+    | '/portal/vehicles/'
+    | '/portal/work-orders/'
+    | '/workshop/work-orders/$workOrderId'
+    | '/core/users/'
+    | '/customer/customers/'
+    | '/customer/vehicles/'
+    | '/inventory/products/'
+    | '/inventory/stock-movements/'
+    | '/inventory/tools/'
+    | '/workshop/service-catalog/'
+    | '/workshop/work-orders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/'
-  id: '__root__' | '/_app' | '/login' | '/_app/'
+  to:
+    | '/change-password'
+    | '/login'
+    | '/'
+    | '/portal'
+    | '/portal/work-orders/$workOrderId'
+    | '/portal/vehicles'
+    | '/portal/work-orders'
+    | '/workshop/work-orders/$workOrderId'
+    | '/core/users'
+    | '/customer/customers'
+    | '/customer/vehicles'
+    | '/inventory/products'
+    | '/inventory/stock-movements'
+    | '/inventory/tools'
+    | '/workshop/service-catalog'
+    | '/workshop/work-orders'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/change-password'
+    | '/login'
+    | '/portal'
+    | '/_app/'
+    | '/portal/'
+    | '/portal/work-orders/$workOrderId'
+    | '/portal/vehicles/'
+    | '/portal/work-orders/'
+    | '/_app/workshop/work-orders/$workOrderId'
+    | '/_app/core/users/'
+    | '/_app/customer/customers/'
+    | '/_app/customer/vehicles/'
+    | '/_app/inventory/products/'
+    | '/_app/inventory/stock-movements/'
+    | '/_app/inventory/tools/'
+    | '/_app/workshop/service-catalog/'
+    | '/_app/workshop/work-orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  ChangePasswordRoute: typeof ChangePasswordRoute
   LoginRoute: typeof LoginRoute
+  PortalRoute: typeof PortalRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -64,11 +260,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/change-password': {
+      id: '/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof ChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/': {
@@ -78,22 +288,150 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/portal/': {
+      id: '/portal/'
+      path: '/'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/vehicles/': {
+      id: '/portal/vehicles/'
+      path: '/vehicles'
+      fullPath: '/portal/vehicles/'
+      preLoaderRoute: typeof PortalVehiclesIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/work-orders/': {
+      id: '/portal/work-orders/'
+      path: '/work-orders'
+      fullPath: '/portal/work-orders/'
+      preLoaderRoute: typeof PortalWorkOrdersIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/work-orders/$workOrderId': {
+      id: '/portal/work-orders/$workOrderId'
+      path: '/work-orders/$workOrderId'
+      fullPath: '/portal/work-orders/$workOrderId'
+      preLoaderRoute: typeof PortalWorkOrdersWorkOrderIdRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/_app/core/users/': {
+      id: '/_app/core/users/'
+      path: '/core/users'
+      fullPath: '/core/users/'
+      preLoaderRoute: typeof AppCoreUsersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customer/customers/': {
+      id: '/_app/customer/customers/'
+      path: '/customer/customers'
+      fullPath: '/customer/customers/'
+      preLoaderRoute: typeof AppCustomerCustomersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customer/vehicles/': {
+      id: '/_app/customer/vehicles/'
+      path: '/customer/vehicles'
+      fullPath: '/customer/vehicles/'
+      preLoaderRoute: typeof AppCustomerVehiclesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/products/': {
+      id: '/_app/inventory/products/'
+      path: '/inventory/products'
+      fullPath: '/inventory/products/'
+      preLoaderRoute: typeof AppInventoryProductsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/stock-movements/': {
+      id: '/_app/inventory/stock-movements/'
+      path: '/inventory/stock-movements'
+      fullPath: '/inventory/stock-movements/'
+      preLoaderRoute: typeof AppInventoryStockMovementsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/tools/': {
+      id: '/_app/inventory/tools/'
+      path: '/inventory/tools'
+      fullPath: '/inventory/tools/'
+      preLoaderRoute: typeof AppInventoryToolsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/workshop/service-catalog/': {
+      id: '/_app/workshop/service-catalog/'
+      path: '/workshop/service-catalog'
+      fullPath: '/workshop/service-catalog/'
+      preLoaderRoute: typeof AppWorkshopServiceCatalogIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/workshop/work-orders/': {
+      id: '/_app/workshop/work-orders/'
+      path: '/workshop/work-orders'
+      fullPath: '/workshop/work-orders/'
+      preLoaderRoute: typeof AppWorkshopWorkOrdersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/workshop/work-orders/$workOrderId': {
+      id: '/_app/workshop/work-orders/$workOrderId'
+      path: '/workshop/work-orders/$workOrderId'
+      fullPath: '/workshop/work-orders/$workOrderId'
+      preLoaderRoute: typeof AppWorkshopWorkOrdersWorkOrderIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppWorkshopWorkOrdersWorkOrderIdRoute: typeof AppWorkshopWorkOrdersWorkOrderIdRoute
+  AppCoreUsersIndexRoute: typeof AppCoreUsersIndexRoute
+  AppCustomerCustomersIndexRoute: typeof AppCustomerCustomersIndexRoute
+  AppCustomerVehiclesIndexRoute: typeof AppCustomerVehiclesIndexRoute
+  AppInventoryProductsIndexRoute: typeof AppInventoryProductsIndexRoute
+  AppInventoryStockMovementsIndexRoute: typeof AppInventoryStockMovementsIndexRoute
+  AppInventoryToolsIndexRoute: typeof AppInventoryToolsIndexRoute
+  AppWorkshopServiceCatalogIndexRoute: typeof AppWorkshopServiceCatalogIndexRoute
+  AppWorkshopWorkOrdersIndexRoute: typeof AppWorkshopWorkOrdersIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppWorkshopWorkOrdersWorkOrderIdRoute: AppWorkshopWorkOrdersWorkOrderIdRoute,
+  AppCoreUsersIndexRoute: AppCoreUsersIndexRoute,
+  AppCustomerCustomersIndexRoute: AppCustomerCustomersIndexRoute,
+  AppCustomerVehiclesIndexRoute: AppCustomerVehiclesIndexRoute,
+  AppInventoryProductsIndexRoute: AppInventoryProductsIndexRoute,
+  AppInventoryStockMovementsIndexRoute: AppInventoryStockMovementsIndexRoute,
+  AppInventoryToolsIndexRoute: AppInventoryToolsIndexRoute,
+  AppWorkshopServiceCatalogIndexRoute: AppWorkshopServiceCatalogIndexRoute,
+  AppWorkshopWorkOrdersIndexRoute: AppWorkshopWorkOrdersIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface PortalRouteChildren {
+  PortalIndexRoute: typeof PortalIndexRoute
+  PortalWorkOrdersWorkOrderIdRoute: typeof PortalWorkOrdersWorkOrderIdRoute
+  PortalVehiclesIndexRoute: typeof PortalVehiclesIndexRoute
+  PortalWorkOrdersIndexRoute: typeof PortalWorkOrdersIndexRoute
+}
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalIndexRoute: PortalIndexRoute,
+  PortalWorkOrdersWorkOrderIdRoute: PortalWorkOrdersWorkOrderIdRoute,
+  PortalVehiclesIndexRoute: PortalVehiclesIndexRoute,
+  PortalWorkOrdersIndexRoute: PortalWorkOrdersIndexRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  ChangePasswordRoute: ChangePasswordRoute,
   LoginRoute: LoginRoute,
+  PortalRoute: PortalRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

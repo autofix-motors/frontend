@@ -1,14 +1,29 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import { login, logout } from './auth.fn'
-import type { LoginInput } from './auth.schemas'
+import { toast } from 'sonner'
+import { changeOwnPassword, login, logout } from './auth.fn'
+import type { ChangePasswordFormValues, LoginRequest } from './auth.schemas'
 
 // La sesión no se lee con una consulta: la trae el beforeLoad del layout en el
-// contexto del router (context.session). Aquí solo están las dos mutaciones.
+// contexto del router (context.session). Aquí solo están las mutaciones.
 
 export function useLogin() {
   return useMutation({
-    mutationFn: (input: LoginInput) => login({ data: input }),
+    mutationFn: (request: LoginRequest) => login({ data: request }),
+  })
+}
+
+export function useChangeOwnPassword() {
+  const router = useRouter()
+  return useMutation({
+    mutationFn: (values: ChangePasswordFormValues) =>
+      changeOwnPassword({ data: values }),
+    onSuccess: async ({ message }) => {
+      toast.success(message)
+      // La sesión del contexto del router todavía dice que la contraseña es
+      // temporal: se vuelve a pedir.
+      await router.invalidate()
+    },
   })
 }
 

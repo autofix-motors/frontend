@@ -1,4 +1,5 @@
 import '@tanstack/react-start/server-only'
+import type { components } from '#/types/api.gen'
 import { getServerEnv } from './env'
 import { accessToken, apiCookieHeader } from './session'
 
@@ -20,12 +21,12 @@ export class ApiError extends Error {
 const GENERIC_MESSAGE = 'No se pudo completar la operación'
 
 /**
- * Convierte una respuesta de error de NestJS en un ApiError.
+ * Convierte una respuesta de error de la API en un ApiError.
  *
- * NestJS responde `{ statusCode, message }`, pero `message` es un arreglo
- * cuando falla la validación de un DTO, y puede no venir si el error lo generó
- * algo antes de Nest (un proxy, un timeout). Los tres casos terminan en un
- * mensaje legible.
+ * La API responde `BaseResponseDto` también en los errores, con el texto para
+ * el usuario en `message`. Por si acaso se aceptan un `message` en arreglo y la
+ * falta de cuerpo JSON (un error de un proxy o un timeout antes de Nest): los
+ * casos terminan en un mensaje legible.
  */
 export async function toApiError(response: Response): Promise<ApiError> {
   let body: unknown
@@ -99,12 +100,64 @@ export async function fetchApi(
   return response
 }
 
-/** Llama a la API y devuelve el cuerpo ya parseado, o lanza un ApiError. */
+/** La paginación de un listado, en el `meta` de la respuesta. */
+export type PaginationMeta = components['schemas']['PaginationMeta']
+
+/**
+ * Lo que responde la API en todos los endpoints (`BaseResponseDto` del
+ * backend): el resultado en `data`, el texto para el usuario en `message` y,
+ * en un listado, la paginación en `meta`.
+ */
+export type ApiEnvelope<T> = {
+  success: boolean
+  message: string
+  data: T
+  statusCode: number
+  meta?: PaginationMeta
+}
+
+/** Llama a la API y devuelve la respuesta completa, o lanza un ApiError. */
+export async function callApiEnvelope<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<ApiEnvelope<T>> {
+  const response = await fetchApi(path, options)
+  return (await response.json()) as ApiEnvelope<T>
+}
+
+/** Llama a la API y devuelve solo `data`, o lanza un ApiError. */
 export async function callApi<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetchApi(path, options)
-  if (response.status === 204) return undefined as T
-  return (await response.json()) as T
+  return (await callApiEnvelope<T>(path, options)).data
+}
+
+/** Una página de un listado, lista para la tabla. */
+export type Page<T> = { items: T[]; meta: PaginationMeta }
+
+/** Llama a un listado y devuelve sus filas con la paginación. */
+export async function callApiPage<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<Page<T>> {
+  const envelope = await callApiEnvelope<T[]>(path, options)
+  if (!envelope.meta) {
+    throw new ApiError(500, 'La API no devolvió la paginación del listado')
+  }
+  return { items: envelope.data, meta: envelope.meta }
+}
+
+/**
+ * Arma la query de un listado sin los filtros vacíos: `undefined`, `null` y el
+ * texto vacío no viajan, para que la API aplique sus valores por defecto.
+ */
+export function toQueryString(params: Record<string, unknown>): string {
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === '') continue
+    search.set(key, String(value))
+  }
+  const query = search.toString()
+  return query ? `?${query}` : ''
 }

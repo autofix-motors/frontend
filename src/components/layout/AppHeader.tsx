@@ -32,7 +32,9 @@ export function AppHeader() {
           {trail.map((label, index) => {
             const isLast = index === trail.length - 1
             return (
-              <Fragment key={label}>
+              // La posición y no el texto: una sección y su módulo pueden
+              // llamarse igual («Clientes › Clientes»).
+              <Fragment key={`${index}-${label}`}>
                 {/* En móvil solo cabe la página actual. */}
                 <BreadcrumbItem className={isLast ? '' : 'hidden md:block'}>
                   {isLast ? <BreadcrumbPage>{label}</BreadcrumbPage> : label}

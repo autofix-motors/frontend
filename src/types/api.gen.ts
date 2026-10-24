@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["AppController_getHello"];
+        get: operations["AppController_health"];
         put?: never;
         post?: never;
         delete?: never;
@@ -30,6 +30,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["AuthController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/customer-login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_customerLogin"];
         delete?: never;
         options?: never;
         head?: never;
@@ -84,27 +100,1680 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AuthController_changePassword"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customer-accounts/{customerId}/temporary-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerAccountsController_issueTemporaryPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customer-accounts/{customerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CustomerAccountsController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_findAll"];
+        put?: never;
+        post: operations["CustomersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/{customerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["CustomersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CustomersController_update"];
+        trace?: never;
+    };
+    "/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_findAll"];
+        put?: never;
+        post: operations["UsersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["UsersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["UsersController_update"];
+        trace?: never;
+    };
+    "/users/{userId}/temporary-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["UsersController_issueTemporaryPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VehiclesController_findAll"];
+        put?: never;
+        post: operations["VehiclesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vehicles/brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VehiclesController_brands"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/vehicles/{vehicleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VehiclesController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["VehiclesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["VehiclesController_update"];
+        trace?: never;
+    };
+    "/service-catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ServiceCatalogController_findAll"];
+        put?: never;
+        post: operations["ServiceCatalogController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/service-catalog/{serviceCatalogItemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ServiceCatalogController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["ServiceCatalogController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ServiceCatalogController_update"];
+        trace?: never;
+    };
+    "/work-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WorkOrdersController_findAll"];
+        put?: never;
+        post: operations["WorkOrdersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WorkOrdersController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["WorkOrdersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["WorkOrdersController_update"];
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/diagnosis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["WorkOrdersController_updateDiagnosis"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_changeStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_addNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_addItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/items/{workOrderItemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["WorkOrdersController_removeItem"];
+        options?: never;
+        head?: never;
+        patch: operations["WorkOrdersController_updateItem"];
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_sendQuote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work-orders/{workOrderId}/quotes/{quoteId}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WorkOrdersController_decideQuote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProductsController_findAll"];
+        put?: never;
+        post: operations["ProductsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProductsController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["ProductsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ProductsController_update"];
+        trace?: never;
+    };
+    "/stock-movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StockMovementsController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stock-movements/{stockMovementId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["StockMovementsController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stock-movements/purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StockMovementsController_purchase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stock-movements/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StockMovementsController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_vehicles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/vehicles/{vehicleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_vehicle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/work-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_workOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/work-orders/{workOrderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalController_workOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/work-orders/{workOrderId}/quotes/{quoteId}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PortalController_decide"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ToolsController_findAll"];
+        put?: never;
+        post: operations["ToolsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tools/{toolId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ToolsController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["ToolsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ToolsController_update"];
+        trace?: never;
+    };
+    "/tools/{toolId}/assignment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["ToolsController_assign"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        BaseResponseDto: {
+            success: boolean;
+            /** @example Operación realizada */
+            message: string;
+            error?: Record<string, never>;
+            /** @example 200 */
+            statusCode: number;
+        };
+        /** @enum {string} */
+        SessionRole: "ADMIN" | "MECHANIC" | "CUSTOMER";
+        CurrentSession: {
+            /** @example ADMIN */
+            role: components["schemas"]["SessionRole"];
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example juan@correo.pe */
+            email: string | null;
+            /** @description Tiene la contraseña temporal: hasta cambiarla solo puede ver su sesión y cambiarla */
+            mustChangePassword: boolean;
+            /**
+             * Format: uuid
+             * @description Del personal; vacío si es un cliente
+             */
+            userId: string | null;
+            /**
+             * Format: uuid
+             * @description Del cliente; vacío si es del personal
+             */
+            customerId: string | null;
+        };
         LoginDto: {
-            /** @example admin@taller.local */
-            email: string;
+            /**
+             * @description Número de documento o correo
+             * @example 45678912
+             */
+            identifier: string;
             /** Format: password */
             password: string;
         };
+        ChangeOwnPasswordDto: {
+            /** Format: password */
+            currentPassword: string;
+            /** Format: password */
+            newPassword: string;
+        };
+        PortalCredentials: {
+            /**
+             * @description El número de documento del cliente: con él inicia sesión
+             * @example 45678912
+             */
+            loginIdentifier: string;
+            /** @example Hk7mQ4pZr2Tx */
+            temporaryPassword: string;
+            /**
+             * Format: date-time
+             * @description Después de esto ya no sirve: hay que generar otra
+             */
+            expiresAt: string;
+        };
+        PaginationMeta: {
+            /** @example 1 */
+            page: number;
+            /** @example 10 */
+            pageSize: number;
+            /**
+             * @description Filas que cumplen los filtros
+             * @example 42
+             */
+            total: number;
+            /** @example 5 */
+            totalPages: number;
+        };
+        /** @enum {string} */
+        DocumentType: "DNI" | "RUC" | "CE" | "PASSPORT";
+        PortalAccess: {
+            /**
+             * Format: date-time
+             * @description Cuándo se habilitó
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Vacío si todavía no entró
+             */
+            lastLoginAt: string | null;
+            /** @description Todavía tiene la contraseña temporal: no entró o no la cambió */
+            mustChangePassword: boolean;
+        };
+        Customer: {
+            /** Format: uuid */
+            customerId: string;
+            documentType: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example 987654321 */
+            phone: string;
+            /** @example juan@correo.pe */
+            email: string | null;
+            address: string | null;
+            notes: string | null;
+            isActive: boolean;
+            /** @example 2 */
+            vehiclesCount: number;
+            /** @description Vacío si no tiene acceso al portal */
+            portalAccess: components["schemas"]["PortalAccess"] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateCustomerDto: {
+            documentType: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example 987654321 */
+            phone: string;
+            /** @example juan@correo.pe */
+            email?: string | null;
+            address?: string | null;
+            notes?: string | null;
+            /** @default true */
+            isActive: boolean;
+        };
+        UpdateCustomerDto: {
+            documentType?: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber?: string;
+            /** @example Juan Pérez Rojas */
+            name?: string;
+            /** @example 987654321 */
+            phone?: string;
+            /** @example juan@correo.pe */
+            email?: string | null;
+            address?: string | null;
+            notes?: string | null;
+            /** @default true */
+            isActive: boolean;
+        };
         /** @enum {string} */
         UserRole: "ADMIN" | "MECHANIC";
-        CurrentSession: {
+        User: {
             /** Format: uuid */
             userId: string;
-            /** @example Administrador */
-            name: string;
-            /** @example admin@taller.local */
+            /** @example jquispe@autofix.local */
             email: string;
-            /** @example ADMIN */
+            /**
+             * @description DNI. Vacío en el personal registrado antes de pedirlo
+             * @example 45678912
+             */
+            documentNumber: string | null;
+            /** @example Juan Quispe Mamani */
+            name: string;
+            /** @example 987654321 */
+            phone: string | null;
             role: components["schemas"]["UserRole"];
+            isActive: boolean;
+            /**
+             * Format: date-time
+             * @description Vacío si nunca inició sesión
+             */
+            lastLoginAt: string | null;
+            /** @description Todavía tiene la contraseña temporal: no entró o no la cambió */
+            mustChangePassword: boolean;
+            /**
+             * @description Órdenes de trabajo donde es el mecánico asignado
+             * @example 4
+             */
+            assignedWorkOrdersCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        IssuedUser: {
+            /** @example Hk7mQ4pZr2Tx */
+            temporaryPassword: string;
+            /**
+             * Format: date-time
+             * @description Después de esto ya no sirve: hay que generar otra
+             */
+            expiresAt: string;
+            user: components["schemas"]["User"];
+        };
+        CreateUserDto: {
+            /** @example jquispe@autofix.local */
+            email: string;
+            /**
+             * @description DNI: con él o con el correo inicia sesión
+             * @example 45678912
+             */
+            documentNumber: string;
+            /** @example Juan Quispe Mamani */
+            name: string;
+            /** @example 987654321 */
+            phone?: string | null;
+            role: components["schemas"]["UserRole"];
+        };
+        UpdateUserDto: {
+            /** @example jquispe@autofix.local */
+            email?: string;
+            /**
+             * @description DNI: con él o con el correo inicia sesión
+             * @example 45678912
+             */
+            documentNumber?: string;
+            /** @example Juan Quispe Mamani */
+            name?: string;
+            /** @example 987654321 */
+            phone?: string | null;
+            role?: components["schemas"]["UserRole"];
+            isActive?: boolean;
+        };
+        TemporaryPassword: {
+            /** @example Hk7mQ4pZr2Tx */
+            temporaryPassword: string;
+            /**
+             * Format: date-time
+             * @description Después de esto ya no sirve: hay que generar otra
+             */
+            expiresAt: string;
+        };
+        VehicleCustomer: {
+            /** Format: uuid */
+            customerId: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            documentType: components["schemas"]["DocumentType"];
+            /** @example 45678912 */
+            documentNumber: string;
+        };
+        Vehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** Format: uuid */
+            customerId: string;
+            customer: components["schemas"]["VehicleCustomer"];
+            /** @example ABC123 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+            /** @example 2019 */
+            year: number | null;
+            /** @example Gris plata */
+            color: string | null;
+            /** @example JTDBT923771234567 */
+            vin: string | null;
+            notes: string | null;
+            /** @example 3 */
+            workOrdersCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        VehicleBrand: {
+            /** @example Toyota */
+            brand: string;
+            /** @example 12 */
+            vehiclesCount: number;
+        };
+        CreateVehicleDto: {
+            /**
+             * Format: uuid
+             * @description El dueño actual
+             */
+            customerId: string;
+            /**
+             * @description Se guarda en mayúsculas y sin espacios ni guiones
+             * @example ABC123
+             */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+            /**
+             * @description Hasta el año actual + 1
+             * @example 2019
+             */
+            year?: number | null;
+            /** @example Gris plata */
+            color?: string | null;
+            /**
+             * @description Número de serie del fabricante. Se guarda en mayúsculas y sin espacios
+             * @example JTDBT923771234567
+             */
+            vin?: string | null;
+            notes?: string | null;
+        };
+        UpdateVehicleDto: {
+            /**
+             * Format: uuid
+             * @description El dueño actual
+             */
+            customerId?: string;
+            /**
+             * @description Se guarda en mayúsculas y sin espacios ni guiones
+             * @example ABC123
+             */
+            plate?: string;
+            /** @example Toyota */
+            brand?: string;
+            /** @example Yaris */
+            model?: string;
+            /**
+             * @description Hasta el año actual + 1
+             * @example 2019
+             */
+            year?: number | null;
+            /** @example Gris plata */
+            color?: string | null;
+            /**
+             * @description Número de serie del fabricante. Se guarda en mayúsculas y sin espacios
+             * @example JTDBT923771234567
+             */
+            vin?: string | null;
+            notes?: string | null;
+        };
+        ServiceCatalogItem: {
+            /** Format: uuid */
+            serviceCatalogItemId: string;
+            /** @example Cambio de aceite y filtro */
+            name: string;
+            description: string | null;
+            /**
+             * @description Precio de mano de obra referencial, en soles
+             * @example 60.00
+             */
+            laborPrice: string;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateServiceCatalogItemDto: {
+            /** @example Cambio de aceite y filtro */
+            name: string;
+            description?: string | null;
+            /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            laborPrice: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        UpdateServiceCatalogItemDto: {
+            /** @example Cambio de aceite y filtro */
+            name?: string;
+            description?: string | null;
+            /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            laborPrice?: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        /** @enum {string} */
+        WorkOrderStatus: "RECEIVED" | "DIAGNOSIS" | "WAITING_APPROVAL" | "IN_PROGRESS" | "WAITING_PARTS" | "READY" | "DELIVERED" | "CANCELLED";
+        WorkOrderVehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** @example ABK582 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+        };
+        WorkOrderCustomer: {
+            /** Format: uuid */
+            customerId: string;
+            /** @example Juan Pérez Rojas */
+            name: string;
+            /** @example 987654321 */
+            phone: string;
+        };
+        WorkOrderUser: {
+            /** Format: uuid */
+            userId: string;
+            /** @example Carlos Huamán Quispe */
+            name: string;
+        };
+        WorkOrder: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Correlativo; se muestra como OT-000123
+             * @example 123
+             */
+            number: number;
+            /** @example AFM-7K3Q9X */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /**
+             * @description Kilometraje al ingreso, en km
+             * @example 84500
+             */
+            mileageIn: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason: string;
+            /**
+             * Format: date
+             * @example 2026-10-08
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            receivedAt: string;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /** @description La fecha prometida ya pasó (en Lima) y no se entregó ni se canceló */
+            isOverdue: boolean;
+            vehicle: components["schemas"]["WorkOrderVehicle"];
+            customer: components["schemas"]["WorkOrderCustomer"];
+            mechanic: components["schemas"]["WorkOrderUser"] | null;
+            /**
+             * @description La suma de sus servicios y repuestos, en soles
+             * @example 275.50
+             */
+            total: string;
+        };
+        WorkOrderEvent: {
+            /** Format: uuid */
+            workOrderEventId: string;
+            /** @description El estado al que pasó; null si es solo una nota */
+            status: components["schemas"]["WorkOrderStatus"] | null;
+            note: string | null;
+            /** @description Si el cliente lo ve en el seguimiento */
+            isPublic: boolean;
+            /** @description Vacío si lo hizo el cliente desde su portal */
+            createdBy: components["schemas"]["WorkOrderUser"] | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        /** @enum {string} */
+        ItemType: "SERVICE" | "PRODUCT";
+        /** @enum {string} */
+        UnitOfMeasure: "UNIT" | "LITER" | "GALLON" | "KIT" | "METER";
+        WorkOrderItem: {
+            /** Format: uuid */
+            workOrderItemId: string;
+            type: components["schemas"]["ItemType"];
+            /**
+             * @description Copiada del servicio (su nombre) o del repuesto («código · nombre») al agregarlo
+             * @example FA-TOY-90915 · Filtro de aceite Toyota Yaris
+             */
+            description: string;
+            /**
+             * @description En la unidad del repuesto; en un servicio, cuántas veces se hace
+             * @example 1.00
+             */
+            quantity: string;
+            unit: components["schemas"]["UnitOfMeasure"] | null;
+            /**
+             * @description En soles, congelado
+             * @example 35.00
+             */
+            unitPrice: string;
+            /**
+             * @description Cantidad por precio unitario, redondeado a céntimos
+             * @example 35.00
+             */
+            subtotal: string;
+            /**
+             * @description Solo para ADMIN. Costo del repuesto al consumirlo, en soles; null en un servicio
+             * @example 18.50
+             */
+            unitCost?: string | null;
+            /** Format: uuid */
+            serviceCatalogItemId: string | null;
+            /** Format: uuid */
+            productId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        WorkOrderTotals: {
+            /**
+             * @description Mano de obra, en soles
+             * @example 180.00
+             */
+            labor: string;
+            /**
+             * @description Repuestos, en soles
+             * @example 95.50
+             */
+            parts: string;
+            /**
+             * @description Mano de obra más repuestos
+             * @example 275.50
+             */
+            total: string;
+            /**
+             * @description Solo para ADMIN. Lo que costaron los repuestos
+             * @example 61.00
+             */
+            partsCost?: string;
+            /**
+             * @description Solo para ADMIN. Repuestos menos su costo
+             * @example 34.50
+             */
+            partsMargin?: string;
+        };
+        /** @enum {string} */
+        QuoteStatus: "PENDING" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+        /** @enum {string} */
+        DecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON" | "PORTAL";
+        QuoteItem: {
+            /** Format: uuid */
+            quoteItemId: string;
+            type: components["schemas"]["ItemType"];
+            /** @example FA-TOY-90915 · Filtro de aceite Toyota Yaris */
+            description: string;
+            /** @example 1.00 */
+            quantity: string;
+            /**
+             * @description En soles
+             * @example 35.00
+             */
+            unitPrice: string;
+            /**
+             * @description Cantidad por precio unitario, redondeado a céntimos
+             * @example 35.00
+             */
+            subtotal: string;
+        };
+        Quote: {
+            /** Format: uuid */
+            quoteId: string;
+            /**
+             * @description 1, 2, 3… dentro de cada orden
+             * @example 2
+             */
+            version: number;
+            status: components["schemas"]["QuoteStatus"];
+            /**
+             * @description En soles, congelado al enviarlo
+             * @example 450.00
+             */
+            total: string;
+            /** Format: date-time */
+            sentAt: string;
+            /** @description Quién lo envió */
+            sentBy: components["schemas"]["WorkOrderUser"];
+            /** Format: date-time */
+            decidedAt: string | null;
+            /** @description El administrador que registró la respuesta del cliente */
+            decidedBy: components["schemas"]["WorkOrderUser"] | null;
+            decisionChannel: components["schemas"]["DecisionChannel"] | null;
+            decisionNote: string | null;
+            /** @description Los ítems como estaban al enviarlo */
+            items: components["schemas"]["QuoteItem"][];
+        };
+        WorkOrderDetail: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Correlativo; se muestra como OT-000123
+             * @example 123
+             */
+            number: number;
+            /** @example AFM-7K3Q9X */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /**
+             * @description Kilometraje al ingreso, en km
+             * @example 84500
+             */
+            mileageIn: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason: string;
+            /**
+             * Format: date
+             * @example 2026-10-08
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            receivedAt: string;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /** @description La fecha prometida ya pasó (en Lima) y no se entregó ni se canceló */
+            isOverdue: boolean;
+            vehicle: components["schemas"]["WorkOrderVehicle"];
+            customer: components["schemas"]["WorkOrderCustomer"];
+            mechanic: components["schemas"]["WorkOrderUser"] | null;
+            /**
+             * @description La suma de sus servicios y repuestos, en soles
+             * @example 275.50
+             */
+            total: string;
+            diagnosis: string | null;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            cancelReason: string | null;
+            /** @description Quién la registró */
+            createdBy: components["schemas"]["WorkOrderUser"];
+            /** @description La línea de tiempo, de la más antigua a la más reciente */
+            events: components["schemas"]["WorkOrderEvent"][];
+            /** @description Servicios y repuestos, en el orden en que se agregaron */
+            items: components["schemas"]["WorkOrderItem"][];
+            totals: components["schemas"]["WorkOrderTotals"];
+            /** @description Los presupuestos enviados, de la versión más nueva a la más vieja */
+            quotes: components["schemas"]["Quote"][];
+        };
+        CreateWorkOrderDto: {
+            /**
+             * Format: uuid
+             * @description El vehículo que ingresa
+             */
+            vehicleId: string;
+            /** @example 84500 */
+            mileageIn: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason: string;
+            /**
+             * Format: date
+             * @description Cuándo se le prometió al cliente (AAAA-MM-DD). No puede ser anterior a hoy en Lima
+             * @example 2026-10-08
+             */
+            promisedDate?: string | null;
+            /**
+             * Format: uuid
+             * @description El mecánico asignado; vacío si todavía no se asigna
+             */
+            mechanicId?: string | null;
+        };
+        UpdateWorkOrderDto: {
+            /** @example 84500 */
+            mileageIn?: number;
+            /** @example Ruido al frenar y vibración en el timón */
+            reason?: string;
+            /**
+             * Format: date
+             * @description Cuándo se le prometió al cliente (AAAA-MM-DD). No puede ser anterior a hoy en Lima
+             * @example 2026-10-08
+             */
+            promisedDate?: string | null;
+            /**
+             * Format: uuid
+             * @description El mecánico asignado; vacío si todavía no se asigna
+             */
+            mechanicId?: string | null;
+        };
+        UpdateWorkOrderDiagnosisDto: {
+            /** @example Pastillas delanteras gastadas al 90 %; discos dentro de medida */
+            diagnosis: string | null;
+        };
+        ChangeWorkOrderStatusDto: {
+            status: components["schemas"]["WorkOrderStatus"];
+            /** @description Obligatoria al cancelar: es el motivo */
+            note?: string | null;
+            /**
+             * @description Si el cliente lo ve en el seguimiento
+             * @default true
+             */
+            isPublic: boolean;
+        };
+        CreateWorkOrderNoteDto: {
+            /** @example Se pidió la pastilla de freno al proveedor */
+            note: string;
+            /** @description Si el cliente la ve en el seguimiento */
+            isPublic: boolean;
+        };
+        CreateWorkOrderItemDto: {
+            type: components["schemas"]["ItemType"];
+            /**
+             * Format: uuid
+             * @description Obligatorio si type es SERVICE
+             */
+            serviceCatalogItemId?: string;
+            /**
+             * Format: uuid
+             * @description Obligatorio si type es PRODUCT
+             */
+            productId?: string;
+            /** @description Mayor que 0, con hasta 2 decimales; por omisión, 1. En la unidad del repuesto; en un servicio, cuántas veces se hace */
+            quantity?: string | number;
+            /** @description Solo ADMIN. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
+            unitPrice?: string | number;
+            /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
+            description?: string;
+        };
+        UpdateWorkOrderItemDto: {
+            /** @description Mayor que 0, con hasta 2 decimales; por omisión, 1. En la unidad del repuesto; en un servicio, cuántas veces se hace */
+            quantity?: string | number;
+            /** @description Solo ADMIN. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
+            unitPrice?: string | number;
+            /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
+            description?: string;
+        };
+        CreateQuoteDto: {
+            /**
+             * @description Para el cliente: va en la línea de tiempo pública, junto al total
+             * @example Incluye el cambio de la bomba de agua; el termostato va de regalo
+             */
+            note?: string | null;
+        };
+        /** @enum {string} */
+        QuoteDecision: "APPROVED" | "REJECTED";
+        /** @enum {string} */
+        StaffDecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON";
+        DecideQuoteDto: {
+            decision: components["schemas"]["QuoteDecision"];
+            channel: components["schemas"]["StaffDecisionChannel"];
+            /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
+            note?: string | null;
+        };
+        /** @enum {string} */
+        ProductKind: "PART" | "SUPPLY";
+        Product: {
+            /** Format: uuid */
+            productId: string;
+            /** @example FA-TOY-90915 */
+            code: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name: string;
+            kind: components["schemas"]["ProductKind"];
+            unit: components["schemas"]["UnitOfMeasure"];
+            /** @example Toyota */
+            brand: string | null;
+            /**
+             * @description En la unidad del producto. Solo lo cambian los movimientos de stock
+             * @example 12.00
+             */
+            stock: string;
+            /**
+             * @description En la unidad del producto
+             * @example 4.00
+             */
+            minStock: string;
+            /** @description El stock está en el mínimo o debajo (stock <= minStock) */
+            isLowStock: boolean;
+            /**
+             * @description Último costo de compra, en soles. Solo para ADMIN
+             * @example 18.50
+             */
+            cost?: string;
+            /**
+             * @description Precio de venta, en soles
+             * @example 30.00
+             */
+            price: string;
+            /**
+             * @description Precio menos costo, en soles; negativo si se vende por debajo del costo. Solo para ADMIN
+             * @example 11.50
+             */
+            margin?: string;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateProductDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example FA-TOY-90915
+             */
+            code: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name: string;
+            kind: components["schemas"]["ProductKind"];
+            unit: components["schemas"]["UnitOfMeasure"];
+            /** @example Toyota */
+            brand?: string | null;
+            /** @description Stock mínimo, en la unidad del producto: de 0 a 99999999.99, con hasta 2 decimales. Con el stock en este valor o debajo, el producto sale como stock bajo */
+            minStock: string | number;
+            /** @description Último costo de compra, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            cost: string | number;
+            /** @description Precio de venta al cliente, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            price: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        UpdateProductDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example FA-TOY-90915
+             */
+            code?: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name?: string;
+            kind?: components["schemas"]["ProductKind"];
+            unit?: components["schemas"]["UnitOfMeasure"];
+            /** @example Toyota */
+            brand?: string | null;
+            /** @description Stock mínimo, en la unidad del producto: de 0 a 99999999.99, con hasta 2 decimales. Con el stock en este valor o debajo, el producto sale como stock bajo */
+            minStock?: string | number;
+            /** @description Último costo de compra, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            cost?: string | number;
+            /** @description Precio de venta al cliente, en soles: de 0 a 99999999.99, con hasta 2 decimales */
+            price?: string | number;
+            /** @default true */
+            isActive: boolean;
+        };
+        /** @enum {string} */
+        StockMovementType: "PURCHASE" | "WORK_ORDER" | "ADJUSTMENT";
+        StockMovementProduct: {
+            /** Format: uuid */
+            productId: string;
+            /** @example FA-TOY-90915 */
+            code: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            name: string;
+            unit: components["schemas"]["UnitOfMeasure"];
+        };
+        StockMovementUser: {
+            /** Format: uuid */
+            userId: string;
+            /** @example Rosa Quispe Mamani */
+            name: string;
+        };
+        StockMovement: {
+            /** Format: uuid */
+            stockMovementId: string;
+            type: components["schemas"]["StockMovementType"];
+            /**
+             * @description Con signo, en la unidad del producto: positiva entra y negativa sale
+             * @example -2.00
+             */
+            quantity: string;
+            /**
+             * @description Costo unitario en soles: el de la compra, o el del producto al momento de un ajuste o un consumo. Solo para ADMIN
+             * @example 18.50
+             */
+            unitCost?: string | null;
+            /** @example Inventario físico de fin de mes */
+            note: string | null;
+            /**
+             * Format: uuid
+             * @description El ítem de la orden de trabajo que generó la salida. Solo en WORK_ORDER; vacío si el ítem se quitó de la orden
+             */
+            workOrderItemId: string | null;
+            product: components["schemas"]["StockMovementProduct"];
+            /** @description Quién lo registró */
+            createdBy: components["schemas"]["StockMovementUser"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CreatePurchaseDto: {
+            /** Format: uuid */
+            productId: string;
+            /** @description Lo que entra, en la unidad del producto: mayor que 0, con hasta 2 decimales */
+            quantity: string | number;
+            /** @description Costo unitario de la compra, en soles. Pasa a ser el costo del producto */
+            unitCost: string | number;
+            /**
+             * @description El proveedor, el número de factura…
+             * @example Distribuidora Autopartes Lima, factura F001-004512
+             */
+            note?: string | null;
+        };
+        CreateAdjustmentDto: {
+            /** Format: uuid */
+            productId: string;
+            /** @description Con signo, en la unidad del producto: positiva suma al stock y negativa resta. Distinta de 0, con hasta 2 decimales */
+            quantity: string | number;
+            /**
+             * @description El motivo del ajuste: inventario físico, merma, corrección…
+             * @example Inventario físico de fin de mes
+             */
+            note: string;
+        };
+        PortalVehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** @example ABC123 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+            /** @example 2018 */
+            year: number | null;
+            /** @example Gris */
+            color: string | null;
+            /**
+             * @description Órdenes registradas en el taller
+             * @example 3
+             */
+            workOrdersCount: number;
+        };
+        PortalWorkOrderVehicle: {
+            /** Format: uuid */
+            vehicleId: string;
+            /** @example ABC123 */
+            plate: string;
+            /** @example Toyota */
+            brand: string;
+            /** @example Yaris */
+            model: string;
+        };
+        PortalWorkOrder: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Código de seguimiento
+             * @example AFM-7K3Q9X
+             */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /** @example Ruido al frenar */
+            reason: string;
+            vehicle: components["schemas"]["PortalWorkOrderVehicle"];
+            /** Format: date-time */
+            receivedAt: string;
+            /**
+             * Format: date
+             * @example 2026-10-20
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /**
+             * @description En soles
+             * @example 450.00
+             */
+            total: string;
+            /** @description Hay un presupuesto esperando su respuesta */
+            hasPendingQuote: boolean;
+        };
+        /** @enum {string} */
+        PortalWorkOrderState: "OPEN" | "CLOSED";
+        PortalLine: {
+            type: components["schemas"]["ItemType"];
+            /** @example Cambio de aceite y filtro */
+            description: string;
+            /** @example 1.00 */
+            quantity: string;
+            /** @description Solo en repuestos */
+            unit: components["schemas"]["UnitOfMeasure"] | null;
+            /** @example 35.00 */
+            unitPrice: string;
+            /** @example 35.00 */
+            subtotal: string;
+        };
+        PortalTotals: {
+            /**
+             * @description Mano de obra
+             * @example 120.00
+             */
+            labor: string;
+            /**
+             * @description Repuestos
+             * @example 330.00
+             */
+            parts: string;
+            /** @example 450.00 */
+            total: string;
+        };
+        PortalEvent: {
+            /** @description El estado al que pasó; null si es solo una nota */
+            status: components["schemas"]["WorkOrderStatus"] | null;
+            note: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PortalQuote: {
+            /** Format: uuid */
+            quoteId: string;
+            /** @example 2 */
+            version: number;
+            status: components["schemas"]["QuoteStatus"];
+            /** @example 450.00 */
+            total: string;
+            /** Format: date-time */
+            sentAt: string;
+            /** Format: date-time */
+            decidedAt: string | null;
+            decisionChannel: components["schemas"]["DecisionChannel"] | null;
+            decisionNote: string | null;
+            /** @description Como estaban al enviarlo */
+            items: components["schemas"]["PortalLine"][];
+        };
+        PortalWorkOrderDetail: {
+            /** Format: uuid */
+            workOrderId: string;
+            /**
+             * @description Código de seguimiento
+             * @example AFM-7K3Q9X
+             */
+            trackingCode: string;
+            status: components["schemas"]["WorkOrderStatus"];
+            /** @example Ruido al frenar */
+            reason: string;
+            vehicle: components["schemas"]["PortalWorkOrderVehicle"];
+            /** Format: date-time */
+            receivedAt: string;
+            /**
+             * Format: date
+             * @example 2026-10-20
+             */
+            promisedDate: string | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /**
+             * @description En soles
+             * @example 450.00
+             */
+            total: string;
+            /** @description Hay un presupuesto esperando su respuesta */
+            hasPendingQuote: boolean;
+            /** @example 85000 */
+            mileageIn: number;
+            diagnosis: string | null;
+            /**
+             * @description El mecánico que atiende su vehículo
+             * @example Juan Quispe
+             */
+            mechanicName: string | null;
+            cancelReason: string | null;
+            items: components["schemas"]["PortalLine"][];
+            totals: components["schemas"]["PortalTotals"];
+            /** @description Solo los eventos públicos, del más antiguo al más nuevo */
+            events: components["schemas"]["PortalEvent"][];
+            /** @description Las versiones del presupuesto, de la más nueva a la más vieja */
+            quotes: components["schemas"]["PortalQuote"][];
+        };
+        DecidePortalQuoteDto: {
+            decision: components["schemas"]["QuoteDecision"];
+            /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
+            note?: string | null;
+        };
+        /** @enum {string} */
+        ToolStatus: "AVAILABLE" | "IN_REPAIR" | "RETIRED";
+        ToolAssignee: {
+            /** Format: uuid */
+            userId: string;
+            /** @example Jorge Quispe Huamán */
+            name: string;
+        };
+        Tool: {
+            /** Format: uuid */
+            toolId: string;
+            /** @example HER-TORQ-01 */
+            code: string;
+            /** @example Torquímetro de 1/2" 40-200 N·m */
+            name: string;
+            /** @example Stanley */
+            brand: string | null;
+            status: components["schemas"]["ToolStatus"];
+            notes: string | null;
+            /** @description Quién la tiene; null si está en el almacén */
+            assignedTo: components["schemas"]["ToolAssignee"] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateToolDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example HER-TORQ-01
+             */
+            code: string;
+            /** @example Torquímetro de 1/2" 40-200 N·m */
+            name: string;
+            /** @example Stanley */
+            brand?: string | null;
+            /** @default AVAILABLE */
+            status: components["schemas"]["ToolStatus"];
+            /**
+             * Format: uuid
+             * @description El usuario activo que la tiene. Vacío o null: en el almacén. Solo una herramienta operativa se asigna
+             */
+            assignedToId?: string | null;
+            notes?: string | null;
+        };
+        UpdateToolDto: {
+            /**
+             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
+             * @example HER-TORQ-01
+             */
+            code?: string;
+            /** @example Torquímetro de 1/2" 40-200 N·m */
+            name?: string;
+            /** @example Stanley */
+            brand?: string | null;
+            /** @default AVAILABLE */
+            status: components["schemas"]["ToolStatus"];
+            /**
+             * Format: uuid
+             * @description El usuario activo que la tiene. Vacío o null: en el almacén. Solo una herramienta operativa se asigna
+             */
+            assignedToId?: string | null;
+            notes?: string | null;
+        };
+        AssignToolDto: {
+            /**
+             * Format: uuid
+             * @description El usuario activo que se la lleva, o null para devolverla al almacén
+             */
+            assignedToId: string | null;
         };
     };
     responses: never;
@@ -115,7 +1784,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getHello: {
+    AppController_health: {
         parameters: {
             query?: never;
             header?: never;
@@ -124,11 +1793,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description La API está en línea */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
             };
         };
     };
@@ -150,10 +1825,51 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentSession"];
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
                 };
             };
-            /** @description Correo o contraseña incorrectos */
+            /** @description Usuario o contraseña incorrectos */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Demasiados intentos seguidos */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_customerLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
+                };
+            };
+            /** @description Usuario o contraseña incorrectos, temporal vencida o acceso suspendido */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -183,7 +1899,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentSession"];
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
                 };
             };
             /** @description La sesión expiró o fue revocada */
@@ -205,11 +1923,16 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Sesión cerrada */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
             };
         };
     };
@@ -227,11 +1950,2247 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentSession"];
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
                 };
             };
             /** @description Sin sesión o sesión expirada */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeOwnPasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["CurrentSession"];
+                    };
+                };
+            };
+            /** @description La actual no es correcta, o la nueva no es válida */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Demasiados intentos seguidos */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerAccountsController_issueTemporaryPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalCredentials"];
+                    };
+                };
+            };
+            /** @description El cliente está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerAccountsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Acceso al portal quitado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description El cliente no tiene acceso al portal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                documentType?: components["schemas"]["DocumentType"];
+                isActive?: boolean;
+                sortBy?: "name" | "createdAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    CustomersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCustomerDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description Ya existe un cliente con ese documento */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cliente eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El cliente tiene vehículos u órdenes registradas */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCustomerDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un cliente con ese documento */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                role?: components["schemas"]["UserRole"];
+                isActive?: boolean;
+                sortBy?: "name" | "createdAt" | "lastLoginAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["User"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    UsersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUserDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["IssuedUser"];
+                    };
+                };
+            };
+            /** @description Ya existe un usuario con ese correo o DNI */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["User"];
+                    };
+                };
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuario eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description Quien borra intenta borrarse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El usuario tiene historial, o es el último administrador activo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["User"];
+                    };
+                };
+            };
+            /** @description Quien edita intenta desactivarse o quitarse el rol */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un usuario con ese correo o DNI, o es el último administrador activo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_issueTemporaryPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["TemporaryPassword"];
+                    };
+                };
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                /** @description El dueño */
+                customerId?: string;
+                /** @description Marca exacta, sin distinguir mayúsculas */
+                brand?: string;
+                sortBy?: "plate" | "brand" | "createdAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    VehiclesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVehicleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"];
+                    };
+                };
+            };
+            /** @description El cliente está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un vehículo con esa placa o ese VIN */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_brands: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["VehicleBrand"][];
+                    };
+                };
+            };
+        };
+    };
+    VehiclesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"];
+                    };
+                };
+            };
+            /** @description No se encontró el vehículo */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vehículo eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el vehículo */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El vehículo tiene órdenes de trabajo registradas */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VehiclesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVehicleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Vehicle"];
+                    };
+                };
+            };
+            /** @description El cliente nuevo está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el vehículo o el cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un vehículo con esa placa o ese VIN */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                isActive?: boolean;
+                /** @description Precio de mano de obra desde, en soles (incluido) */
+                minPrice?: string;
+                /** @description Precio de mano de obra hasta, en soles (incluido) */
+                maxPrice?: string;
+                sortBy?: "name" | "laborPrice" | "createdAt";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description El precio mínimo es mayor que el máximo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateServiceCatalogItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"];
+                    };
+                };
+            };
+            /** @description Ya existe un servicio con ese nombre */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCatalogItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"];
+                    };
+                };
+            };
+            /** @description No se encontró el servicio */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCatalogItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Servicio eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el servicio */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El servicio ya se usó en órdenes de trabajo */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ServiceCatalogController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                serviceCatalogItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateServiceCatalogItemDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["ServiceCatalogItem"];
+                    };
+                };
+            };
+            /** @description No se encontró el servicio */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un servicio con ese nombre */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                /** @description Uno o varios estados, separados por coma */
+                status?: string;
+                /** @description Solo para ADMIN: el mecánico ve siempre las suyas */
+                mechanicId?: string;
+                vehicleId?: string;
+                customerId?: string;
+                /** @description true: solo las vencidas (la fecha prometida ya pasó en Lima y no se entregó ni se canceló) */
+                overdue?: boolean;
+                /** @description Ingresadas desde este día (AAAA-MM-DD), en la hora de Lima */
+                from?: string;
+                /** @description Ingresadas hasta este día inclusive (AAAA-MM-DD), en la hora de Lima */
+                to?: string;
+                sortBy?: "receivedAt" | "promisedDate" | "number";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrder"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    WorkOrdersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkOrderDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description El dueño del vehículo o el mecánico están inactivos, o la fecha prometida ya pasó */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el vehículo o el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El vehículo ya tiene una orden abierta */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Orden de trabajo eliminada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró la orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden tiene ítems, presupuestos o pagos: se cancela */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkOrderDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description El mecánico está inactivo, o la fecha prometida ya pasó */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la orden o el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden ya se entregó o se canceló */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_updateDiagnosis: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkOrderDiagnosisDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se diagnostique */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeWorkOrderStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description Cancelar exige el motivo en la nota */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El mecánico no entrega ni cancela órdenes */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Desde su estado actual la orden no puede pasar al pedido, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_addNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkOrderNoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_addItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkOrderItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description El servicio o el repuesto está inactivo, o el ítem trae datos del otro tipo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El mecánico no fija el precio ni la descripción */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No existe, o el mecánico no la tiene asignada; o no existe el servicio o el repuesto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se cambien sus ítems, cambió mientras tanto, o no alcanza el stock */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_removeItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                workOrderItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ítem quitado; si es un repuesto, vuelve al stock */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No existe, o el mecánico no la tiene asignada; o el ítem no es de esta orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_updateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                workOrderItemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkOrderItemDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La cantidad de un repuesto no se cambia */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El mecánico no fija el precio ni la descripción */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No existe, o el mecánico no la tiene asignada; o el ítem no es de esta orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_sendQuote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateQuoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La orden no tiene ítems */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la orden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description La orden no está en diagnóstico, en reparación ni esperando repuestos, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkOrdersController_decideQuote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                quoteId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecideQuoteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["WorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description No se encontró la orden, o el presupuesto no es de ella */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El presupuesto ya se decidió o fue reemplazado, la orden no espera aprobación, o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                kind?: components["schemas"]["ProductKind"];
+                isActive?: boolean;
+                /** @description true: solo los de stock bajo (stock menor o igual al mínimo); false: solo los que están por encima del mínimo */
+                lowStock?: boolean;
+                sortBy?: "name" | "code" | "stock" | "price";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    ProductsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProductDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"];
+                    };
+                };
+            };
+            /** @description Ya existe un producto con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"];
+                    };
+                };
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Producto eliminado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El producto tiene movimientos de stock o ítems de órdenes */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProductDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Product"];
+                    };
+                };
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe un producto con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                type?: components["schemas"]["StockMovementType"];
+                productId?: string;
+                /** @description Desde este día (AAAA-MM-DD), en la hora de Lima */
+                from?: string;
+                /** @description Hasta este día inclusive (AAAA-MM-DD), en la hora de Lima */
+                to?: string;
+                sortBy?: "createdAt" | "quantity";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description La fecha desde es posterior a la fecha hasta */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stockMovementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"];
+                    };
+                };
+            };
+            /** @description No se encontró el movimiento */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_purchase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePurchaseDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"];
+                    };
+                };
+            };
+            /** @description El producto está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StockMovementsController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdjustmentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["StockMovement"];
+                    };
+                };
+            };
+            /** @description El producto está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el producto */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stock insuficiente para un ajuste que resta */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_vehicles: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalVehicle"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_vehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalVehicle"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No es un vehículo del cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_workOrders: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                state?: components["schemas"]["PortalWorkOrderState"];
+                vehicleId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalWorkOrder"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_workOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalWorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No es una orden del cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalController_decide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workOrderId: string;
+                quoteId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecidePortalQuoteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["PortalWorkOrderDetail"];
+                    };
+                };
+            };
+            /** @description La sesión no es de un cliente */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No es una orden o un presupuesto del cliente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El presupuesto ya tiene respuesta, la orden ya no espera aprobación o cambió mientras tanto */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_findAll: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Búsqueda libre */
+                search?: string;
+                status?: components["schemas"]["ToolStatus"];
+                /** @description Solo las que tiene este usuario */
+                assignedToId?: string;
+                /** @description true: solo las asignadas a alguien; false: solo las que están en el almacén */
+                isAssigned?: boolean;
+                sortBy?: "code" | "name" | "status";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"][];
+                        meta: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+        };
+    };
+    ToolsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateToolDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description La herramienta no está operativa, o el usuario está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe una herramienta con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description No se encontró la herramienta */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Herramienta eliminada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        /** @example null */
+                        data: Record<string, never> | null;
+                    };
+                };
+            };
+            /** @description No se encontró la herramienta */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Alguien la tiene: primero se devuelve al almacén */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateToolDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description La herramienta no está operativa, o el usuario está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la herramienta o el usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Ya existe una herramienta con ese código */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ToolsController_assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignToolDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Tool"];
+                    };
+                };
+            };
+            /** @description La herramienta no está operativa, o el usuario está inactivo */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No se encontró la herramienta o el usuario */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -47,8 +47,9 @@ src/
 │           └── components/         tablas, formularios y vistas del módulo
 ├── components/
 │   ├── ui/                         primitivas de shadcn. Las genera el CLI
-│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, DateField, ColorField)
-│   ├── data-table/                 DataTable y createColumns
+│   ├── form/                       useAppForm y los campos (TextField, TextareaField, SelectField, ComboboxField, SwitchField, DateField, MoneyField, QuantityField, ColorField)
+│   ├── data-table/                 DataTable, su paginación, barra y filtros (DataTableFilter, DataTableComboboxFilter, DataTableDateRangeFilter), y createColumns
+│   ├── combobox/                   AsyncCombobox: elegir un registro buscándolo en la API
 │   ├── upload/                     Dropzone: arrastrar o elegir un archivo
 │   └── layout/                     AppSidebar y sus piezas, AppHeader, navigation.ts, ErrorScreen
 ├── server/                         SOLO servidor
@@ -59,7 +60,10 @@ src/
 ├── hooks/use-mobile.ts             lo genera shadcn (lo usa la barra lateral)
 ├── types/api.gen.ts                generado del OpenAPI. No se edita
 ├── lib/utils.ts                    cn(). Lo genera shadcn
-├── lib/dates.ts                    formatDateOnly y formatDateTime
+├── lib/dates.ts                    formatDateOnly, formatDateTime e isDateOnly
+├── lib/decimal.ts                  las reglas de los decimales de la API (Decimal(10, 2)) y el agrupado de miles
+├── lib/money.ts                    formatMoney, moneyError y moneySchema: montos en soles
+├── lib/quantity.ts                 formatQuantity, quantitySchema y movementQuantitySchema: cantidades
 ├── lib/api-types.ts                WithNullable: corrige campos que el OpenAPI declara sin tipo
 ├── router.tsx                      crea el router; registra ErrorScreen como error por defecto
 ├── routeTree.gen.ts                generado por TanStack Router. No se edita
@@ -124,6 +128,15 @@ frontend de `backend/src/modules/core/auth/`, y se llaman igual.
   (`modules/core/auth/auth.schemas.ts`), y un formulario que su rol no puede
   guardar se ve en solo lectura. La API lo vuelve a comprobar: esto es para la
   experiencia, no para la seguridad.
+- **Un dato que la API no le manda a un rol no tiene columna para ese rol**:
+  el costo y el margen de un repuesto solo vienen para `ADMIN`, así que la
+  tabla arma esas columnas solo con `canManage` (`ProductTable`), en vez de
+  pintar columnas vacías para el mecánico.
+- **Lo que la API rechaza solo para un registro se deshabilita en ese
+  registro**, en vez de ocultarlo: en la fila del usuario de la sesión
+  (`session.userId`, que la ruta lee con `Route.useRouteContext()`), «Eliminar»
+  sale deshabilitado y su edición bloquea el rol y «Activo» (`disabled` en
+  `SelectField` y `SwitchField`). Ejemplo real: `modules/core/users/`.
 
 ## El recorrido de un dato, siempre el mismo
 
@@ -343,39 +356,160 @@ const form = useAppForm({
 - **Un campo que depende de otro** (un dato que solo es obligatorio según el
   valor de otro campo): `onChangeListenTo: ['<campo>']` en el campo que
   depende.
-- **Un campo nuevo** (`NumberField`, `ComboboxField`…) se crea en
-  `components/form/`, lee su estado con `useFieldContext<T>()` y se registra en
-  `form.ts`. Se crea cuando lo necesita el primer formulario, no antes.
-- **Los errores de la API** se muestran con `<FieldError>{mutation.error.message}</FieldError>`.
+- **Un registro de otro módulo** (el cliente de un vehículo) se elige con
+  `ComboboxField`, que **busca en la API** mientras se escribe, en vez de traer
+  todos a un `SelectField`. Recibe `optionsQuery: (search) => queryOptions(...)`
+  del módulo dueño, que reutiliza su listado y devuelve `{ value, label,
+  description }` (`customersQueries.options({ search, onlyActive })`), y
+  `selectedOption` para mostrar el valor guardado al editar aunque no salga en
+  la primera página. El valor del campo es el id (vacío si no se eligió).
+  `VehicleFormDialog` es el ejemplo real. Si elegir es **opcional**,
+  `clearLabel` agrega abajo la opción de quitarlo y el `placeholder` dice qué
+  significa vacío («En el almacén»: `ToolFormDialog`). Para elegir a una
+  persona del personal, `usersQueries.options` (solo `ADMIN`: `/users` es
+  suyo); para un vehículo, `vehiclesQueries.options(search)` (placa, marca y
+  modelo, con el dueño debajo: `CreateWorkOrderDialog`).
+- **Un valor sugerido al elegir en un combobox** (el precio del servicio o
+  del repuesto que se agrega a una orden): `listeners={{ onChange }}` en el
+  campo del combobox pide el detalle con
+  `queryClient.fetchQuery(<module>Queries.detail(id))` y llena los otros
+  campos con `form.setFieldValue`, que siguen editables. Si un rol no puede
+  cambiarlos, no ve esos campos (van vacíos y la API copia los del original)
+  y el valor se le muestra como `description`. Ejemplo real: `AddItemDialog`
+  (`modules/workshop/work-orders/`).
+- **Dos formularios en la misma página con un campo del mismo nombre** (la
+  nota del detalle de una orden y la del diálogo de estado) chocan en el id,
+  que es el nombre del campo: la etiqueta de uno apunta al otro. El que queda
+  siempre a la vista pasa su propio `id` (`TextareaField` y `SwitchField` lo
+  aceptan; ejemplo real: `AddNoteForm`).
 
-## Tablas: TanStack Table 9
+  > Por dentro es `AsyncCombobox` (`components/combobox/`): un `Popover` de
+  > Radix con el `Combobox` de Base UI en modo `inline`. No se usa el popup
+  > propio del Combobox (`ComboboxContent`): un `Dialog` de Radix toma como
+  > «afuera» (y se cierra) todo clic fuera de su contenido que no venga de una
+  > capa de Radix, y ese popup es de Base UI y se monta en `body`.
+- **Un monto en soles** se escribe con `MoneyField` (prefijo «S/», teclado
+  numérico) y su valor es **texto** («120.50»), igual que lo manda y lo recibe
+  la API: un `number` perdería el cero final y redondearía. El esquema lo
+  valida con `moneySchema('El costo')` (`lib/money.ts`), las mismas reglas que
+  `IsMoney` del backend, detrás del chequeo de vacío
+  (`z.string().trim().min(1, 'Ingresa…').pipe(moneySchema(…))`), y se muestra
+  con `formatMoney` («S/ 1,250.00»).
+- **Una cantidad** (stock mínimo, la cantidad de un movimiento) es igual, con
+  `QuantityField` (su prop `unit` muestra la abreviatura a la derecha),
+  `quantitySchema` y `formatQuantity` (`lib/quantity.ts`: «12», «4.50»). Con
+  su unidad, `formatStock` del módulo dueño
+  (`modules/inventory/products/products.schemas.ts`: «4.50 L»). Ejemplo real:
+  `ProductFormDialog`, que le pasa a `QuantityField` la unidad elegida con
+  `form.Subscribe`. La cantidad de un **movimiento** (nunca 0; con signo en un
+  ajuste) se valida con `movementQuantitySchema('La cantidad', { signed })`,
+  y se muestra con su signo y color con `formatMovementQuantity`
+  (`modules/inventory/stock-movements/`). Un filtro por
+  rango de montos (`PriceRangeFilter`) vive por ahora en
+  `modules/workshop/service-catalog/components/`: se mueve a
+  `components/data-table/` cuando lo use un segundo listado.
+- **Una opción obligatoria sin valor por omisión** (qué respondió el cliente
+  y por dónde) empieza en `''` y el esquema la deja entrar y la rechaza con su
+  mensaje: `z.union([z.literal(''), z.enum(OPCIONES)]).pipe(z.enum(OPCIONES,
+  { error: 'Indica…' }))`. El Select muestra su texto de ayuda mientras está
+  vacío. Ejemplo real: `decideQuoteFormSchema`
+  (`modules/workshop/work-orders/`).
+- **Un campo nuevo** (`NumberField`…) se crea en `components/form/`, lee su
+  estado con `useFieldContext<T>()` y se registra en `form.ts`. Se crea cuando
+  lo necesita el primer formulario, no antes.
+- **Los errores de la API** se muestran con `<FieldError>{mutation.error.message}</FieldError>`,
+  y el `onSubmit` **no los relanza**: `mutateAsync(value).then(onDone, () => undefined)`.
+  Con `await mutateAsync` a secas, `void form.handleSubmit()` deja la promesa
+  rechazada sin capturar y cada 409 ensucia la consola.
+- **`staleTime` de 30 s por defecto** (`integrations/tanstack-query/root-provider.tsx`):
+  con 0, lo que precargó el servidor figuraba como «buscando» en el primer render
+  del navegador y la tabla hidrataba distinto (aviso de hidratación).
 
-Todo listado usa **`DataTable`** (`components/data-table/`): orden por columna,
-búsqueda global y paginación.
+## Listados: paginados en la API, estado en la URL
+
+Todo listado se pagina, busca, filtra y ordena **en la API** (regla del
+proyecto). El ejemplo real es `modules/customer/customers/` con su ruta
+`routes/_app/customer/customers/index.tsx`.
+
+1. **La URL guarda el estado.** La ruta declara `validateSearch` con el esquema
+   del módulo (`customersSearchSchema`: `page`, `pageSize`, `search`, filtros,
+   `sortBy`, `sortOrder`), cada campo con `.catch(...)` para que una URL editada
+   a mano no rompa la página, y `stripSearchParams(defaults)` para no escribir
+   los valores por defecto.
+2. **El loader precarga esa página**: `loaderDeps: ({ search }) => search` y
+   `ensureQueryData(<module>Queries.list(deps))`. El componente la lee con
+   `useSuspenseQuery`, y la consulta lleva `placeholderData: keepPreviousData`
+   para que al cambiar de página la tabla se atenúe en vez de vaciarse.
+3. **La server function** llama a `callApiPage<T>(path + toQueryString(search))`
+   (`server/api.ts`), que devuelve `{ items, meta }`.
+4. **La tabla**: `DataTable` recibe `data`, `meta`, el orden y los callbacks;
+   `DataTableToolbar` (búsqueda con espera de 350 ms, filtros, «Limpiar» y
+   acciones) y `DataTableFilter` (lista con «Todos»). Cambiar la búsqueda o un
+   filtro vuelve a la página 1. Si el filtro es un registro de otro módulo
+   (vehículos por cliente), `DataTableComboboxFilter` busca en la API como
+   `ComboboxField`; la URL solo guarda el id, así que el nombre se pide con la
+   consulta de detalle del módulo dueño y la ruta lo precarga con
+   `prefetchQuery` (no falla si el id ya no existe). Ejemplo real:
+   `modules/customer/vehicles/components/VehicleTable.tsx`. Un **rango de
+   fechas** es `DataTableDateRangeFilter` («Del … al …», `from` y `to` en
+   `AAAA-MM-DD`, con `isDateOnly` de `lib/dates.ts` en el esquema de la URL):
+   no pasa por `Date`, espera a que se termine de escribir el año y no aplica
+   un «del» posterior al «al». La API los toma como días de Lima, con el «al»
+   inclusivo. Ejemplo real:
+   `modules/inventory/stock-movements/components/StockMovementTable.tsx`.
+   Si el filtro de otro módulo **no se le puede ofrecer a un rol** (el
+   personal, que solo lista `ADMIN`), ese rol recibe en su lugar un botón con
+   `aria-pressed` que filtra por su propio `session.userId` («Mis
+   herramientas»), y la ruta solo precarga el nombre para quien puede leerlo.
+   Ejemplo real: `modules/inventory/tools/components/ToolTable.tsx`.
 
 ```tsx
-// components/VehicleTable.tsx (ilustrativo)
-const column = createColumns<Vehicle>()
+const column = createColumns<Customer>()
 
-const columns = column.columns([
-  column.accessor('plate', { header: 'Placa' }),
-  column.accessor('createdAt', {
-    header: 'Registrado',
-    cell: (info) => formatDateTime(info.getValue()),
-  }),
+column.columns([
+  column.accessor('name', { header: 'Nombre' }),           // se ordena en la API
+  column.accessor('phone', { header: 'Teléfono', enableSorting: false }),
 ])
-
-<DataTable columns={columns} data={data} searchPlaceholder="Buscar…" />
 ```
 
-- **Las columnas se declaran fuera del componente** y se envuelven en
-  `column.columns([...])`. Un arreglo literal no compila en la 9, porque cada
-  columna tiene un tipo de valor distinto.
-- **Lo que la tabla sabe hacer se declara en `features.ts`** con
-  `tableFeatures({...})`. Las funciones de orden y filtro se registran por
-  nombre: la 9 solo resuelve `'auto'` entre las registradas. Una funcionalidad
-  nueva (selección de filas, columnas ocultables) se agrega ahí.
-- En la 9, el estado se lee con `table.state`, no con `getState()`.
+- **Una columna que la API no sabe ordenar declara `enableSorting: false`**; el
+  `id` de las que sí se ordenan es el valor de `sortBy` que acepta la API.
+- **Las columnas se envuelven en `column.columns([...])`**: un arreglo literal no
+  compila en la 9. Si necesitan acciones del componente (editar, borrar), se
+  arman en una función y se memorizan con `useMemo`.
+- `features.ts` solo declara `rowSortingFeature`: la tabla no ordena, filtra ni
+  pagina filas por su cuenta.
+
+## Una página de detalle
+
+Cuando un registro se trabaja en su propia pantalla y no en un diálogo. El
+ejemplo real es la orden de trabajo: `routes/_app/workshop/work-orders/$workOrderId.tsx`
+y `modules/workshop/work-orders/components/WorkOrderView.tsx`.
+
+- **La ruta es `$<entidad>Id.tsx`** junto al `index.tsx` del listado, y el
+  listado enlaza con `<Link to="…/$workOrderId" params={{ workOrderId }}>`.
+- **El loader precarga `<module>Queries.detail(id)`** con `ensureQueryData` y
+  la página lee con `useSuspenseQuery`, como un listado.
+- **«No existe» no es un error.** La server function del detalle convierte el
+  404 de la API en `throw notFound()` y la ruta declara su
+  `notFoundComponent` (con un 404 en la respuesta, sin la pantalla de error ni
+  errores en la consola); un id que ni es UUID, igual, desde el loader sin
+  llamar a la API.
+- **Las mutaciones devuelven el registro completo**, que pasa directo a la
+  caché del detalle (`setQueryData`) mientras se invalidan solo los listados:
+  la pantalla no vuelve a pedirlo. Al borrar, no se toca la caché del detalle
+  (la página sigue montada hasta navegar al listado y volver a pedirlo daría
+  un 404 de paso).
+- **El breadcrumb sale solo**: `breadcrumbFor` reconoce un parámetro justo
+  debajo de un módulo del menú y suma «Detalle».
+
+## Respuestas de la API
+
+La API responde `BaseResponseDto` en todo (`{ success, message, data, meta }`).
+`callApi<T>` devuelve solo `data`; `callApiEnvelope<T>` todo, para las
+mutaciones, que devuelven `message` y lo muestran con `toast.success`; los
+errores llegan como `ApiError` con el `message` de la API y se muestran con
+`<FieldError>`.
 
 ## Tipos de la API
 
