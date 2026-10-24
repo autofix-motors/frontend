@@ -23,6 +23,7 @@ línea base del framework, no una decisión del equipo.
 | 2026-09-24 | `jsdom` | dev | El DOM en el que corren los tests de Vitest |
 | 2026-09-25 | `date-fns` | prod | Formatear fechas de la API en un solo lugar (utilidad pendiente en `lib/`), sin repetir `toLocaleDateString` en cada pantalla |
 | 2026-09-25 | `react-dropzone` | prod | Arrastrar y soltar archivos en un componente de carga reutilizable (pendiente), para los documentos de los módulos |
+| 2026-10-24 | `srvx` | prod | Servidor de producción del build de TanStack Start (`pnpm start`); el build solo exporta un handler `fetch` |
 
 ## Retiradas
 
