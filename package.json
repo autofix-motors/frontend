@@ -1,6 +1,7 @@
 {
   "name": "autofix-motors-frontend",
   "private": true,
+  "packageManager": "pnpm@12.8.1",
   "type": "module",
   "imports": {
     "#/*": "./src/*"
