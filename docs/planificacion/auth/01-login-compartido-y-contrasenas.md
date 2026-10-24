@@ -41,6 +41,6 @@ Las pantallas del acceso, sobre la API del plan
   ancho tras revisión: las acciones apiladas, el pie solo con «Listo».
 - [x] Tipos regenerados desde el backend de prueba; typecheck, lint y 322
   tests en verde.
-- [ ] Validación completa de quien dirige el proyecto: revisó el alta de
-  personal y el diálogo de credenciales (2026-10-16); falta el acceso del
-  cliente de punta a punta.
+- [x] Validación completa de quien dirige el proyecto: revisó el alta de
+  personal y el diálogo de credenciales (2026-10-16), y el acceso del cliente
+  de punta a punta al validar el portal (2026-10-24).

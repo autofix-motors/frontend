@@ -59,9 +59,11 @@ seguridad: la API lo vuelve a comprobar con `@Roles()`.
 Cada fase tiene su plan detallado en `docs/planificacion/<módulo>/` y su rama
 `feature/...` con PR, en paralelo con la misma fase del backend.
 
-- [ ] **Fase 1 — Personal, clientes y vehículos.**
-- [ ] **Fase 2 — Servicios.** Catálogo, órdenes de trabajo y su detalle,
+- [x] **Fase 1 — Personal, clientes y vehículos.**
+- [x] **Fase 2 — Servicios.** Catálogo, órdenes de trabajo y su detalle,
   presupuestos.
-- [ ] **Fase 3 — Seguimiento público.**
-- [ ] **Fase 4 — Inventario.**
+- [x] **Fase 3 — Portal del cliente** (antes «Seguimiento público», `/seguimiento`):
+  login compartido, `/portal` con sus vehículos, sus órdenes y la respuesta a
+  los presupuestos. Validada el 2026-10-24.
+- [x] **Fase 4 — Inventario.**
 - [ ] **Fase 5 — Ingresos.** Pagos, reportes y dashboard de inicio.

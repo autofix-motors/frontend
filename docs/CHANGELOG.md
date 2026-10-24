@@ -47,6 +47,20 @@ Reglas:
 
 ---
 
+## 2026-10-18
+
+### Portal del cliente — Eduardo Huarcaya · 16:33
+commits [`e36a1fa`](../../commit/e36a1fa) · [`8fb26b5`](../../commit/8fb26b5) · [`2719f17`](../../commit/2719f17) · [`645eb04`](../../commit/645eb04)
+
+`/portal` con lo que espera su respuesta y lo que está en el taller,
+«Reparaciones» (en curso y anteriores, por vehículo), el detalle con
+presupuestos, servicios y repuestos, avance y diagnóstico, y «Vehículos» con
+búsqueda y paginación. El cliente aprueba o rechaza el presupuesto con una
+nota. Navegación con menú de cuenta y, en el celular, barra inferior. En el
+personal, el canal «Portal del cliente» y el autor «El cliente (portal)».
+
+> **IMPORTANTE** — Necesita el backend con el portal y su migración aplicada.
+
 ## 2026-10-16
 
 ### Login de cliente y personal, y contraseñas temporales — Eduardo Huarcaya · 23:45
