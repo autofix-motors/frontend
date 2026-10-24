@@ -1,6 +1,7 @@
 import type { z } from 'zod'
 import {
   OPEN_STATUSES,
+  authorName,
   canSendQuote,
   decideQuoteFormSchema,
   decideQuoteRequestSchema,
@@ -584,5 +585,12 @@ describe('presupuestos', () => {
         values: emptyDecideQuoteForm,
       }).success,
     ).toBe(false)
+  })
+})
+
+describe('authorName', () => {
+  it('el personal por su nombre; sin autor, el cliente desde su portal', () => {
+    expect(authorName({ name: 'Ana Admin' })).toBe('Ana Admin')
+    expect(authorName(null)).toBe('El cliente (portal)')
   })
 })
