@@ -15,6 +15,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalVehiclesIndexRouteImport } from './routes/portal/vehicles/index'
+import { Route as PortalWorkOrdersIndexRouteImport } from './routes/portal/work-orders/index'
+import { Route as PortalWorkOrdersWorkOrderIdRouteImport } from './routes/portal/work-orders/$workOrderId'
 import { Route as AppCoreUsersIndexRouteImport } from './routes/_app/core/users/index'
 import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/customer/customers/index'
 import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
@@ -54,6 +57,22 @@ const PortalIndexRoute = PortalIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PortalRoute,
 } as any)
+const PortalVehiclesIndexRoute = PortalVehiclesIndexRouteImport.update({
+  id: '/vehicles/',
+  path: '/vehicles/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalWorkOrdersIndexRoute = PortalWorkOrdersIndexRouteImport.update({
+  id: '/work-orders/',
+  path: '/work-orders/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalWorkOrdersWorkOrderIdRoute =
+  PortalWorkOrdersWorkOrderIdRouteImport.update({
+    id: '/work-orders/$workOrderId',
+    path: '/work-orders/$workOrderId',
+    getParentRoute: () => PortalRoute,
+  } as any)
 const AppCoreUsersIndexRoute = AppCoreUsersIndexRouteImport.update({
   id: '/core/users/',
   path: '/core/users/',
@@ -113,6 +132,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
   '/portal/': typeof PortalIndexRoute
+  '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
+  '/portal/vehicles/': typeof PortalVehiclesIndexRoute
+  '/portal/work-orders/': typeof PortalWorkOrdersIndexRoute
   '/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   '/core/users/': typeof AppCoreUsersIndexRoute
   '/customer/customers/': typeof AppCustomerCustomersIndexRoute
@@ -128,6 +150,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AppIndexRoute
   '/portal': typeof PortalIndexRoute
+  '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
+  '/portal/vehicles': typeof PortalVehiclesIndexRoute
+  '/portal/work-orders': typeof PortalWorkOrdersIndexRoute
   '/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   '/core/users': typeof AppCoreUsersIndexRoute
   '/customer/customers': typeof AppCustomerCustomersIndexRoute
@@ -146,6 +171,9 @@ export interface FileRoutesById {
   '/portal': typeof PortalRouteWithChildren
   '/_app/': typeof AppIndexRoute
   '/portal/': typeof PortalIndexRoute
+  '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
+  '/portal/vehicles/': typeof PortalVehiclesIndexRoute
+  '/portal/work-orders/': typeof PortalWorkOrdersIndexRoute
   '/_app/workshop/work-orders/$workOrderId': typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   '/_app/core/users/': typeof AppCoreUsersIndexRoute
   '/_app/customer/customers/': typeof AppCustomerCustomersIndexRoute
@@ -164,6 +192,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/portal'
     | '/portal/'
+    | '/portal/work-orders/$workOrderId'
+    | '/portal/vehicles/'
+    | '/portal/work-orders/'
     | '/workshop/work-orders/$workOrderId'
     | '/core/users/'
     | '/customer/customers/'
@@ -179,6 +210,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/'
     | '/portal'
+    | '/portal/work-orders/$workOrderId'
+    | '/portal/vehicles'
+    | '/portal/work-orders'
     | '/workshop/work-orders/$workOrderId'
     | '/core/users'
     | '/customer/customers'
@@ -196,6 +230,9 @@ export interface FileRouteTypes {
     | '/portal'
     | '/_app/'
     | '/portal/'
+    | '/portal/work-orders/$workOrderId'
+    | '/portal/vehicles/'
+    | '/portal/work-orders/'
     | '/_app/workshop/work-orders/$workOrderId'
     | '/_app/core/users/'
     | '/_app/customer/customers/'
@@ -256,6 +293,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/portal/'
       preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/vehicles/': {
+      id: '/portal/vehicles/'
+      path: '/vehicles'
+      fullPath: '/portal/vehicles/'
+      preLoaderRoute: typeof PortalVehiclesIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/work-orders/': {
+      id: '/portal/work-orders/'
+      path: '/work-orders'
+      fullPath: '/portal/work-orders/'
+      preLoaderRoute: typeof PortalWorkOrdersIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/work-orders/$workOrderId': {
+      id: '/portal/work-orders/$workOrderId'
+      path: '/work-orders/$workOrderId'
+      fullPath: '/portal/work-orders/$workOrderId'
+      preLoaderRoute: typeof PortalWorkOrdersWorkOrderIdRouteImport
       parentRoute: typeof PortalRoute
     }
     '/_app/core/users/': {
@@ -354,10 +412,16 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface PortalRouteChildren {
   PortalIndexRoute: typeof PortalIndexRoute
+  PortalWorkOrdersWorkOrderIdRoute: typeof PortalWorkOrdersWorkOrderIdRoute
+  PortalVehiclesIndexRoute: typeof PortalVehiclesIndexRoute
+  PortalWorkOrdersIndexRoute: typeof PortalWorkOrdersIndexRoute
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
   PortalIndexRoute: PortalIndexRoute,
+  PortalWorkOrdersWorkOrderIdRoute: PortalWorkOrdersWorkOrderIdRoute,
+  PortalVehiclesIndexRoute: PortalVehiclesIndexRoute,
+  PortalWorkOrdersIndexRoute: PortalWorkOrdersIndexRoute,
 }
 
 const PortalRouteWithChildren =
