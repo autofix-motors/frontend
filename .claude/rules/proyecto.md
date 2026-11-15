@@ -5,17 +5,17 @@ regla sin motivo se salta en el primer apuro.
 
 ## Idioma
 
-**Todo identificador va en inglés**, igual que en el backend: módulos,
-componentes, funciones, variables, archivos y variables de entorno. Lo que
-genera el framework se queda como viene. Las reglas están en
+**Los datos del dominio van en español**, como los nombra la API (campos,
+valores de enum, claves de formularios y de filtros). **La estructura va en
+inglés**: módulos, componentes, funciones, hooks, archivos y variables de
+entorno. Lo que genera el framework se queda como viene. Las reglas están en
 [`nomenclatura.md`](nomenclatura.md).
 
 **En español** van los comentarios, los commits, los textos de la interfaz, los
 mensajes de error y la documentación.
 
-> El código en inglés es lo estándar, y es el mismo vocabulario del backend: un
-> `WorkOrder` en la API es un `WorkOrder` en la pantalla, aunque el usuario lea
-> «Orden de trabajo».
+> Cambió en 2026-11 junto con el backend: el modelo se explica sin traducir
+> nombres. Un `ordenTrabajoId` en la base es un `ordenTrabajoId` en la pantalla.
 
 ## Git
 

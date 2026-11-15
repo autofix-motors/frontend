@@ -47,6 +47,22 @@ Reglas:
 
 ---
 
+## 2026-11-15
+
+### Pantallas en español, panel de inicio y Mi perfil — Eduardo Huarcaya · 18:30
+commits [`911aee9`](../../commit/911aee9)
+
+Las pantallas usan la API en español (campos, enums, filtros en la URL). Sale
+la pantalla de herramientas. Nuevos: panel de inicio con indicadores y
+gráficos (administrador y mecánico), «Mi perfil» con datos y cambio de
+contraseña dentro del sistema (personal y portal), menú en azul pastel con las
+secciones desplegadas, y el detalle de la OT con tarjetas de color y motivo y
+diagnóstico arriba.
+
+> **IMPORTANTE** — Necesita el backend con el modelo en español (su PR
+> equivalente) y la base recreada. Dependencia nueva `recharts` (la agrega
+> `shadcn add chart`): correr `pnpm install`.
+
 ## 2026-10-18
 
 ### Portal del cliente — Eduardo Huarcaya · 16:33

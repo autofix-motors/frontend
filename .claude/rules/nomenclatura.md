@@ -1,9 +1,12 @@
 # Nomenclatura
 
-Cómo se llaman las carpetas, los archivos y los símbolos. **Todo identificador
-va en inglés**, con el mismo vocabulario que el backend; lo que genera el
-framework o una herramienta se queda como viene. Los comentarios, los textos de
-la interfaz, la documentación y los commits siguen en español.
+Cómo se llaman las carpetas, los archivos y los símbolos. **Los datos del
+dominio van en español, como los nombra la API** (`ordenTrabajoId`, `placa`,
+`estado: 'EN_REPARACION'`); **la estructura va en inglés**: carpetas, archivos,
+componentes, funciones, hooks y constantes. Lo que genera el framework o una
+herramienta se queda como viene. Los comentarios, los textos de la interfaz, la
+documentación y los commits van en español. Cambió en 2026-11, junto con el
+backend (antes todo identificador iba en inglés).
 
 ## Carpetas
 
@@ -84,15 +87,15 @@ exporta `Sidebar` y los dos terminarían importados en el mismo archivo.
 (Los nombres con `WorkOrder` son ejemplos de cómo se vería un módulo futuro.)
 
 - **El id de una entidad es `<entidad>Id`, nunca `id`**, igual que en el
-  backend: `session.userId`, `vehicle.vehicleId`, y en rutas y parámetros
-  también (`/workshop/work-orders/$workOrderId`). Así el mismo dato se llama
-  igual en la base, la API y la pantalla.
-- **Los campos que vienen de la API se llaman como en la API**: `createdAt`,
-  `mileageIn`. No se renombran en el camino: el tipo generado ya los nombra.
-- **Los términos del negocio usan la traducción del backend**, que está en su
-  glosario y en el `/// Español: …` de cada modelo. Un `WorkOrder` en la API es
-  un `WorkOrder` en la pantalla; lo que ve el usuario sigue diciendo «Orden de
-  trabajo».
+  backend: `session.usuarioId`, `vehiculo.vehiculoId`. Así el mismo dato se
+  llama igual en la base, la API y la pantalla. El parámetro de las URL de
+  pantalla sigue como está (`/workshop/work-orders/$workOrderId`): es estructura.
+- **Los campos que vienen de la API se llaman como en la API**: `creadoEn`,
+  `kilometrajeIngreso`. No se renombran en el camino: el tipo generado ya los
+  nombra. Lo mismo las claves de los esquemas Zod, de los formularios y de los
+  search params que se mandan a la API (`estado`, `ordenarPor`, `sentido`).
+- **Los términos del negocio son los del glosario del backend**
+  (`docs/planificacion/convenciones/01-glosario.md`).
 
 ## Imports
 

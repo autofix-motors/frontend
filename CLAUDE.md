@@ -25,7 +25,7 @@ El detalle, con ejemplos, está en la skill `estructura-frontend`.
 ## Reglas del proyecto
 Reglas obligatorias que aplican a todo el trabajo en este repo, ubicadas en `.claude/rules/`:
 - `proyecto.md` — idioma, git e invariantes (el navegador no llama a la API, `server/` no sale del servidor, versiones fijadas, la sesión solo se renueva en `getSession`).
-- `nomenclatura.md` — nombres de carpetas, archivos y símbolos (identificadores en inglés, con el vocabulario del backend).
+- `nomenclatura.md` — nombres de carpetas, archivos y símbolos (datos del dominio en español como la API; estructura en inglés).
 - `estilos.md` — convenciones de estilo de código y UI (Tailwind, shadcn, nombres de componentes, `cn()`).
 - `confirmacion-antes-de-subir.md` — nada se sube sin confirmación explícita.
 - `commits.md` · `ramas.md` · `documentacion.md` · `dependencias.md` — flujo de trabajo, igual que en el backend.

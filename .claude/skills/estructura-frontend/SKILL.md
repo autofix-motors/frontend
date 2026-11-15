@@ -18,9 +18,9 @@ primera línea:
   `validator`. La mayoría de los ejemplos que se encuentran buscando son de
   versiones anteriores: se verifica contra `node_modules` y compilando, y se
   mira si lo que se usa está marcado `@deprecated`.
-- **Todo identificador va en inglés**, con el vocabulario del backend. Los
-  textos de la interfaz y los comentarios siguen en español. Ver
-  [`nomenclatura.md`](../../rules/nomenclatura.md).
+- **Los datos del dominio van en español, como la API** (`placa`, `estado`,
+  `ordenarPor`); la estructura —componentes, funciones, archivos— en inglés.
+  Ver [`nomenclatura.md`](../../rules/nomenclatura.md).
 - **No hay un módulo plantilla.** Hoy el único módulo es `core/auth`, y es
   especial: no tiene consultas, porque la sesión viaja en el contexto del
   router. Un módulo nuevo se arma con los patrones de esta skill. **Los ejemplos
@@ -218,9 +218,12 @@ y las cookies en `server/session.ts`.
   volver a pedirla. La sesión es `CurrentSession` (`userId`, `name`, `email`,
   `role`). Sin sesión, redirige a `/login?redirect=<ruta>`, que al entrar
   vuelve a esa ruta (solo rutas de la app: `safeRedirect`).
-- **La sesión no es una consulta.** Por eso `auth.queries.ts` solo tiene las
-  mutaciones `useLogin` y `useLogout`; `useLogout` además vacía la caché de
-  Query, para que el siguiente usuario del navegador no vea datos del anterior.
+- **La sesión no es una consulta.** Por eso `auth.queries.ts` no la lee: tiene
+  las mutaciones (`useLogin`, `useLogout`, `useChangeOwnPassword`) y una sola
+  lectura, `authQueries.profile(session)` para «Mi perfil» (`GET
+  /auth/profile`), con el dueño de la sesión en la clave. `useLogout` además
+  vacía la caché de Query, para que el siguiente usuario del navegador no vea
+  datos del anterior.
 - **La sesión solo se renueva en `getSession`** (invariante 6 de
   `proyecto.md`). El backend rota el refresco y, si recibe uno ya usado, revoca
   la sesión entera: dos renovaciones en paralelo la cerrarían. Por eso
@@ -365,7 +368,7 @@ const form = useAppForm({
   la primera página. El valor del campo es el id (vacío si no se eligió).
   `VehicleFormDialog` es el ejemplo real. Si elegir es **opcional**,
   `clearLabel` agrega abajo la opción de quitarlo y el `placeholder` dice qué
-  significa vacío («En el almacén»: `ToolFormDialog`). Para elegir a una
+  significa vacío («Sin asignar»: `CreateWorkOrderDialog`). Para elegir a una
   persona del personal, `usersQueries.options` (solo `ADMIN`: `/users` es
   suyo); para un vehículo, `vehiclesQueries.options(search)` (placa, marca y
   modelo, con el dueño debajo: `CreateWorkOrderDialog`).
@@ -457,11 +460,6 @@ proyecto). El ejemplo real es `modules/customer/customers/` con su ruta
    un «del» posterior al «al». La API los toma como días de Lima, con el «al»
    inclusivo. Ejemplo real:
    `modules/inventory/stock-movements/components/StockMovementTable.tsx`.
-   Si el filtro de otro módulo **no se le puede ofrecer a un rol** (el
-   personal, que solo lista `ADMIN`), ese rol recibe en su lugar un botón con
-   `aria-pressed` que filtra por su propio `session.userId` («Mis
-   herramientas»), y la ruta solo precarga el nombre para quien puede leerlo.
-   Ejemplo real: `modules/inventory/tools/components/ToolTable.tsx`.
 
 ```tsx
 const column = createColumns<Customer>()
