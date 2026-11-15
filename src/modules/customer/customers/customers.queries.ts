@@ -22,8 +22,8 @@ export const customersKeys = {
   all: ['customers'] as const,
   list: (search: CustomersSearch) =>
     [...customersKeys.all, 'list', search] as const,
-  detail: (customerId: string) =>
-    [...customersKeys.all, 'detail', customerId] as const,
+  detail: (clienteId: string) =>
+    [...customersKeys.all, 'detail', clienteId] as const,
   options: (params: CustomerOptionsParams) =>
     [...customersKeys.all, 'options', params] as const,
 }
@@ -37,10 +37,10 @@ export const customersQueries = {
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
     }),
-  detail: (customerId: string) =>
+  detail: (clienteId: string) =>
     queryOptions({
-      queryKey: customersKeys.detail(customerId),
-      queryFn: () => getCustomer({ data: { customerId } }),
+      queryKey: customersKeys.detail(clienteId),
+      queryFn: () => getCustomer({ data: { clienteId } }),
     }),
   /**
    * Los clientes para elegir en un combobox, buscados en la API con el mismo
@@ -56,7 +56,7 @@ export const customersQueries = {
             ...defaultCustomersSearch,
             pageSize: 20,
             search: params.search || undefined,
-            isActive: params.onlyActive || undefined,
+            activo: params.onlyActive || undefined,
           },
         })
         return page.items.map(customerOption)
@@ -82,7 +82,7 @@ export function useCreateCustomer() {
 export function useUpdateCustomer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: { customerId: string; values: CustomerInput }) =>
+    mutationFn: (request: { clienteId: string; values: CustomerInput }) =>
       updateCustomer({ data: request }),
     onSuccess: async ({ message }) => {
       toast.success(message)
@@ -94,8 +94,7 @@ export function useUpdateCustomer() {
 export function useDeleteCustomer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (customerId: string) =>
-      deleteCustomer({ data: { customerId } }),
+    mutationFn: (clienteId: string) => deleteCustomer({ data: { clienteId } }),
     onSuccess: async ({ message }) => {
       toast.success(message)
       await queryClient.invalidateQueries({ queryKey: customersKeys.all })

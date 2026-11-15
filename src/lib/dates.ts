@@ -51,6 +51,19 @@ export function formatDateTime(value: string | null | undefined): string {
   return Number.isNaN(date.getTime()) ? '—' : DATE_TIME.format(date)
 }
 
+const MONTH_YEAR = new Intl.DateTimeFormat('es-PE', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'America/Lima',
+})
+
+/** «enero de 2026» para una marca de tiempo ISO, en la hora de Lima. */
+export function formatMonthYear(value: string | null | undefined): string {
+  if (!value) return '—'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '—' : MONTH_YEAR.format(date)
+}
+
 // «en-CA» escribe la fecha como AAAA-MM-DD.
 const LIMA_DAY = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'America/Lima',

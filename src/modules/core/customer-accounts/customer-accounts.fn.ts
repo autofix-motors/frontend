@@ -12,7 +12,7 @@ export const issuePortalAccess = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { data: credentials, message } =
       await callApiEnvelope<PortalCredentials>(
-        `/customer-accounts/${data.customerId}/temporary-password`,
+        `/customer-accounts/${data.clienteId}/temporary-password`,
         { method: 'POST' },
       )
     return { credentials, message }
@@ -22,7 +22,7 @@ export const removePortalAccess = createServerFn({ method: 'POST' })
   .validator(customerAccountIdSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/customer-accounts/${data.customerId}`,
+      `/customer-accounts/${data.clienteId}`,
       { method: 'DELETE' },
     )
     return { message }

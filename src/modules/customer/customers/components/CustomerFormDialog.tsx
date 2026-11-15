@@ -100,7 +100,7 @@ function CustomerForm({
   const register = async (values: Parameters<typeof create.mutateAsync>[0]) => {
     const { customer: created } = await create.mutateAsync(values)
     if (!withPortalAccess) return
-    await issueAccess.mutateAsync(created.customerId).then(
+    await issueAccess.mutateAsync(created.clienteId).then(
       ({ credentials }) => onPortalAccessIssued(created, credentials),
       (error: Error) =>
         toast.error(
@@ -118,7 +118,7 @@ function CustomerForm({
     // error sin capturar en la consola.
     onSubmit: ({ value }) =>
       (customer
-        ? update.mutateAsync({ customerId: customer.customerId, values: value })
+        ? update.mutateAsync({ clienteId: customer.clienteId, values: value })
         : register(value)
       ).then(onDone, () => undefined),
   })
@@ -133,13 +133,13 @@ function CustomerForm({
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <form.AppField
-            name="documentType"
+            name="tipoDocumento"
             // El número se vuelve a validar cuando cambia el tipo: un DNI
             // válido deja de serlo si el tipo pasa a RUC.
             listeners={{
               onChange: () => {
-                if (form.getFieldMeta('documentNumber')?.isTouched) {
-                  void form.validateField('documentNumber', 'change')
+                if (form.getFieldMeta('numeroDocumento')?.isTouched) {
+                  void form.validateField('numeroDocumento', 'change')
                 }
               },
             }}
@@ -151,17 +151,17 @@ function CustomerForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="documentNumber">
+          <form.AppField name="numeroDocumento">
             {(field) => (
               <field.TextField label="Número de documento" autoFocus />
             )}
           </form.AppField>
         </div>
-        <form.AppField name="name">
+        <form.AppField name="nombre">
           {(field) => <field.TextField label="Nombre o razón social" />}
         </form.AppField>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="phone">
+          <form.AppField name="telefono">
             {(field) => (
               <field.TextField
                 label="Teléfono"
@@ -170,19 +170,19 @@ function CustomerForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="email">
+          <form.AppField name="correo">
             {(field) => (
               <field.TextField label="Correo (opcional)" type="email" />
             )}
           </form.AppField>
         </div>
-        <form.AppField name="address">
+        <form.AppField name="direccion">
           {(field) => <field.TextField label="Dirección (opcional)" />}
         </form.AppField>
-        <form.AppField name="notes">
+        <form.AppField name="notas">
           {(field) => <field.TextareaField label="Notas (opcional)" rows={3} />}
         </form.AppField>
-        <form.AppField name="isActive">
+        <form.AppField name="activo">
           {(field) => (
             <field.SwitchField
               label="Activo"

@@ -16,7 +16,7 @@ import { DataTablePagination } from './DataTablePagination'
 import { dataTableFeatures } from './features'
 
 /** El orden que pidió el usuario: la columna y la dirección. */
-export type TableSort = { sortBy: string; sortOrder: 'asc' | 'desc' }
+export type TableSort = { ordenarPor: string; sentido: 'asc' | 'desc' }
 
 type DataTableProps<TData extends RowData> = {
   columns: ColumnDef<typeof dataTableFeatures, TData>[]
@@ -57,7 +57,7 @@ export function DataTable<TData extends RowData>({
   emptyMessage = 'Sin registros',
 }: DataTableProps<TData>) {
   const sorting: SortingState = sort
-    ? [{ id: sort.sortBy, desc: sort.sortOrder === 'desc' }]
+    ? [{ id: sort.ordenarPor, desc: sort.sentido === 'desc' }]
     : []
 
   const table = useTable({
@@ -74,8 +74,8 @@ export function DataTable<TData extends RowData>({
       const [first] = next
       if (first && onSortChange) {
         onSortChange({
-          sortBy: first.id,
-          sortOrder: first.desc ? 'desc' : 'asc',
+          ordenarPor: first.id,
+          sentido: first.desc ? 'desc' : 'asc',
         })
       }
     },

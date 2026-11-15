@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_app/customer/customers/')({
   search: { middlewares: [stripSearchParams(defaultCustomersSearch)] },
   // Solo el administrador gestiona clientes; la API lo vuelve a exigir.
   beforeLoad: ({ context }) => {
-    if (context.session.role !== 'ADMIN') throw redirect({ to: '/' })
+    if (context.session.rol !== 'ADMINISTRADOR') throw redirect({ to: '/' })
   },
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>

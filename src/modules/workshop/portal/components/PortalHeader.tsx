@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { KeyRoundIcon, LogOutIcon } from 'lucide-react'
+import { LogOutIcon, UserRoundIcon } from 'lucide-react'
 import { Avatar, AvatarFallback } from '#/components/ui/avatar'
 import { Button } from '#/components/ui/button'
 import {
@@ -49,7 +49,7 @@ export function PortalHeader({ session }: { session: CustomerSession }) {
   )
 }
 
-/** El avatar con las iniciales: abre el nombre, la contraseña y salir. */
+/** El avatar con las iniciales: abre el nombre, «Mi perfil» y salir. */
 function AccountMenu({ session }: { session: CustomerSession }) {
   const logout = useLogout()
 
@@ -63,24 +63,24 @@ function AccountMenu({ session }: { session: CustomerSession }) {
           aria-label="Mi cuenta"
         >
           <Avatar>
-            <AvatarFallback>{initials(session.name)}</AvatarFallback>
+            <AvatarFallback>{initials(session.nombre)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-56" align="end" sideOffset={8}>
         <DropdownMenuLabel className="flex flex-col font-normal">
-          <span className="truncate font-medium">{session.name}</span>
-          {session.email && (
+          <span className="truncate font-medium">{session.nombre}</span>
+          {session.correo && (
             <span className="truncate text-xs text-muted-foreground">
-              {session.email}
+              {session.correo}
             </span>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/change-password">
-            <KeyRoundIcon />
-            Cambiar contraseña
+          <Link to="/portal/profile">
+            <UserRoundIcon />
+            Mi perfil
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem

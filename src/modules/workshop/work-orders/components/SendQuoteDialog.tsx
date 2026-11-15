@@ -43,7 +43,7 @@ export function SendQuoteDialog({
   workOrder: WorkOrderDetail
 }) {
   // La versión que va a salir: la API la numera igual (la última + 1).
-  const version = (workOrder.quotes[0]?.version ?? 0) + 1
+  const version = (workOrder.presupuestos[0]?.version ?? 0) + 1
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -66,10 +66,10 @@ export function SendQuoteDialog({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {workOrder.items.map((item) => (
-                <TableRow key={item.workOrderItemId}>
+              {workOrder.detalles.map((item) => (
+                <TableRow key={item.detalleOrdenId}>
                   <TableCell className="whitespace-normal">
-                    {item.description}
+                    {item.descripcion}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap tabular-nums">
                     {formatItemQuantity(item)}
@@ -86,7 +86,7 @@ export function SendQuoteDialog({
                   Total
                 </TableCell>
                 <TableCell className="text-right whitespace-nowrap tabular-nums">
-                  {formatMoney(workOrder.totals.total)}
+                  {formatMoney(workOrder.totales.total)}
                 </TableCell>
               </TableRow>
             </TableFooter>
@@ -95,7 +95,7 @@ export function SendQuoteDialog({
         {/* Se monta al abrir: la nota empieza vacía cada vez. */}
         {open && (
           <SendQuoteForm
-            workOrderId={workOrder.workOrderId}
+            workOrderId={workOrder.ordenTrabajoId}
             version={version}
             onDone={() => onOpenChange(false)}
           />
@@ -122,7 +122,9 @@ function SendQuoteForm({
     // Un rechazo de la API (la orden cambió de estado) deja el diálogo
     // abierto con su mensaje y no se relanza.
     onSubmit: ({ value }) =>
-      send.mutateAsync({ workOrderId, ...value }).then(onDone, () => undefined),
+      send
+        .mutateAsync({ ordenTrabajoId: workOrderId, ...value })
+        .then(onDone, () => undefined),
   })
 
   return (
@@ -133,7 +135,7 @@ function SendQuoteForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               id="quote-note"

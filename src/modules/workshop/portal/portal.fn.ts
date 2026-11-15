@@ -36,7 +36,7 @@ export const listMyVehicles = createServerFn({ method: 'GET' })
 export const getMyVehicle = createServerFn({ method: 'GET' })
   .validator(portalVehicleIdSchema)
   .handler(({ data }) =>
-    callApi<PortalVehicle>(`/portal/vehicles/${data.vehicleId}`),
+    callApi<PortalVehicle>(`/portal/vehicles/${data.vehiculoId}`),
   )
 
 export const listMyWorkOrders = createServerFn({ method: 'GET' })
@@ -52,7 +52,7 @@ export const getMyWorkOrder = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       return await callApi<PortalWorkOrderDetail>(
-        `/portal/work-orders/${data.workOrderId}`,
+        `/portal/work-orders/${data.ordenTrabajoId}`,
       )
     } catch (error) {
       // Una orden que no es suya, para la API, no existe: la página muestra
@@ -66,10 +66,10 @@ export const getMyWorkOrder = createServerFn({ method: 'GET' })
 
 export const decideMyQuote = createServerFn({ method: 'POST' })
   .validator(portalDecisionRequestSchema)
-  .handler(async ({ data: { workOrderId, quoteId, ...body } }) => {
+  .handler(async ({ data: { ordenTrabajoId, presupuestoId, ...body } }) => {
     const { data: order, message } =
       await callApiEnvelope<PortalWorkOrderDetail>(
-        `/portal/work-orders/${workOrderId}/quotes/${quoteId}/decision`,
+        `/portal/work-orders/${ordenTrabajoId}/quotes/${presupuestoId}/decision`,
         { method: 'POST', body: JSON.stringify(body) },
       )
     return { order, message }

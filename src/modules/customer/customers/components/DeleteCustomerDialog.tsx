@@ -38,7 +38,7 @@ export function DeleteCustomerDialog({
         <DialogHeader>
           <DialogTitle>Eliminar cliente</DialogTitle>
           <DialogDescription>
-            Se eliminará a <strong>{customer?.name}</strong> de forma
+            Se eliminará a <strong>{customer?.nombre}</strong> de forma
             definitiva. Esta acción no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
@@ -52,7 +52,7 @@ export function DeleteCustomerDialog({
             disabled={!customer || remove.isPending}
             onClick={() => {
               if (!customer) return
-              remove.mutate(customer.customerId, {
+              remove.mutate(customer.clienteId, {
                 onSuccess: () => onOpenChange(false),
               })
             }}

@@ -15,11 +15,11 @@ import { temporaryPasswordMessage, whatsappUrl } from '#/lib/whatsapp'
 
 /** Lo que se le comparte a alguien con su contraseña temporal. */
 export type TemporaryCredentials = {
-  name: string
-  phone: string | null
-  loginIdentifier: string
-  temporaryPassword: string
-  expiresAt: string
+  nombre: string
+  telefono: string | null
+  identificadorAcceso: string
+  contrasenaTemporal: string
+  expiraEn: string
   /** El personal entra con «Soy interno»; el cliente, directo. */
   isStaff: boolean
 }
@@ -47,7 +47,7 @@ export function TemporaryPasswordDialog({
           <DialogTitle>Contraseña temporal</DialogTitle>
           <DialogDescription>
             Compártela ahora: no se vuelve a mostrar. Al entrar,{' '}
-            {credentials?.name ?? ''} tendrá que cambiarla por una propia.
+            {credentials?.nombre ?? ''} tendrá que cambiarla por una propia.
           </DialogDescription>
         </DialogHeader>
         {credentials && (
@@ -70,8 +70,8 @@ function CredentialsBody({
     ...credentials,
     loginUrl: `${window.location.origin}/login`,
   })
-  const whatsapp = credentials.phone
-    ? whatsappUrl(credentials.phone, message)
+  const whatsapp = credentials.telefono
+    ? whatsappUrl(credentials.telefono, message)
     : null
 
   const copy = () =>
@@ -89,18 +89,20 @@ function CredentialsBody({
           tarjeta fuera del diálogo. */}
       <dl className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 rounded-lg border bg-muted/40 p-4 text-sm">
         <dt className="text-muted-foreground">Usuario</dt>
-        <dd className="font-medium break-all">{credentials.loginIdentifier}</dd>
+        <dd className="font-medium break-all">
+          {credentials.identificadorAcceso}
+        </dd>
         <dt className="text-muted-foreground">Contraseña</dt>
         <dd className="font-mono text-base font-semibold tracking-wider break-all select-all">
-          {credentials.temporaryPassword}
+          {credentials.contrasenaTemporal}
         </dd>
         <dt className="text-muted-foreground">Vence</dt>
-        <dd>{formatDateTime(credentials.expiresAt)}</dd>
+        <dd>{formatDateTime(credentials.expiraEn)}</dd>
       </dl>
       {!whatsapp && (
         <p className="text-sm text-muted-foreground">
-          {credentials.phone
-            ? `El teléfono ${credentials.phone} no parece un celular: copia el mensaje y envíalo por otro medio.`
+          {credentials.telefono
+            ? `El teléfono ${credentials.telefono} no parece un celular: copia el mensaje y envíalo por otro medio.`
             : 'No tiene teléfono registrado: copia el mensaje y envíalo por otro medio.'}
         </p>
       )}

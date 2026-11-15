@@ -6,7 +6,7 @@ import {
   toQueryString,
 } from '#/server/api'
 import {
-  serviceCatalogItemIdSchema,
+  servicioIdSchema,
   serviceCatalogItemInputSchema,
   serviceCatalogSearchSchema,
   updateServiceCatalogItemRequestSchema,
@@ -23,11 +23,9 @@ export const listServiceCatalog = createServerFn({ method: 'GET' })
   )
 
 export const getServiceCatalogItem = createServerFn({ method: 'GET' })
-  .validator(serviceCatalogItemIdSchema)
+  .validator(servicioIdSchema)
   .handler(({ data }) =>
-    callApi<ServiceCatalogItem>(
-      `/service-catalog/${data.serviceCatalogItemId}`,
-    ),
+    callApi<ServiceCatalogItem>(`/service-catalog/${data.servicioId}`),
   )
 
 export const createServiceCatalogItem = createServerFn({ method: 'POST' })
@@ -44,17 +42,17 @@ export const updateServiceCatalogItem = createServerFn({ method: 'POST' })
   .validator(updateServiceCatalogItemRequestSchema)
   .handler(async ({ data }) => {
     const { data: item, message } = await callApiEnvelope<ServiceCatalogItem>(
-      `/service-catalog/${data.serviceCatalogItemId}`,
+      `/service-catalog/${data.servicioId}`,
       { method: 'PATCH', body: JSON.stringify(data.values) },
     )
     return { item, message }
   })
 
 export const deleteServiceCatalogItem = createServerFn({ method: 'POST' })
-  .validator(serviceCatalogItemIdSchema)
+  .validator(servicioIdSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/service-catalog/${data.serviceCatalogItemId}`,
+      `/service-catalog/${data.servicioId}`,
       { method: 'DELETE' },
     )
     return { message }

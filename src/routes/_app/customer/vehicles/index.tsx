@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_app/customer/vehicles/')({
   search: { middlewares: [stripSearchParams(defaultVehiclesSearch)] },
   // Solo el administrador gestiona vehículos; la API lo vuelve a exigir.
   beforeLoad: ({ context }) => {
-    if (context.session.role !== 'ADMIN') throw redirect({ to: '/' })
+    if (context.session.rol !== 'ADMINISTRADOR') throw redirect({ to: '/' })
   },
   loaderDeps: ({ search }) => search,
   // Las marcas y el cliente del filtro se precargan con `prefetchQuery`, que no
@@ -29,8 +29,8 @@ export const Route = createFileRoute('/_app/customer/vehicles/')({
     Promise.all([
       queryClient.ensureQueryData(vehiclesQueries.list(deps)),
       queryClient.prefetchQuery(vehiclesQueries.brands()),
-      deps.customerId &&
-        queryClient.prefetchQuery(customersQueries.detail(deps.customerId)),
+      deps.clienteId &&
+        queryClient.prefetchQuery(customersQueries.detail(deps.clienteId)),
     ]),
   head: () => ({ meta: [{ title: 'Vehículos · AutoFix Motors' }] }),
   component: VehiclesPage,

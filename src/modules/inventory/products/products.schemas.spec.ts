@@ -12,11 +12,11 @@ import type { Product } from './products.schemas'
 
 const valid = {
   ...emptyProductForm,
-  code: 'FA-001',
-  name: 'Filtro de aceite',
-  minStock: '4',
-  cost: '12.50',
-  price: '25',
+  codigo: 'FA-001',
+  nombre: 'Filtro de aceite',
+  stockMinimo: '4',
+  costo: '12.50',
+  precio: '25',
 }
 
 const messagesOf = (values: unknown) => {
@@ -25,35 +25,35 @@ const messagesOf = (values: unknown) => {
 }
 
 const product: Product = {
-  productId: '6f1c2a5e-8d3b-4c7a-9e1f-2b3c4d5e6f70',
-  code: 'ACE-2050-GL',
-  name: 'Aceite de motor 20W-50',
-  kind: 'SUPPLY',
-  unit: 'GALLON',
-  brand: null,
+  productoId: '6f1c2a5e-8d3b-4c7a-9e1f-2b3c4d5e6f70',
+  codigo: 'ACE-2050-GL',
+  nombre: 'Aceite de motor 20W-50',
+  tipo: 'INSUMO',
+  unidad: 'GALON',
+  marca: null,
   stock: '0.00',
-  minStock: '3.00',
-  isLowStock: true,
-  cost: '68.00',
-  price: '95.00',
-  margin: '27.00',
-  isActive: true,
-  createdAt: '2026-10-04T12:00:00.000Z',
-  updatedAt: '2026-10-04T12:00:00.000Z',
+  stockMinimo: '3.00',
+  stockBajo: true,
+  costo: '68.00',
+  precio: '95.00',
+  margen: '27.00',
+  activo: true,
+  creadoEn: '2026-10-04T12:00:00.000Z',
+  actualizadoEn: '2026-10-04T12:00:00.000Z',
 }
 
 describe('formatStock', () => {
   it('muestra la cantidad con su unidad, sin decimales si es entera', () => {
-    expect(formatStock('12.00', 'UNIT')).toBe('12 und')
-    expect(formatStock('4.50', 'LITER')).toBe('4.50 L')
-    expect(formatStock('2.00', 'GALLON')).toBe('2 gal')
+    expect(formatStock('12.00', 'UNIDAD')).toBe('12 und')
+    expect(formatStock('4.50', 'LITRO')).toBe('4.50 L')
+    expect(formatStock('2.00', 'GALON')).toBe('2 gal')
     expect(formatStock('1.00', 'KIT')).toBe('1 kit')
-    expect(formatStock('15.25', 'METER')).toBe('15.25 m')
-    expect(formatStock('1200.00', 'UNIT')).toBe('1,200 und')
+    expect(formatStock('15.25', 'METRO')).toBe('15.25 m')
+    expect(formatStock('1200.00', 'UNIDAD')).toBe('1,200 und')
   })
 
   it('no le pone unidad a una cantidad que no se entiende', () => {
-    expect(formatStock('', 'UNIT')).toBe('—')
+    expect(formatStock('', 'UNIDAD')).toBe('—')
   })
 })
 
@@ -70,14 +70,20 @@ describe('productOption', () => {
 describe('productFormSchema', () => {
   it('acepta un producto válido, sin stock', () => {
     expect(messagesOf(valid)).toEqual([])
-    expect(messagesOf({ ...valid, minStock: ' 2.5 ', brand: 'Bosch' })).toEqual(
-      [],
-    )
+    expect(
+      messagesOf({ ...valid, stockMinimo: ' 2.5 ', marca: 'Bosch' }),
+    ).toEqual([])
   })
 
   it('pide cada dato obligatorio una sola vez cuando está vacío', () => {
     expect(
-      messagesOf({ ...valid, code: ' ', minStock: '', cost: ' ', price: '' }),
+      messagesOf({
+        ...valid,
+        codigo: ' ',
+        stockMinimo: '',
+        costo: ' ',
+        precio: '',
+      }),
     ).toEqual([
       'Ingresa el código',
       'Ingresa el stock mínimo',
@@ -88,13 +94,18 @@ describe('productFormSchema', () => {
 
   it('valida el stock mínimo, el costo y el precio igual que la API', () => {
     expect(
-      messagesOf({ ...valid, minStock: '1.255', cost: '-1', price: '12,50' }),
+      messagesOf({
+        ...valid,
+        stockMinimo: '1.255',
+        costo: '-1',
+        precio: '12,50',
+      }),
     ).toEqual([
       'El stock mínimo tiene como máximo 2 decimales',
       'El costo no puede ser negativo',
       'El precio de venta es un monto en soles con hasta 2 decimales, por ejemplo 120.50',
     ])
-    expect(messagesOf({ ...valid, minStock: '-1' })).toEqual([
+    expect(messagesOf({ ...valid, stockMinimo: '-1' })).toEqual([
       'El stock mínimo no puede ser negativo',
     ])
   })
@@ -103,9 +114,9 @@ describe('productFormSchema', () => {
     expect(
       messagesOf({
         ...valid,
-        code: 'x'.repeat(31),
-        name: 'x'.repeat(151),
-        brand: 'x'.repeat(61),
+        codigo: 'x'.repeat(31),
+        nombre: 'x'.repeat(151),
+        marca: 'x'.repeat(61),
       }),
     ).toEqual([
       'El código tiene como máximo 30 caracteres',
@@ -115,7 +126,7 @@ describe('productFormSchema', () => {
   })
 
   it('no exige que el precio supere al costo', () => {
-    expect(messagesOf({ ...valid, cost: '30', price: '25' })).toEqual([])
+    expect(messagesOf({ ...valid, costo: '30', precio: '25' })).toEqual([])
   })
 })
 
@@ -124,34 +135,34 @@ describe('productInputSchema', () => {
     expect(
       productInputSchema.parse({
         ...valid,
-        code: ' fa-001 ',
-        brand: '  ',
-        minStock: '4.50 ',
+        codigo: ' fa-001 ',
+        marca: '  ',
+        stockMinimo: '4.50 ',
       }),
     ).toStrictEqual({
-      code: 'FA-001',
-      name: 'Filtro de aceite',
-      kind: 'PART',
-      unit: 'UNIT',
-      brand: null,
-      minStock: '4.50',
-      cost: '12.50',
-      price: '25',
-      isActive: true,
+      codigo: 'FA-001',
+      nombre: 'Filtro de aceite',
+      tipo: 'REPUESTO',
+      unidad: 'UNIDAD',
+      marca: null,
+      stockMinimo: '4.50',
+      costo: '12.50',
+      precio: '25',
+      activo: true,
     })
   })
 
   it('al editar, las cantidades y los montos vuelven tal como los manda la API', () => {
     expect(productToForm(product)).toStrictEqual({
-      code: 'ACE-2050-GL',
-      name: 'Aceite de motor 20W-50',
-      kind: 'SUPPLY',
-      unit: 'GALLON',
-      brand: '',
-      minStock: '3.00',
-      cost: '68.00',
-      price: '95.00',
-      isActive: true,
+      codigo: 'ACE-2050-GL',
+      nombre: 'Aceite de motor 20W-50',
+      tipo: 'INSUMO',
+      unidad: 'GALON',
+      marca: '',
+      stockMinimo: '3.00',
+      costo: '68.00',
+      precio: '95.00',
+      activo: true,
     })
   })
 })
@@ -163,24 +174,24 @@ describe('productsSearchSchema', () => {
     expect(productsSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      sortBy: 'name',
-      sortOrder: 'asc',
+      ordenarPor: 'nombre',
+      sentido: 'asc',
     })
   })
 
   it('acepta los filtros y el orden por stock', () => {
     expect(
       productsSearchSchema.parse({
-        kind: 'SUPPLY',
-        isActive: false,
-        lowStock: true,
-        sortBy: 'stock',
+        tipo: 'INSUMO',
+        activo: false,
+        stockBajo: true,
+        ordenarPor: 'stock',
       }),
     ).toMatchObject({
-      kind: 'SUPPLY',
-      isActive: false,
-      lowStock: true,
-      sortBy: 'stock',
+      tipo: 'INSUMO',
+      activo: false,
+      stockBajo: true,
+      ordenarPor: 'stock',
     })
   })
 
@@ -189,11 +200,11 @@ describe('productsSearchSchema', () => {
       page: 3,
       pageSize: 20,
       search: 'filtro',
-      kind: 'PART',
-      isActive: true,
-      lowStock: true,
-      sortBy: 'price',
-      sortOrder: 'desc',
+      tipo: 'REPUESTO',
+      activo: true,
+      stockBajo: true,
+      ordenarPor: 'precio',
+      sentido: 'desc',
     })
     // Así lo combina la ruta al navegar: el cambio sobre la búsqueda actual.
     // JSON hace lo que la URL: las claves en undefined no viajan.
@@ -204,8 +215,8 @@ describe('productsSearchSchema', () => {
     expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
       page: 1,
       pageSize: 20,
-      sortBy: 'price',
-      sortOrder: 'desc',
+      ordenarPor: 'precio',
+      sentido: 'desc',
     })
   })
 
@@ -213,15 +224,15 @@ describe('productsSearchSchema', () => {
     expect(
       productsSearchSchema.parse({
         page: -1,
-        kind: 'TOOL',
-        lowStock: 'si',
-        sortBy: 'cost',
+        tipo: 'TOOL',
+        stockBajo: 'si',
+        ordenarPor: 'costo',
       }),
     ).toMatchObject({
       page: 1,
-      kind: undefined,
-      lowStock: undefined,
-      sortBy: 'name',
+      tipo: undefined,
+      stockBajo: undefined,
+      ordenarPor: 'nombre',
     })
   })
 })

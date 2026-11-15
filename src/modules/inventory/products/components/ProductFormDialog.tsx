@@ -78,7 +78,7 @@ function ProductForm({
     // mensaje y no se relanza: quedaría como error sin capturar en la consola.
     onSubmit: ({ value }) =>
       (product
-        ? update.mutateAsync({ productId: product.productId, values: value })
+        ? update.mutateAsync({ productoId: product.productoId, values: value })
         : create.mutateAsync(value)
       ).then(onDone, () => undefined),
   })
@@ -92,7 +92,7 @@ function ProductForm({
     >
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <form.AppField name="code">
+          <form.AppField name="codigo">
             {(field) => (
               <field.TextField
                 label="Código"
@@ -102,17 +102,17 @@ function ProductForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="name">
+          <form.AppField name="nombre">
             {(field) => <field.TextField label="Nombre" />}
           </form.AppField>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          <form.AppField name="kind">
+          <form.AppField name="tipo">
             {(field) => (
               <field.SelectField label="Tipo" options={productKindOptions} />
             )}
           </form.AppField>
-          <form.AppField name="unit">
+          <form.AppField name="unidad">
             {(field) => (
               <field.SelectField
                 label="Unidad"
@@ -120,14 +120,14 @@ function ProductForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="brand">
+          <form.AppField name="marca">
             {(field) => <field.TextField label="Marca (opcional)" />}
           </form.AppField>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          <form.Subscribe selector={(state) => state.values.unit}>
+          <form.Subscribe selector={(state) => state.values.unidad}>
             {(unit) => (
-              <form.AppField name="minStock">
+              <form.AppField name="stockMinimo">
                 {(field) => (
                   <field.QuantityField
                     label="Stock mínimo"
@@ -138,7 +138,7 @@ function ProductForm({
               </form.AppField>
             )}
           </form.Subscribe>
-          <form.AppField name="cost">
+          <form.AppField name="costo">
             {(field) => (
               <field.MoneyField
                 label="Costo"
@@ -146,11 +146,11 @@ function ProductForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="price">
+          <form.AppField name="precio">
             {(field) => <field.MoneyField label="Precio de venta" />}
           </form.AppField>
         </div>
-        <form.AppField name="isActive">
+        <form.AppField name="activo">
           {(field) => (
             <field.SwitchField
               label="Activo"

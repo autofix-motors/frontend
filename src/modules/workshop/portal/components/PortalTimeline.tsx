@@ -16,22 +16,22 @@ export function PortalTimeline({ events }: { events: PortalEvent[] }) {
   return (
     <ol className="flex flex-col gap-4">
       {[...events].reverse().map((event, index) => (
-        <li key={`${event.createdAt}-${index}`} className="flex gap-3">
+        <li key={`${event.creadoEn}-${index}`} className="flex gap-3">
           <span
             className={cn(
               'relative mt-1.5 size-[11px] shrink-0 rounded-full border-2',
-              event.status
+              event.estado
                 ? 'border-primary bg-primary'
                 : 'border-muted-foreground bg-background',
             )}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            {event.status && <WorkOrderStatusBadge status={event.status} />}
-            {event.note && (
-              <p className="text-sm whitespace-pre-line">{event.note}</p>
+            {event.estado && <WorkOrderStatusBadge status={event.estado} />}
+            {event.nota && (
+              <p className="text-sm whitespace-pre-line">{event.nota}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              {formatDateTime(event.createdAt)}
+              {formatDateTime(event.creadoEn)}
             </p>
           </div>
         </li>

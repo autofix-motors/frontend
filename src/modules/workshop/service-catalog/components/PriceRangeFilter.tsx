@@ -10,7 +10,7 @@ import { moneyError } from '#/lib/money'
 // para no pedirle a la API una consulta por tecla.
 const PRICE_DEBOUNCE_MS = 400
 
-type PriceRange = { minPrice?: number; maxPrice?: number }
+type PriceRange = { precioMinimo?: number; precioMaximo?: number }
 
 /** `undefined` si está vacío (sin filtro), `null` si no es un monto válido. */
 function parsePrice(text: string): number | undefined | null {
@@ -29,17 +29,17 @@ const toText = (price: number | undefined) =>
  * cambian el listado.
  */
 export function PriceRangeFilter({
-  minPrice,
-  maxPrice,
+  precioMinimo,
+  precioMaximo,
   onChange,
 }: PriceRange & { onChange: (range: PriceRange) => void }) {
-  const [minText, setMinText] = useState(toText(minPrice))
-  const [maxText, setMaxText] = useState(toText(maxPrice))
+  const [minText, setMinText] = useState(toText(precioMinimo))
+  const [maxText, setMaxText] = useState(toText(precioMaximo))
 
   // Si el rango cambia desde afuera («Limpiar», volver atrás en el
   // navegador), los cuadros lo reflejan.
-  useEffect(() => setMinText(toText(minPrice)), [minPrice])
-  useEffect(() => setMaxText(toText(maxPrice)), [maxPrice])
+  useEffect(() => setMinText(toText(precioMinimo)), [precioMinimo])
+  useEffect(() => setMaxText(toText(precioMaximo)), [precioMaximo])
 
   const min = parsePrice(minText)
   const max = parsePrice(maxText)
@@ -48,13 +48,13 @@ export function PriceRangeFilter({
   const isValid = min !== null && max !== null && !isInverted
 
   useEffect(() => {
-    if (!isValid || (min === minPrice && max === maxPrice)) return
+    if (!isValid || (min === precioMinimo && max === precioMaximo)) return
     const timer = setTimeout(
-      () => onChange({ minPrice: min, maxPrice: max }),
+      () => onChange({ precioMinimo: min, precioMaximo: max }),
       PRICE_DEBOUNCE_MS,
     )
     return () => clearTimeout(timer)
-  }, [isValid, min, max, minPrice, maxPrice, onChange])
+  }, [isValid, min, max, precioMinimo, precioMaximo, onChange])
 
   return (
     <div className="flex items-center gap-1">

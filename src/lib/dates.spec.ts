@@ -1,4 +1,10 @@
-import { formatDateOnly, formatDateTime, isDateOnly, limaToday } from './dates'
+import {
+  formatDateOnly,
+  formatDateTime,
+  formatMonthYear,
+  isDateOnly,
+  limaToday,
+} from './dates'
 
 describe('formatDateOnly', () => {
   it('muestra el mismo día que llega, sin correrlo por la zona horaria', () => {
@@ -22,6 +28,19 @@ describe('formatDateTime', () => {
   it('muestra una raya cuando no hay fecha o no se entiende', () => {
     expect(formatDateTime(null)).toBe('—')
     expect(formatDateTime('ayer')).toBe('—')
+  })
+})
+
+describe('formatMonthYear', () => {
+  it('muestra el mes y el año en la hora de Lima', () => {
+    expect(formatMonthYear('2026-01-10T15:00:00.000Z')).toBe('enero de 2026')
+    // 03:00 UTC del 1 de febrero todavía es enero en Lima.
+    expect(formatMonthYear('2026-02-01T03:00:00.000Z')).toBe('enero de 2026')
+  })
+
+  it('muestra una raya cuando no hay fecha o no se entiende', () => {
+    expect(formatMonthYear(null)).toBe('—')
+    expect(formatMonthYear('ayer')).toBe('—')
   })
 })
 

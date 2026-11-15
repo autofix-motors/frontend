@@ -10,11 +10,8 @@ import {
   refreshToken,
   storeSession,
 } from '#/server/session'
-import {
-  changePasswordRequestSchema,
-  loginRequestSchema,
-} from './auth.schemas'
-import type { CurrentSession } from './auth.schemas'
+import { changePasswordRequestSchema, loginRequestSchema } from './auth.schemas'
+import type { CurrentSession, Profile } from './auth.schemas'
 
 // Iniciar, cerrar y consultar la sesión. Los tokens nunca llegan al navegador:
 // la API los manda en Set-Cookie, el BFF los guarda en sus propias cookies
@@ -63,6 +60,14 @@ export const changeOwnPassword = createServerFn({ method: 'POST' })
     const envelope = (await response.json()) as ApiEnvelope<CurrentSession>
     return { session: envelope.data, message: envelope.message }
   })
+
+/**
+ * Los datos de quien tiene la sesión, para «Mi perfil». Una consulta normal: no
+ * renueva la sesión (eso solo lo hace getSession).
+ */
+export const getMyProfile = createServerFn({ method: 'GET' }).handler(() =>
+  callApi<Profile>('/auth/profile'),
+)
 
 /**
  * Renueva el acceso con el token de refresco. Devuelve si lo consiguió; si no,

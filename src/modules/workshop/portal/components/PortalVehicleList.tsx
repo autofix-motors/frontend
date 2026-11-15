@@ -26,11 +26,11 @@ export function PortalVehicleList({
     <div className="grid gap-3 sm:grid-cols-2">
       {vehicles.map((vehicle) => (
         <Link
-          key={vehicle.vehicleId}
+          key={vehicle.vehiculoId}
           to="/portal/work-orders"
           search={{
             ...defaultPortalWorkOrdersSearch,
-            vehicleId: vehicle.vehicleId,
+            vehiculoId: vehicle.vehiculoId,
           }}
           className="block rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
@@ -41,17 +41,17 @@ export function PortalVehicleList({
               </span>
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="font-medium">
-                  {vehicle.brand} {vehicle.model}
-                  {vehicle.year ? ` ${vehicle.year}` : ''}
+                  {vehicle.marca} {vehicle.modelo}
+                  {vehicle.anio ? ` ${vehicle.anio}` : ''}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {vehicle.plate}
+                  {vehicle.placa}
                   {vehicle.color ? ` · ${vehicle.color}` : ''}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {vehicle.workOrdersCount === 1
+                  {vehicle.cantidadOrdenes === 1
                     ? '1 reparación registrada'
-                    : `${vehicle.workOrdersCount} reparaciones registradas`}
+                    : `${vehicle.cantidadOrdenes} reparaciones registradas`}
                 </span>
               </div>
               <ChevronRightIcon className="size-4 text-muted-foreground" />

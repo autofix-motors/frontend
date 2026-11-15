@@ -12,10 +12,10 @@ const CUSTOMER_ID = '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b'
 
 const valid = {
   ...emptyVehicleForm,
-  customerId: CUSTOMER_ID,
-  plate: 'abc-123',
-  brand: 'Toyota',
-  model: 'Yaris',
+  clienteId: CUSTOMER_ID,
+  placa: 'abc-123',
+  marca: 'Toyota',
+  modelo: 'Yaris',
 }
 
 const messagesOf = (values: unknown) => {
@@ -29,13 +29,13 @@ describe('vehicleFormSchema', () => {
   })
 
   it('exige el cliente, igual que la API', () => {
-    expect(messagesOf({ ...valid, customerId: '' })).toEqual([
+    expect(messagesOf({ ...valid, clienteId: '' })).toEqual([
       'Selecciona el cliente',
     ])
   })
 
   it('valida la placa ya normalizada', () => {
-    expect(messagesOf({ ...valid, plate: 'AB-1' })).toEqual([
+    expect(messagesOf({ ...valid, placa: 'AB-1' })).toEqual([
       'La placa tiene de 5 a 7 letras o dígitos',
     ])
   })
@@ -49,11 +49,11 @@ describe('vehicleFormSchema', () => {
 
   it('acepta el año siguiente al actual y no más', () => {
     const max = maxVehicleYear()
-    expect(messagesOf({ ...valid, year: String(max) })).toEqual([])
-    expect(messagesOf({ ...valid, year: String(max + 1) })).toEqual([
+    expect(messagesOf({ ...valid, anio: String(max) })).toEqual([])
+    expect(messagesOf({ ...valid, anio: String(max + 1) })).toEqual([
       `El año va de 1950 a ${max}`,
     ])
-    expect(messagesOf({ ...valid, year: '19a0' })).toHaveLength(1)
+    expect(messagesOf({ ...valid, anio: '19a0' })).toHaveLength(1)
   })
 })
 
@@ -62,23 +62,23 @@ describe('vehicleInputSchema', () => {
     expect(
       vehicleInputSchema.parse({
         ...valid,
-        year: '2019',
+        anio: '2019',
         vin: 'jtdbt9237 71234567',
       }),
     ).toStrictEqual({
-      customerId: CUSTOMER_ID,
-      plate: 'ABC123',
-      brand: 'Toyota',
-      model: 'Yaris',
-      year: 2019,
+      clienteId: CUSTOMER_ID,
+      placa: 'ABC123',
+      marca: 'Toyota',
+      modelo: 'Yaris',
+      anio: 2019,
       color: null,
       vin: 'JTDBT923771234567',
-      notes: null,
+      notas: null,
     })
   })
 
   it('un año vacío viaja como null para borrarlo', () => {
-    expect(vehicleInputSchema.parse(valid).year).toBeNull()
+    expect(vehicleInputSchema.parse(valid).anio).toBeNull()
   })
 })
 
@@ -87,8 +87,8 @@ describe('vehiclesSearchSchema', () => {
     expect(vehiclesSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      sortBy: 'plate',
-      sortOrder: 'asc',
+      ordenarPor: 'placa',
+      sentido: 'asc',
     })
   })
 
@@ -97,10 +97,10 @@ describe('vehiclesSearchSchema', () => {
       page: 2,
       pageSize: 20,
       search: 'yaris',
-      customerId: CUSTOMER_ID,
-      brand: 'Toyota',
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      clienteId: CUSTOMER_ID,
+      marca: 'Toyota',
+      ordenarPor: 'creadoEn',
+      sentido: 'desc',
     })
     const next = vehiclesSearchSchema.parse({
       ...current,
@@ -109,22 +109,22 @@ describe('vehiclesSearchSchema', () => {
     expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
       page: 1,
       pageSize: 20,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      ordenarPor: 'creadoEn',
+      sentido: 'desc',
     })
   })
 
   it('cae al valor por defecto si alguien edita la URL a mano', () => {
     expect(
       vehiclesSearchSchema.parse({
-        customerId: 'no-es-un-id',
-        brand: '',
-        sortBy: 'model',
+        clienteId: 'no-es-un-id',
+        marca: '',
+        ordenarPor: 'modelo',
       }),
     ).toMatchObject({
-      customerId: undefined,
-      brand: undefined,
-      sortBy: 'plate',
+      clienteId: undefined,
+      marca: undefined,
+      ordenarPor: 'placa',
     })
   })
 })
@@ -133,15 +133,15 @@ describe('vehicleOption', () => {
   it('la placa con la marca y el modelo, y abajo el dueño', () => {
     expect(
       vehicleOption({
-        vehicleId: 'v1',
-        plate: 'ABK582',
-        brand: 'Toyota',
-        model: 'Yaris',
-        customer: {
-          customerId: CUSTOMER_ID,
-          name: 'Juan Pérez Rojas',
-          documentType: 'DNI',
-          documentNumber: '45678912',
+        vehiculoId: 'v1',
+        placa: 'ABK582',
+        marca: 'Toyota',
+        modelo: 'Yaris',
+        cliente: {
+          clienteId: CUSTOMER_ID,
+          nombre: 'Juan Pérez Rojas',
+          tipoDocumento: 'DNI',
+          numeroDocumento: '45678912',
         },
       }),
     ).toStrictEqual({

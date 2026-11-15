@@ -34,7 +34,7 @@ export function ResetPasswordDialog({
 
   const reset = () => {
     if (!user) return
-    issue.mutate(user.userId, {
+    issue.mutate(user.usuarioId, {
       onSuccess: ({ password }) => {
         onOpenChange(false)
         onIssued(user, password)
@@ -56,7 +56,7 @@ export function ResetPasswordDialog({
           <DialogDescription>
             {isSelf
               ? 'Se generará una contraseña temporal y se cerrarán todas tus sesiones: tendrás que entrar con ella y elegir una nueva.'
-              : `Se generará una contraseña temporal para ${user?.name ?? ''} y se cerrarán sus sesiones. Al entrar tendrá que elegir una nueva.`}
+              : `Se generará una contraseña temporal para ${user?.nombre ?? ''} y se cerrarán sus sesiones. Al entrar tendrá que elegir una nueva.`}
           </DialogDescription>
         </DialogHeader>
         {issue.error && <FieldError>{issue.error.message}</FieldError>}

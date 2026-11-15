@@ -24,7 +24,7 @@ export const listProducts = createServerFn({ method: 'GET' })
 
 export const getProduct = createServerFn({ method: 'GET' })
   .validator(productIdSchema)
-  .handler(({ data }) => callApi<Product>(`/products/${data.productId}`))
+  .handler(({ data }) => callApi<Product>(`/products/${data.productoId}`))
 
 export const createProduct = createServerFn({ method: 'POST' })
   .validator(productInputSchema)
@@ -40,7 +40,7 @@ export const updateProduct = createServerFn({ method: 'POST' })
   .validator(updateProductRequestSchema)
   .handler(async ({ data }) => {
     const { data: product, message } = await callApiEnvelope<Product>(
-      `/products/${data.productId}`,
+      `/products/${data.productoId}`,
       { method: 'PATCH', body: JSON.stringify(data.values) },
     )
     return { product, message }
@@ -50,7 +50,7 @@ export const deleteProduct = createServerFn({ method: 'POST' })
   .validator(productIdSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/products/${data.productId}`,
+      `/products/${data.productoId}`,
       { method: 'DELETE' },
     )
     return { message }

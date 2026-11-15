@@ -10,8 +10,8 @@ import { issuePortalAccess, removePortalAccess } from './customer-accounts.fn'
 export function useIssuePortalAccess() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (customerId: string) =>
-      issuePortalAccess({ data: { customerId } }),
+    mutationFn: (clienteId: string) =>
+      issuePortalAccess({ data: { clienteId } }),
     onSuccess: async ({ message }) => {
       toast.success(message)
       await queryClient.invalidateQueries({ queryKey: customersKeys.all })
@@ -22,8 +22,8 @@ export function useIssuePortalAccess() {
 export function useRemovePortalAccess() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (customerId: string) =>
-      removePortalAccess({ data: { customerId } }),
+    mutationFn: (clienteId: string) =>
+      removePortalAccess({ data: { clienteId } }),
     onSuccess: async ({ message }) => {
       toast.success(message)
       await queryClient.invalidateQueries({ queryKey: customersKeys.all })

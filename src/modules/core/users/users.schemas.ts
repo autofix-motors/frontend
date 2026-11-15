@@ -11,8 +11,8 @@ export type IssuedUser = components['schemas']['IssuedUser']
 export type TemporaryPassword = components['schemas']['TemporaryPassword']
 
 export const USER_ROLES = [
-  'ADMIN',
-  'MECHANIC',
+  'ADMINISTRADOR',
+  'MECANICO',
 ] as const satisfies readonly UserRole[]
 
 export const roleOptions = USER_ROLES.map((value) => ({
@@ -25,19 +25,19 @@ export const roleOptions = USER_ROLES.map((value) => ({
  * correo, para distinguir a dos con el mismo nombre.
  */
 export function userOption(
-  user: Pick<User, 'userId' | 'name' | 'role' | 'email'>,
+  user: Pick<User, 'usuarioId' | 'nombre' | 'rol' | 'correo'>,
 ): ComboboxOption {
   return {
-    value: user.userId,
-    label: user.name,
-    description: `${ROLE_LABELS[user.role]} · ${user.email}`,
+    value: user.usuarioId,
+    label: user.nombre,
+    description: `${ROLE_LABELS[user.rol]} · ${user.correo}`,
   }
 }
 
 // Las mismas reglas que valida la API (create-user.dto.ts del backend), para
 // avisar al momento en el formulario.
 
-const email = z
+const correo = z
   .string()
   .trim()
   .toLowerCase()
@@ -45,7 +45,7 @@ const email = z
   .pipe(z.email({ error: 'Ingresa un correo válido' }))
 
 /** El DNI como lo guarda la API: sin espacios, puntos ni guiones. */
-const documentNumber = z
+const numeroDocumento = z
   .string()
   .transform((value) => value.replace(/[\s.-]/g, ''))
   .pipe(z.string().regex(/^\d{8}$/, 'El DNI tiene 8 dígitos'))
@@ -55,22 +55,22 @@ const documentNumber = z
  * sistema al registrarlo o al restablecerla («Restablecer contraseña»).
  */
 export const userFormSchema = z.object({
-  email,
-  documentNumber,
-  name: z
+  correo,
+  numeroDocumento,
+  nombre: z
     .string()
     .trim()
     .min(1, 'Ingresa el nombre')
     .max(120, 'El nombre tiene como máximo 120 caracteres'),
-  phone: z
+  telefono: z
     .string()
     .trim()
     .refine(
       (value) => !value || /^\+?\d{6,15}$/.test(value.replace(/[\s()-]/g, '')),
       'El teléfono tiene de 6 a 15 dígitos y puede empezar con +',
     ),
-  role: z.enum(USER_ROLES, { error: 'Selecciona el rol' }),
-  isActive: z.boolean(),
+  rol: z.enum(USER_ROLES, { error: 'Selecciona el rol' }),
+  activo: z.boolean(),
 })
 
 export type UserFormValues = z.infer<typeof userFormSchema>
@@ -81,28 +81,28 @@ export type UserFormInput = z.input<typeof userFormSchema>
  * El alta: los mismos datos, sin el estado (un usuario nuevo nace activo). Sin
  * contraseña: la genera el sistema y se le comparte.
  */
-export const newUserFormSchema = userFormSchema.omit({ isActive: true })
+export const newUserFormSchema = userFormSchema.omit({ activo: true })
 
 export type NewUserFormValues = z.input<typeof newUserFormSchema>
 
 export const emptyNewUserForm: NewUserFormValues = {
-  email: '',
-  documentNumber: '',
-  name: '',
-  phone: '',
-  role: 'MECHANIC',
+  correo: '',
+  numeroDocumento: '',
+  nombre: '',
+  telefono: '',
+  rol: 'MECANICO',
 }
 
 /** Los valores del formulario para editar un usuario existente. */
 export function userToForm(user: User): UserFormInput {
   return {
-    email: user.email,
+    correo: user.correo,
     // Vacío en el personal registrado antes de pedirlo: al guardar se exige.
-    documentNumber: user.documentNumber ?? '',
-    name: user.name,
-    phone: user.phone ?? '',
-    role: user.role,
-    isActive: user.isActive,
+    numeroDocumento: user.numeroDocumento ?? '',
+    nombre: user.nombre,
+    telefono: user.telefono ?? '',
+    rol: user.rol,
+    activo: user.activo,
   }
 }
 
@@ -110,25 +110,24 @@ export function userToForm(user: User): UserFormInput {
 
 export const createUserInputSchema = newUserFormSchema.transform((value) => ({
   ...value,
-  phone: value.phone || null,
+  telefono: value.telefono || null,
 }))
 
 export type CreateUserInput = z.input<typeof createUserInputSchema>
 
 export const updateUserInputSchema = userFormSchema.transform((value) => ({
   ...value,
-  phone: value.phone || null,
+  telefono: value.telefono || null,
 }))
 
 export type UpdateUserInput = z.input<typeof updateUserInputSchema>
 
-export const userIdSchema = z.object({ userId: z.uuid() })
+export const userIdSchema = z.object({ usuarioId: z.uuid() })
 
 export const updateUserRequestSchema = z.object({
-  userId: z.uuid(),
+  usuarioId: z.uuid(),
   values: updateUserInputSchema,
 })
-
 
 /**
  * La búsqueda, los filtros, el orden y la página del listado, tal como viven en
@@ -142,10 +141,10 @@ export const usersSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  role: z.enum(USER_ROLES).optional().catch(undefined),
-  isActive: z.boolean().optional().catch(undefined),
-  sortBy: z.enum(['name', 'createdAt', 'lastLoginAt']).catch('name'),
-  sortOrder: z.enum(['asc', 'desc']).catch('asc'),
+  rol: z.enum(USER_ROLES).optional().catch(undefined),
+  activo: z.boolean().optional().catch(undefined),
+  ordenarPor: z.enum(['nombre', 'creadoEn', 'ultimoIngresoEn']).catch('nombre'),
+  sentido: z.enum(['asc', 'desc']).catch('asc'),
 })
 
 export type UsersSearch = z.infer<typeof usersSearchSchema>
@@ -164,7 +163,7 @@ export const defaultUsersSearch: UsersSearch = usersSearchSchema.parse({})
  */
 export const USER_FILTERS_CLEARED = {
   search: undefined,
-  role: undefined,
-  isActive: undefined,
+  rol: undefined,
+  activo: undefined,
   page: 1,
 } satisfies Partial<UsersSearch>

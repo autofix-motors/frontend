@@ -39,8 +39,8 @@ export function DeleteVehicleDialog({
           <DialogTitle>Eliminar vehículo</DialogTitle>
           <DialogDescription>
             Se eliminará el vehículo de placa{' '}
-            <strong className="font-mono">{vehicle?.plate}</strong> (
-            {vehicle?.brand} {vehicle?.model}) de forma definitiva. Esta acción
+            <strong className="font-mono">{vehicle?.placa}</strong> (
+            {vehicle?.marca} {vehicle?.modelo}) de forma definitiva. Esta acción
             no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
@@ -54,7 +54,7 @@ export function DeleteVehicleDialog({
             disabled={!vehicle || remove.isPending}
             onClick={() => {
               if (!vehicle) return
-              remove.mutate(vehicle.vehicleId, {
+              remove.mutate(vehicle.vehiculoId, {
                 onSuccess: () => onOpenChange(false),
               })
             }}

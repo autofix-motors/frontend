@@ -41,7 +41,7 @@ export function DeleteProductDialog({
           <DialogDescription>
             Se eliminará{' '}
             <strong>
-              {product?.code} · {product?.name}
+              {product?.codigo} · {product?.nombre}
             </strong>{' '}
             de forma definitiva. Esta acción no se puede deshacer.
           </DialogDescription>
@@ -56,7 +56,7 @@ export function DeleteProductDialog({
             disabled={!product || remove.isPending}
             onClick={() => {
               if (!product) return
-              remove.mutate(product.productId, {
+              remove.mutate(product.productoId, {
                 onSuccess: () => onOpenChange(false),
               })
             }}

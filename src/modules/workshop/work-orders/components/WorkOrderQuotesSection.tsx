@@ -63,9 +63,9 @@ export function WorkOrderQuotesSection({
 }) {
   const [sending, setSending] = useState(false)
 
-  const isAdmin = role === 'ADMIN'
-  const canSend = isAdmin && canSendQuote(workOrder.status)
-  const hasItems = workOrder.items.length > 0
+  const isAdmin = role === 'ADMINISTRADOR'
+  const canSend = isAdmin && canSendQuote(workOrder.estado)
+  const hasItems = workOrder.detalles.length > 0
   const pending = pendingQuote(workOrder)
 
   return (
@@ -89,20 +89,20 @@ export function WorkOrderQuotesSection({
         )}
       </CardHeader>
       <CardContent>
-        {workOrder.quotes.length === 0 ? (
+        {workOrder.presupuestos.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
             Todavía no se envió ningún presupuesto.
           </p>
         ) : (
           <ul className="flex flex-col divide-y">
-            {workOrder.quotes.map((quote, index) => (
+            {workOrder.presupuestos.map((quote, index) => (
               <QuoteRow
-                key={quote.quoteId}
+                key={quote.presupuestoId}
                 quote={quote}
                 // La más nueva se ve desplegada: es la que se discute.
                 defaultOpen={index === 0}
                 onDecide={
-                  isAdmin && quote.quoteId === pending?.quoteId
+                  isAdmin && quote.presupuestoId === pending?.presupuestoId
                     ? () => onDecide(quote)
                     : undefined
                 }
@@ -153,29 +153,30 @@ function QuoteRow({
               <span className="font-mono text-sm font-semibold">
                 v{quote.version}
               </span>
-              <QuoteStatusBadge status={quote.status} />
+              <QuoteStatusBadge status={quote.estado} />
               <span className="font-semibold tabular-nums">
                 {formatMoney(quote.total)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Enviado el {formatDateTime(quote.sentAt)} por {quote.sentBy.name}
+              Enviado el {formatDateTime(quote.enviadoEn)} por{' '}
+              {quote.enviadoPor.nombre}
             </p>
-            {quote.decidedAt && (
+            {quote.decididoEn && (
               <p className="text-xs text-muted-foreground">
-                {QUOTE_STATUS_LABELS[quote.status]} el{' '}
-                {formatDateTime(quote.decidedAt)}
-                {quote.decisionChannel &&
-                  ` · ${DECISION_CHANNEL_LABELS[quote.decisionChannel]}`}{' '}
+                {QUOTE_STATUS_LABELS[quote.estado]} el{' '}
+                {formatDateTime(quote.decididoEn)}
+                {quote.canalDecision &&
+                  ` · ${DECISION_CHANNEL_LABELS[quote.canalDecision]}`}{' '}
                 ·{' '}
-                {quote.decidedBy
-                  ? `lo registró ${quote.decidedBy.name}`
+                {quote.decididoPor
+                  ? `lo registró ${quote.decididoPor.nombre}`
                   : 'respondió el cliente'}
               </p>
             )}
-            {quote.decisionNote && (
+            {quote.notaDecision && (
               <p className="text-sm whitespace-pre-line">
-                {quote.decisionNote}
+                {quote.notaDecision}
               </p>
             )}
           </div>
@@ -193,8 +194,8 @@ function QuoteRow({
                 className="group/trigger"
                 aria-label={`Ítems del presupuesto v${quote.version}`}
               >
-                {quote.items.length}{' '}
-                {quote.items.length === 1 ? 'ítem' : 'ítems'}
+                {quote.detalles.length}{' '}
+                {quote.detalles.length === 1 ? 'ítem' : 'ítems'}
                 <ChevronDownIcon className="transition-transform group-data-[state=open]/trigger:rotate-180" />
               </Button>
             </CollapsibleTrigger>
@@ -212,25 +213,25 @@ function QuoteRow({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {quote.items.map((item) => (
-                <TableRow key={item.quoteItemId}>
+              {quote.detalles.map((item) => (
+                <TableRow key={item.detallePresupuestoId}>
                   <TableCell>
                     <Badge
                       variant={
-                        item.type === 'SERVICE' ? 'secondary' : 'outline'
+                        item.tipo === 'SERVICIO' ? 'secondary' : 'outline'
                       }
                     >
-                      {ITEM_TYPE_LABELS[item.type]}
+                      {ITEM_TYPE_LABELS[item.tipo]}
                     </Badge>
                   </TableCell>
                   <TableCell className="max-w-72 whitespace-normal">
-                    {item.description}
+                    {item.descripcion}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {formatQuantity(item.quantity)}
+                    {formatQuantity(item.cantidad)}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap tabular-nums">
-                    {formatMoney(item.unitPrice)}
+                    {formatMoney(item.precioUnitario)}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap tabular-nums">
                     {formatMoney(item.subtotal)}

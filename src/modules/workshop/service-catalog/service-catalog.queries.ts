@@ -25,8 +25,8 @@ export const serviceCatalogKeys = {
   all: ['service-catalog'] as const,
   list: (search: ServiceCatalogSearch) =>
     [...serviceCatalogKeys.all, 'list', search] as const,
-  detail: (serviceCatalogItemId: string) =>
-    [...serviceCatalogKeys.all, 'detail', serviceCatalogItemId] as const,
+  detail: (servicioId: string) =>
+    [...serviceCatalogKeys.all, 'detail', servicioId] as const,
   options: (search: string) =>
     [...serviceCatalogKeys.all, 'options', search] as const,
 }
@@ -40,10 +40,10 @@ export const serviceCatalogQueries = {
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
     }),
-  detail: (serviceCatalogItemId: string) =>
+  detail: (servicioId: string) =>
     queryOptions({
-      queryKey: serviceCatalogKeys.detail(serviceCatalogItemId),
-      queryFn: () => getServiceCatalogItem({ data: { serviceCatalogItemId } }),
+      queryKey: serviceCatalogKeys.detail(servicioId),
+      queryFn: () => getServiceCatalogItem({ data: { servicioId } }),
     }),
   /**
    * Los servicios activos para elegir en un combobox (al agregarlos a una
@@ -58,7 +58,7 @@ export const serviceCatalogQueries = {
             ...defaultServiceCatalogSearch,
             pageSize: 20,
             search: search || undefined,
-            isActive: true,
+            activo: true,
           },
         })
         return page.items.map(serviceCatalogItemOption)
@@ -85,7 +85,7 @@ export function useUpdateServiceCatalogItem() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (request: {
-      serviceCatalogItemId: string
+      servicioId: string
       values: ServiceCatalogItemInput
     }) => updateServiceCatalogItem({ data: request }),
     onSuccess: async ({ message }) => {
@@ -98,8 +98,8 @@ export function useUpdateServiceCatalogItem() {
 export function useDeleteServiceCatalogItem() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (serviceCatalogItemId: string) =>
-      deleteServiceCatalogItem({ data: { serviceCatalogItemId } }),
+    mutationFn: (servicioId: string) =>
+      deleteServiceCatalogItem({ data: { servicioId } }),
     onSuccess: async ({ message }) => {
       toast.success(message)
       await queryClient.invalidateQueries({ queryKey: serviceCatalogKeys.all })

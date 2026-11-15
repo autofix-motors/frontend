@@ -10,8 +10,8 @@ import {
 
 const valid = {
   ...emptyServiceCatalogItemForm,
-  name: 'Afinamiento',
-  laborPrice: '180',
+  nombre: 'Afinamiento',
+  precioManoObra: '180',
 }
 
 const messagesOf = (values: unknown) => {
@@ -22,32 +22,32 @@ const messagesOf = (values: unknown) => {
 describe('serviceCatalogItemFormSchema', () => {
   it('acepta un servicio válido', () => {
     expect(messagesOf(valid)).toEqual([])
-    expect(messagesOf({ ...valid, laborPrice: ' 120.50 ' })).toEqual([])
+    expect(messagesOf({ ...valid, precioManoObra: ' 120.50 ' })).toEqual([])
   })
 
   it('pide el precio una sola vez cuando está vacío', () => {
-    expect(messagesOf({ ...valid, laborPrice: '  ' })).toEqual([
+    expect(messagesOf({ ...valid, precioManoObra: '  ' })).toEqual([
       'Ingresa el precio de mano de obra',
     ])
   })
 
   it('valida el precio igual que la API', () => {
-    expect(messagesOf({ ...valid, laborPrice: '12.345' })).toEqual([
+    expect(messagesOf({ ...valid, precioManoObra: '12.345' })).toEqual([
       'El precio de mano de obra tiene como máximo 2 decimales',
     ])
-    expect(messagesOf({ ...valid, laborPrice: '-10' })).toEqual([
+    expect(messagesOf({ ...valid, precioManoObra: '-10' })).toEqual([
       'El precio de mano de obra no puede ser negativo',
     ])
-    expect(messagesOf({ ...valid, laborPrice: '100000000' })).toEqual([
+    expect(messagesOf({ ...valid, precioManoObra: '100000000' })).toEqual([
       'El precio de mano de obra es como máximo 99999999.99',
     ])
   })
 
   it('pide el nombre y limita su largo', () => {
-    expect(messagesOf({ ...valid, name: ' ' })).toEqual([
+    expect(messagesOf({ ...valid, nombre: ' ' })).toEqual([
       'Ingresa el nombre del servicio',
     ])
-    expect(messagesOf({ ...valid, name: 'x'.repeat(121) })).toEqual([
+    expect(messagesOf({ ...valid, nombre: 'x'.repeat(121) })).toEqual([
       'El nombre tiene como máximo 120 caracteres',
     ])
   })
@@ -58,33 +58,33 @@ describe('serviceCatalogItemInputSchema', () => {
     expect(
       serviceCatalogItemInputSchema.parse({
         ...valid,
-        laborPrice: '60.50 ',
-        description: '  ',
+        precioManoObra: '60.50 ',
+        descripcion: '  ',
       }),
     ).toStrictEqual({
-      name: 'Afinamiento',
-      laborPrice: '60.50',
-      description: null,
-      isActive: true,
+      nombre: 'Afinamiento',
+      precioManoObra: '60.50',
+      descripcion: null,
+      activo: true,
     })
   })
 
   it('al editar, el precio vuelve tal como lo manda la API', () => {
     expect(
       serviceCatalogItemToForm({
-        serviceCatalogItemId: '6f1c2a5e-8d3b-4c7a-9e1f-2b3c4d5e6f70',
-        name: 'Lavado de motor',
-        description: null,
-        laborPrice: '45.00',
-        isActive: false,
-        createdAt: '2026-10-04T12:00:00.000Z',
-        updatedAt: '2026-10-04T12:00:00.000Z',
+        servicioId: '6f1c2a5e-8d3b-4c7a-9e1f-2b3c4d5e6f70',
+        nombre: 'Lavado de motor',
+        descripcion: null,
+        precioManoObra: '45.00',
+        activo: false,
+        creadoEn: '2026-10-04T12:00:00.000Z',
+        actualizadoEn: '2026-10-04T12:00:00.000Z',
       }),
     ).toStrictEqual({
-      name: 'Lavado de motor',
-      laborPrice: '45.00',
-      description: '',
-      isActive: false,
+      nombre: 'Lavado de motor',
+      precioManoObra: '45.00',
+      descripcion: '',
+      activo: false,
     })
   })
 })
@@ -96,19 +96,23 @@ describe('serviceCatalogSearchSchema', () => {
     expect(serviceCatalogSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      sortBy: 'name',
-      sortOrder: 'asc',
+      ordenarPor: 'nombre',
+      sentido: 'asc',
     })
   })
 
   it('acepta el rango de precio y el orden por precio', () => {
     expect(
       serviceCatalogSearchSchema.parse({
-        minPrice: 50,
-        maxPrice: 199.9,
-        sortBy: 'laborPrice',
+        precioMinimo: 50,
+        precioMaximo: 199.9,
+        ordenarPor: 'precioManoObra',
       }),
-    ).toMatchObject({ minPrice: 50, maxPrice: 199.9, sortBy: 'laborPrice' })
+    ).toMatchObject({
+      precioMinimo: 50,
+      precioMaximo: 199.9,
+      ordenarPor: 'precioManoObra',
+    })
   })
 
   it('«Limpiar» quita la búsqueda y los filtros y conserva el orden', () => {
@@ -116,11 +120,11 @@ describe('serviceCatalogSearchSchema', () => {
       page: 2,
       pageSize: 20,
       search: 'aceite',
-      isActive: true,
-      minPrice: 50,
-      maxPrice: 200,
-      sortBy: 'laborPrice',
-      sortOrder: 'desc',
+      activo: true,
+      precioMinimo: 50,
+      precioMaximo: 200,
+      ordenarPor: 'precioManoObra',
+      sentido: 'desc',
     })
     // Así lo combina la ruta al navegar: el cambio sobre la búsqueda actual.
     // JSON hace lo que la URL: las claves en undefined no viajan.
@@ -131,8 +135,8 @@ describe('serviceCatalogSearchSchema', () => {
     expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
       page: 1,
       pageSize: 20,
-      sortBy: 'laborPrice',
-      sortOrder: 'desc',
+      ordenarPor: 'precioManoObra',
+      sentido: 'desc',
     })
   })
 
@@ -140,15 +144,15 @@ describe('serviceCatalogSearchSchema', () => {
     expect(
       serviceCatalogSearchSchema.parse({
         page: 0,
-        minPrice: -5,
-        maxPrice: 12.345,
-        sortBy: 'description',
+        precioMinimo: -5,
+        precioMaximo: 12.345,
+        ordenarPor: 'descripcion',
       }),
     ).toMatchObject({
       page: 1,
-      minPrice: undefined,
-      maxPrice: undefined,
-      sortBy: 'name',
+      precioMinimo: undefined,
+      precioMaximo: undefined,
+      ordenarPor: 'nombre',
     })
   })
 })
@@ -157,9 +161,9 @@ describe('serviceCatalogItemOption', () => {
   it('el nombre, y debajo el precio de mano de obra que se sugiere', () => {
     expect(
       serviceCatalogItemOption({
-        serviceCatalogItemId: 's1',
-        name: 'Afinamiento',
-        laborPrice: '1180.5',
+        servicioId: 's1',
+        nombre: 'Afinamiento',
+        precioManoObra: '1180.5',
       }),
     ).toStrictEqual({
       value: 's1',

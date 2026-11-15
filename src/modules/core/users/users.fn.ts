@@ -22,7 +22,7 @@ export const listUsers = createServerFn({ method: 'GET' })
 
 export const getUser = createServerFn({ method: 'GET' })
   .validator(userIdSchema)
-  .handler(({ data }) => callApi<User>(`/users/${data.userId}`))
+  .handler(({ data }) => callApi<User>(`/users/${data.usuarioId}`))
 
 export const createUser = createServerFn({ method: 'POST' })
   .validator(createUserInputSchema)
@@ -38,7 +38,7 @@ export const updateUser = createServerFn({ method: 'POST' })
   .validator(updateUserRequestSchema)
   .handler(async ({ data }) => {
     const { data: user, message } = await callApiEnvelope<User>(
-      `/users/${data.userId}`,
+      `/users/${data.usuarioId}`,
       { method: 'PATCH', body: JSON.stringify(data.values) },
     )
     return { user, message }
@@ -50,7 +50,7 @@ export const issueUserTemporaryPassword = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { data: password, message } =
       await callApiEnvelope<TemporaryPassword>(
-        `/users/${data.userId}/temporary-password`,
+        `/users/${data.usuarioId}/temporary-password`,
         { method: 'POST' },
       )
     return { password, message }
@@ -59,8 +59,11 @@ export const issueUserTemporaryPassword = createServerFn({ method: 'POST' })
 export const deleteUser = createServerFn({ method: 'POST' })
   .validator(userIdSchema)
   .handler(async ({ data }) => {
-    const { message } = await callApiEnvelope<null>(`/users/${data.userId}`, {
-      method: 'DELETE',
-    })
+    const { message } = await callApiEnvelope<null>(
+      `/users/${data.usuarioId}`,
+      {
+        method: 'DELETE',
+      },
+    )
     return { message }
   })

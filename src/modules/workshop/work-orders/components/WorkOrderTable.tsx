@@ -40,64 +40,64 @@ const muted = <span className="text-muted-foreground">—</span>
  * el listado no tiene acciones por fila.
  */
 const workOrderColumns = column.columns([
-  column.accessor('number', {
+  column.accessor('numero', {
     header: 'Orden',
     cell: (info) => (
       <div className="flex flex-col">
         <Link
           to="/workshop/work-orders/$workOrderId"
-          params={{ workOrderId: info.row.original.workOrderId }}
+          params={{ workOrderId: info.row.original.ordenTrabajoId }}
           className="font-mono font-medium underline-offset-4 hover:underline"
         >
           {formatWorkOrderNumber(info.getValue())}
         </Link>
         <span className="font-mono text-xs text-muted-foreground">
-          {info.row.original.trackingCode}
+          {info.row.original.codigoSeguimiento}
         </span>
       </div>
     ),
   }),
-  column.accessor('vehicle', {
+  column.accessor('vehiculo', {
     header: 'Vehículo',
     enableSorting: false,
     cell: (info) => {
       const vehicle = info.getValue()
       return (
         <div className="flex flex-col">
-          <span className="font-mono font-medium">{vehicle.plate}</span>
+          <span className="font-mono font-medium">{vehicle.placa}</span>
           <span className="text-xs text-muted-foreground">
-            {vehicle.brand} {vehicle.model}
+            {vehicle.marca} {vehicle.modelo}
           </span>
         </div>
       )
     },
   }),
-  column.accessor('customer', {
+  column.accessor('cliente', {
     header: 'Cliente',
     enableSorting: false,
     cell: (info) => {
       const customer = info.getValue()
       return (
         <div className="flex max-w-48 flex-col">
-          <span className="truncate">{customer.name}</span>
+          <span className="truncate">{customer.nombre}</span>
           <span className="text-xs text-muted-foreground">
-            {customer.phone}
+            {customer.telefono}
           </span>
         </div>
       )
     },
   }),
-  column.accessor('status', {
+  column.accessor('estado', {
     header: 'Estado',
     enableSorting: false,
     cell: (info) => (
       <div className="flex flex-wrap items-center gap-1">
         <WorkOrderStatusBadge status={info.getValue()} />
-        {info.row.original.isOverdue && <OverdueBadge />}
+        {info.row.original.vencida && <OverdueBadge />}
       </div>
     ),
   }),
-  column.accessor('reason', {
+  column.accessor('motivo', {
     header: 'Motivo',
     enableSorting: false,
     cell: (info) => (
@@ -111,22 +111,22 @@ const workOrderColumns = column.columns([
       </span>
     ),
   }),
-  column.accessor('mechanic', {
+  column.accessor('mecanico', {
     header: 'Mecánico',
     enableSorting: false,
     cell: (info) =>
-      info.getValue()?.name ?? (
+      info.getValue()?.nombre ?? (
         <span className="text-muted-foreground">Sin asignar</span>
       ),
   }),
-  column.accessor('promisedDate', {
+  column.accessor('fechaPrometida', {
     header: 'Prometida',
     cell: (info) =>
       info.getValue() ? (
         <span
           className={cn(
             'whitespace-nowrap tabular-nums',
-            info.row.original.isOverdue && 'font-medium text-destructive',
+            info.row.original.vencida && 'font-medium text-destructive',
           )}
         >
           {formatDateOnly(info.getValue())}
@@ -135,7 +135,7 @@ const workOrderColumns = column.columns([
         muted
       ),
   }),
-  column.accessor('receivedAt', {
+  column.accessor('recibidaEn', {
     header: 'Ingreso',
     cell: (info) => (
       <span className="whitespace-nowrap tabular-nums">
@@ -186,26 +186,26 @@ export function WorkOrderTable({
   // El nombre del mecánico del filtro: la URL solo guarda el id. Se pide al
   // módulo de usuarios (la ruta ya lo precargó).
   const filterUser = useQuery({
-    ...usersQueries.detail(search.mechanicId ?? ''),
-    enabled: canManage && Boolean(search.mechanicId),
+    ...usersQueries.detail(search.mecanicoId ?? ''),
+    enabled: canManage && Boolean(search.mecanicoId),
   })
-  const mechanicFilterOption: ComboboxOption | undefined = search.mechanicId
+  const mechanicFilterOption: ComboboxOption | undefined = search.mecanicoId
     ? filterUser.data
       ? userOption(filterUser.data)
       : filterUser.isError
-        ? { value: search.mechanicId, label: 'Usuario no encontrado' }
+        ? { value: search.mecanicoId, label: 'Usuario no encontrado' }
         : undefined
     : undefined
 
   const isFiltered = Boolean(
     search.search ||
-    search.status ||
-    search.mechanicId ||
-    search.vehicleId ||
-    search.customerId ||
-    search.overdue ||
-    search.from ||
-    search.to,
+    search.estado ||
+    search.mecanicoId ||
+    search.vehiculoId ||
+    search.clienteId ||
+    search.vencidas ||
+    search.desde ||
+    search.hasta,
   )
 
   return (
@@ -224,11 +224,11 @@ export function WorkOrderTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as WorkOrdersSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as WorkOrdersSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -248,8 +248,8 @@ export function WorkOrderTable({
             }
           >
             <WorkOrderStatusFilter
-              value={search.status}
-              onChange={(status) => filter({ status })}
+              value={search.estado}
+              onChange={(estado) => filter({ estado })}
             />
             {/* El personal solo lo lista el administrador (`/users`); el
                 mecánico ya ve solo las suyas. */}
@@ -258,18 +258,18 @@ export function WorkOrderTable({
                 label="Mecánico"
                 allLabel="Todos los mecánicos"
                 searchPlaceholder="Buscar por nombre o correo"
-                value={search.mechanicId}
+                value={search.mecanicoId}
                 selectedOption={mechanicFilterOption}
                 optionsQuery={allUserOptions}
-                onChange={(mechanicId) => filter({ mechanicId })}
+                onChange={(mecanicoId) => filter({ mecanicoId })}
               />
             )}
             <Button
-              variant={search.overdue ? 'secondary' : 'outline'}
+              variant={search.vencidas ? 'secondary' : 'outline'}
               size="sm"
-              aria-pressed={Boolean(search.overdue)}
+              aria-pressed={Boolean(search.vencidas)}
               onClick={() =>
-                filter({ overdue: search.overdue ? undefined : true })
+                filter({ vencidas: search.vencidas ? undefined : true })
               }
             >
               <AlertTriangleIcon />
@@ -277,22 +277,22 @@ export function WorkOrderTable({
             </Button>
             <DataTableDateRangeFilter
               label="Ingreso"
-              from={search.from}
-              to={search.to}
-              onChange={(range) => filter(range)}
+              from={search.desde}
+              to={search.hasta}
+              onChange={({ from, to }) => filter({ desde: from, hasta: to })}
             />
-            {search.vehicleId && (
+            {search.vehiculoId && (
               <VehicleChip
-                vehicleId={search.vehicleId}
+                vehiculoId={search.vehiculoId}
                 canLoad={canManage}
-                onClear={() => filter({ vehicleId: undefined })}
+                onClear={() => filter({ vehiculoId: undefined })}
               />
             )}
-            {search.customerId && (
+            {search.clienteId && (
               <CustomerChip
-                customerId={search.customerId}
+                clienteId={search.clienteId}
                 canLoad={canManage}
-                onClear={() => filter({ customerId: undefined })}
+                onClear={() => filter({ clienteId: undefined })}
               />
             )}
           </DataTableToolbar>
@@ -333,42 +333,42 @@ function FilterChip({
 // Los vehículos y los clientes solo los lee el administrador: para otro rol,
 // el filtro se muestra sin nombre.
 function VehicleChip({
-  vehicleId,
+  vehiculoId,
   canLoad,
   onClear,
 }: {
-  vehicleId: string
+  vehiculoId: string
   canLoad: boolean
   onClear: () => void
 }) {
   const vehicle = useQuery({
-    ...vehiclesQueries.detail(vehicleId),
+    ...vehiclesQueries.detail(vehiculoId),
     enabled: canLoad,
   }).data
   return (
     <FilterChip
-      label={`Vehículo: ${vehicle?.plate ?? 'el elegido'}`}
+      label={`Vehículo: ${vehicle?.placa ?? 'el elegido'}`}
       onClear={onClear}
     />
   )
 }
 
 function CustomerChip({
-  customerId,
+  clienteId,
   canLoad,
   onClear,
 }: {
-  customerId: string
+  clienteId: string
   canLoad: boolean
   onClear: () => void
 }) {
   const customer = useQuery({
-    ...customersQueries.detail(customerId),
+    ...customersQueries.detail(clienteId),
     enabled: canLoad,
   }).data
   return (
     <FilterChip
-      label={`Cliente: ${customer?.name ?? 'el elegido'}`}
+      label={`Cliente: ${customer?.nombre ?? 'el elegido'}`}
       onClear={onClear}
     />
   )

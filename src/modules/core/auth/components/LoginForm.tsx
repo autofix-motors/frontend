@@ -5,7 +5,7 @@ import { useLogin } from '../auth.queries'
 import { afterLogin, loginSchema } from '../auth.schemas'
 import type { LoginAudience, LoginInput } from '../auth.schemas'
 
-const defaultValues: LoginInput = { identifier: '', password: '' }
+const defaultValues: LoginInput = { identificador: '', contrasena: '' }
 
 /** Qué se le pide a cada uno en el campo del usuario. */
 const IDENTIFIER_LABELS: Record<LoginAudience, string> = {
@@ -48,7 +48,7 @@ export function LoginForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="identifier">
+        <form.AppField name="identificador">
           {(field) => (
             <field.TextField
               label={IDENTIFIER_LABELS[audience]}
@@ -57,7 +57,7 @@ export function LoginForm({
             />
           )}
         </form.AppField>
-        <form.AppField name="password">
+        <form.AppField name="contrasena">
           {(field) => (
             <field.TextField
               label="Contraseña"

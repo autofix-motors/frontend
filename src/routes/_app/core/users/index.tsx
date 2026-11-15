@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_app/core/users/')({
   search: { middlewares: [stripSearchParams(defaultUsersSearch)] },
   // Solo el administrador gestiona el personal; la API lo vuelve a exigir.
   beforeLoad: ({ context }) => {
-    if (context.session.role !== 'ADMIN') throw redirect({ to: '/' })
+    if (context.session.rol !== 'ADMINISTRADOR') throw redirect({ to: '/' })
   },
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>
@@ -46,7 +46,7 @@ function UsersPage() {
         page={data}
         search={search}
         isFetching={isFetching}
-        currentUserId={session.userId}
+        currentUserId={session.usuarioId}
         onSearchChange={(changes) =>
           void navigate({ search: (previous) => ({ ...previous, ...changes }) })
         }

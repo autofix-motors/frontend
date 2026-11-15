@@ -100,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AuthController_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/password": {
         parameters: {
             query?: never;
@@ -628,47 +644,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tools": {
+    "/dashboard": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["ToolsController_findAll"];
+        get: operations["DashboardController_overview"];
         put?: never;
-        post: operations["ToolsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tools/{toolId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ToolsController_findOne"];
-        put?: never;
-        post?: never;
-        delete: operations["ToolsController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["ToolsController_update"];
-        trace?: never;
-    };
-    "/tools/{toolId}/assignment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["ToolsController_assign"];
         post?: never;
         delete?: never;
         options?: never;
@@ -689,55 +673,90 @@ export interface components {
             statusCode: number;
         };
         /** @enum {string} */
-        SessionRole: "ADMIN" | "MECHANIC" | "CUSTOMER";
+        RolSesion: "ADMINISTRADOR" | "MECANICO" | "CLIENTE";
         CurrentSession: {
-            /** @example ADMIN */
-            role: components["schemas"]["SessionRole"];
+            /** @example ADMINISTRADOR */
+            rol: components["schemas"]["RolSesion"];
             /** @example Juan Pérez Rojas */
-            name: string;
+            nombre: string;
             /** @example juan@correo.pe */
-            email: string | null;
+            correo: string | null;
             /** @description Tiene la contraseña temporal: hasta cambiarla solo puede ver su sesión y cambiarla */
-            mustChangePassword: boolean;
+            debeCambiarContrasena: boolean;
             /**
              * Format: uuid
              * @description Del personal; vacío si es un cliente
              */
-            userId: string | null;
+            usuarioId: string | null;
             /**
              * Format: uuid
              * @description Del cliente; vacío si es del personal
              */
-            customerId: string | null;
+            clienteId: string | null;
         };
         LoginDto: {
             /**
              * @description Número de documento o correo
              * @example 45678912
              */
-            identifier: string;
+            identificador: string;
             /** Format: password */
-            password: string;
+            contrasena: string;
+        };
+        /** @enum {string} */
+        TipoPerfil: "PERSONAL" | "CLIENTE";
+        /**
+         * @description DNI en el personal; vacío si no tiene documento registrado
+         * @enum {string}
+         */
+        TipoDocumento: "DNI" | "RUC" | "CE" | "PASAPORTE";
+        Profile: {
+            /** @example PERSONAL */
+            tipo: components["schemas"]["TipoPerfil"];
+            /** @example Juan Pérez Rojas */
+            nombre: string;
+            /** @example juan@correo.pe */
+            correo: string | null;
+            /** @example 987654321 */
+            telefono: string | null;
+            /** @description DNI en el personal; vacío si no tiene documento registrado */
+            tipoDocumento: components["schemas"]["TipoDocumento"] | null;
+            /** @example 45678912 */
+            numeroDocumento: string | null;
+            /** @example ADMINISTRADOR */
+            rol: components["schemas"]["RolSesion"];
+            /** @description Solo del cliente; vacío en el personal */
+            direccion: string | null;
+            /**
+             * Format: date-time
+             * @description El último inicio de sesión correcto (del portal, si es cliente)
+             */
+            ultimoIngresoEn: string | null;
+            /**
+             * Format: date-time
+             * @description Cuándo se registró el usuario o el cliente
+             */
+            miembroDesde: string;
         };
         ChangeOwnPasswordDto: {
             /** Format: password */
-            currentPassword: string;
+            contrasenaActual: string;
             /** Format: password */
-            newPassword: string;
+            contrasenaNueva: string;
         };
         PortalCredentials: {
             /**
              * @description El número de documento del cliente: con él inicia sesión
              * @example 45678912
              */
-            loginIdentifier: string;
+            identificadorAcceso: string;
             /** @example Hk7mQ4pZr2Tx */
-            temporaryPassword: string;
+            contrasenaTemporal: string;
             /**
              * Format: date-time
              * @description Después de esto ya no sirve: hay que generar otra
              */
-            expiresAt: string;
+            expiraEn: string;
         };
         PaginationMeta: {
             /** @example 1 */
@@ -752,220 +771,218 @@ export interface components {
             /** @example 5 */
             totalPages: number;
         };
-        /** @enum {string} */
-        DocumentType: "DNI" | "RUC" | "CE" | "PASSPORT";
         PortalAccess: {
             /**
              * Format: date-time
              * @description Cuándo se habilitó
              */
-            createdAt: string;
+            creadoEn: string;
             /**
              * Format: date-time
              * @description Vacío si todavía no entró
              */
-            lastLoginAt: string | null;
+            ultimoIngresoEn: string | null;
             /** @description Todavía tiene la contraseña temporal: no entró o no la cambió */
-            mustChangePassword: boolean;
+            debeCambiarContrasena: boolean;
         };
         Customer: {
             /** Format: uuid */
-            customerId: string;
-            documentType: components["schemas"]["DocumentType"];
+            clienteId: string;
+            tipoDocumento: components["schemas"]["TipoDocumento"];
             /** @example 45678912 */
-            documentNumber: string;
+            numeroDocumento: string;
             /** @example Juan Pérez Rojas */
-            name: string;
+            nombre: string;
             /** @example 987654321 */
-            phone: string;
+            telefono: string;
             /** @example juan@correo.pe */
-            email: string | null;
-            address: string | null;
-            notes: string | null;
-            isActive: boolean;
+            correo: string | null;
+            direccion: string | null;
+            notas: string | null;
+            activo: boolean;
             /** @example 2 */
-            vehiclesCount: number;
+            cantidadVehiculos: number;
             /** @description Vacío si no tiene acceso al portal */
-            portalAccess: components["schemas"]["PortalAccess"] | null;
+            accesoPortal: components["schemas"]["PortalAccess"] | null;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
             /** Format: date-time */
-            updatedAt: string;
+            actualizadoEn: string;
         };
         CreateCustomerDto: {
-            documentType: components["schemas"]["DocumentType"];
+            tipoDocumento: components["schemas"]["TipoDocumento"];
             /** @example 45678912 */
-            documentNumber: string;
+            numeroDocumento: string;
             /** @example Juan Pérez Rojas */
-            name: string;
+            nombre: string;
             /** @example 987654321 */
-            phone: string;
+            telefono: string;
             /** @example juan@correo.pe */
-            email?: string | null;
-            address?: string | null;
-            notes?: string | null;
+            correo?: string | null;
+            direccion?: string | null;
+            notas?: string | null;
             /** @default true */
-            isActive: boolean;
+            activo: boolean;
         };
         UpdateCustomerDto: {
-            documentType?: components["schemas"]["DocumentType"];
+            tipoDocumento?: components["schemas"]["TipoDocumento"];
             /** @example 45678912 */
-            documentNumber?: string;
+            numeroDocumento?: string;
             /** @example Juan Pérez Rojas */
-            name?: string;
+            nombre?: string;
             /** @example 987654321 */
-            phone?: string;
+            telefono?: string;
             /** @example juan@correo.pe */
-            email?: string | null;
-            address?: string | null;
-            notes?: string | null;
+            correo?: string | null;
+            direccion?: string | null;
+            notas?: string | null;
             /** @default true */
-            isActive: boolean;
+            activo: boolean;
         };
         /** @enum {string} */
-        UserRole: "ADMIN" | "MECHANIC";
+        RolUsuario: "ADMINISTRADOR" | "MECANICO";
         User: {
             /** Format: uuid */
-            userId: string;
+            usuarioId: string;
             /** @example jquispe@autofix.local */
-            email: string;
+            correo: string;
             /**
              * @description DNI. Vacío en el personal registrado antes de pedirlo
              * @example 45678912
              */
-            documentNumber: string | null;
+            numeroDocumento: string | null;
             /** @example Juan Quispe Mamani */
-            name: string;
+            nombre: string;
             /** @example 987654321 */
-            phone: string | null;
-            role: components["schemas"]["UserRole"];
-            isActive: boolean;
+            telefono: string | null;
+            rol: components["schemas"]["RolUsuario"];
+            activo: boolean;
             /**
              * Format: date-time
              * @description Vacío si nunca inició sesión
              */
-            lastLoginAt: string | null;
+            ultimoIngresoEn: string | null;
             /** @description Todavía tiene la contraseña temporal: no entró o no la cambió */
-            mustChangePassword: boolean;
+            debeCambiarContrasena: boolean;
             /**
              * @description Órdenes de trabajo donde es el mecánico asignado
              * @example 4
              */
-            assignedWorkOrdersCount: number;
+            cantidadOrdenesAsignadas: number;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
             /** Format: date-time */
-            updatedAt: string;
+            actualizadoEn: string;
         };
         IssuedUser: {
             /** @example Hk7mQ4pZr2Tx */
-            temporaryPassword: string;
+            contrasenaTemporal: string;
             /**
              * Format: date-time
              * @description Después de esto ya no sirve: hay que generar otra
              */
-            expiresAt: string;
-            user: components["schemas"]["User"];
+            expiraEn: string;
+            usuario: components["schemas"]["User"];
         };
         CreateUserDto: {
             /** @example jquispe@autofix.local */
-            email: string;
+            correo: string;
             /**
              * @description DNI: con él o con el correo inicia sesión
              * @example 45678912
              */
-            documentNumber: string;
+            numeroDocumento: string;
             /** @example Juan Quispe Mamani */
-            name: string;
+            nombre: string;
             /** @example 987654321 */
-            phone?: string | null;
-            role: components["schemas"]["UserRole"];
+            telefono?: string | null;
+            rol: components["schemas"]["RolUsuario"];
         };
         UpdateUserDto: {
             /** @example jquispe@autofix.local */
-            email?: string;
+            correo?: string;
             /**
              * @description DNI: con él o con el correo inicia sesión
              * @example 45678912
              */
-            documentNumber?: string;
+            numeroDocumento?: string;
             /** @example Juan Quispe Mamani */
-            name?: string;
+            nombre?: string;
             /** @example 987654321 */
-            phone?: string | null;
-            role?: components["schemas"]["UserRole"];
-            isActive?: boolean;
+            telefono?: string | null;
+            rol?: components["schemas"]["RolUsuario"];
+            activo?: boolean;
         };
         TemporaryPassword: {
             /** @example Hk7mQ4pZr2Tx */
-            temporaryPassword: string;
+            contrasenaTemporal: string;
             /**
              * Format: date-time
              * @description Después de esto ya no sirve: hay que generar otra
              */
-            expiresAt: string;
+            expiraEn: string;
         };
         VehicleCustomer: {
             /** Format: uuid */
-            customerId: string;
+            clienteId: string;
             /** @example Juan Pérez Rojas */
-            name: string;
-            documentType: components["schemas"]["DocumentType"];
+            nombre: string;
+            tipoDocumento: components["schemas"]["TipoDocumento"];
             /** @example 45678912 */
-            documentNumber: string;
+            numeroDocumento: string;
         };
         Vehicle: {
             /** Format: uuid */
-            vehicleId: string;
+            vehiculoId: string;
             /** Format: uuid */
-            customerId: string;
-            customer: components["schemas"]["VehicleCustomer"];
+            clienteId: string;
+            cliente: components["schemas"]["VehicleCustomer"];
             /** @example ABC123 */
-            plate: string;
+            placa: string;
             /** @example Toyota */
-            brand: string;
+            marca: string;
             /** @example Yaris */
-            model: string;
+            modelo: string;
             /** @example 2019 */
-            year: number | null;
+            anio: number | null;
             /** @example Gris plata */
             color: string | null;
             /** @example JTDBT923771234567 */
             vin: string | null;
-            notes: string | null;
+            notas: string | null;
             /** @example 3 */
-            workOrdersCount: number;
+            cantidadOrdenes: number;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
             /** Format: date-time */
-            updatedAt: string;
+            actualizadoEn: string;
         };
         VehicleBrand: {
             /** @example Toyota */
-            brand: string;
+            marca: string;
             /** @example 12 */
-            vehiclesCount: number;
+            cantidadVehiculos: number;
         };
         CreateVehicleDto: {
             /**
              * Format: uuid
              * @description El dueño actual
              */
-            customerId: string;
+            clienteId: string;
             /**
              * @description Se guarda en mayúsculas y sin espacios ni guiones
              * @example ABC123
              */
-            plate: string;
+            placa: string;
             /** @example Toyota */
-            brand: string;
+            marca: string;
             /** @example Yaris */
-            model: string;
+            modelo: string;
             /**
              * @description Hasta el año actual + 1
              * @example 2019
              */
-            year?: number | null;
+            anio?: number | null;
             /** @example Gris plata */
             color?: string | null;
             /**
@@ -973,28 +990,28 @@ export interface components {
              * @example JTDBT923771234567
              */
             vin?: string | null;
-            notes?: string | null;
+            notas?: string | null;
         };
         UpdateVehicleDto: {
             /**
              * Format: uuid
              * @description El dueño actual
              */
-            customerId?: string;
+            clienteId?: string;
             /**
              * @description Se guarda en mayúsculas y sin espacios ni guiones
              * @example ABC123
              */
-            plate?: string;
+            placa?: string;
             /** @example Toyota */
-            brand?: string;
+            marca?: string;
             /** @example Yaris */
-            model?: string;
+            modelo?: string;
             /**
              * @description Hasta el año actual + 1
              * @example 2019
              */
-            year?: number | null;
+            anio?: number | null;
             /** @example Gris plata */
             color?: string | null;
             /**
@@ -1002,101 +1019,101 @@ export interface components {
              * @example JTDBT923771234567
              */
             vin?: string | null;
-            notes?: string | null;
+            notas?: string | null;
         };
         ServiceCatalogItem: {
             /** Format: uuid */
-            serviceCatalogItemId: string;
+            servicioId: string;
             /** @example Cambio de aceite y filtro */
-            name: string;
-            description: string | null;
+            nombre: string;
+            descripcion: string | null;
             /**
              * @description Precio de mano de obra referencial, en soles
              * @example 60.00
              */
-            laborPrice: string;
-            isActive: boolean;
+            precioManoObra: string;
+            activo: boolean;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
             /** Format: date-time */
-            updatedAt: string;
+            actualizadoEn: string;
         };
         CreateServiceCatalogItemDto: {
             /** @example Cambio de aceite y filtro */
-            name: string;
-            description?: string | null;
+            nombre: string;
+            descripcion?: string | null;
             /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
-            laborPrice: string | number;
+            precioManoObra: string | number;
             /** @default true */
-            isActive: boolean;
+            activo: boolean;
         };
         UpdateServiceCatalogItemDto: {
             /** @example Cambio de aceite y filtro */
-            name?: string;
-            description?: string | null;
+            nombre?: string;
+            descripcion?: string | null;
             /** @description Precio de mano de obra referencial, en soles: de 0 a 99999999.99, con hasta 2 decimales */
-            laborPrice?: string | number;
+            precioManoObra?: string | number;
             /** @default true */
-            isActive: boolean;
+            activo: boolean;
         };
         /** @enum {string} */
-        WorkOrderStatus: "RECEIVED" | "DIAGNOSIS" | "WAITING_APPROVAL" | "IN_PROGRESS" | "WAITING_PARTS" | "READY" | "DELIVERED" | "CANCELLED";
+        EstadoOrden: "RECIBIDO" | "EN_DIAGNOSTICO" | "ESPERANDO_APROBACION" | "EN_REPARACION" | "ESPERANDO_REPUESTOS" | "LISTO" | "ENTREGADO" | "CANCELADO";
         WorkOrderVehicle: {
             /** Format: uuid */
-            vehicleId: string;
+            vehiculoId: string;
             /** @example ABK582 */
-            plate: string;
+            placa: string;
             /** @example Toyota */
-            brand: string;
+            marca: string;
             /** @example Yaris */
-            model: string;
+            modelo: string;
         };
         WorkOrderCustomer: {
             /** Format: uuid */
-            customerId: string;
+            clienteId: string;
             /** @example Juan Pérez Rojas */
-            name: string;
+            nombre: string;
             /** @example 987654321 */
-            phone: string;
+            telefono: string;
         };
         WorkOrderUser: {
             /** Format: uuid */
-            userId: string;
+            usuarioId: string;
             /** @example Carlos Huamán Quispe */
-            name: string;
+            nombre: string;
         };
         WorkOrder: {
             /** Format: uuid */
-            workOrderId: string;
+            ordenTrabajoId: string;
             /**
              * @description Correlativo; se muestra como OT-000123
              * @example 123
              */
-            number: number;
+            numero: number;
             /** @example AFM-7K3Q9X */
-            trackingCode: string;
-            status: components["schemas"]["WorkOrderStatus"];
+            codigoSeguimiento: string;
+            estado: components["schemas"]["EstadoOrden"];
             /**
              * @description Kilometraje al ingreso, en km
              * @example 84500
              */
-            mileageIn: number;
+            kilometrajeIngreso: number;
             /** @example Ruido al frenar y vibración en el timón */
-            reason: string;
+            motivo: string;
             /**
              * Format: date
              * @example 2026-10-08
              */
-            promisedDate: string | null;
+            fechaPrometida: string | null;
             /** Format: date-time */
-            receivedAt: string;
+            recibidaEn: string;
             /** Format: date-time */
-            deliveredAt: string | null;
+            entregadaEn: string | null;
             /** @description La fecha prometida ya pasó (en Lima) y no se entregó ni se canceló */
-            isOverdue: boolean;
-            vehicle: components["schemas"]["WorkOrderVehicle"];
-            customer: components["schemas"]["WorkOrderCustomer"];
-            mechanic: components["schemas"]["WorkOrderUser"] | null;
+            vencida: boolean;
+            vehiculo: components["schemas"]["WorkOrderVehicle"];
+            cliente: components["schemas"]["WorkOrderCustomer"];
+            mecanico: components["schemas"]["WorkOrderUser"] | null;
             /**
              * @description La suma de sus servicios y repuestos, en soles
              * @example 275.50
@@ -1105,102 +1122,102 @@ export interface components {
         };
         WorkOrderEvent: {
             /** Format: uuid */
-            workOrderEventId: string;
+            eventoOrdenId: string;
             /** @description El estado al que pasó; null si es solo una nota */
-            status: components["schemas"]["WorkOrderStatus"] | null;
-            note: string | null;
+            estado: components["schemas"]["EstadoOrden"] | null;
+            nota: string | null;
             /** @description Si el cliente lo ve en el seguimiento */
-            isPublic: boolean;
+            esPublico: boolean;
             /** @description Vacío si lo hizo el cliente desde su portal */
-            createdBy: components["schemas"]["WorkOrderUser"] | null;
+            creadoPor: components["schemas"]["WorkOrderUser"] | null;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
         };
         /** @enum {string} */
-        ItemType: "SERVICE" | "PRODUCT";
+        TipoDetalle: "SERVICIO" | "PRODUCTO";
         /** @enum {string} */
-        UnitOfMeasure: "UNIT" | "LITER" | "GALLON" | "KIT" | "METER";
+        UnidadMedida: "UNIDAD" | "LITRO" | "GALON" | "KIT" | "METRO";
         WorkOrderItem: {
             /** Format: uuid */
-            workOrderItemId: string;
-            type: components["schemas"]["ItemType"];
+            detalleOrdenId: string;
+            tipo: components["schemas"]["TipoDetalle"];
             /**
              * @description Copiada del servicio (su nombre) o del repuesto («código · nombre») al agregarlo
              * @example FA-TOY-90915 · Filtro de aceite Toyota Yaris
              */
-            description: string;
+            descripcion: string;
             /**
              * @description En la unidad del repuesto; en un servicio, cuántas veces se hace
              * @example 1.00
              */
-            quantity: string;
-            unit: components["schemas"]["UnitOfMeasure"] | null;
+            cantidad: string;
+            unidad: components["schemas"]["UnidadMedida"] | null;
             /**
              * @description En soles, congelado
              * @example 35.00
              */
-            unitPrice: string;
+            precioUnitario: string;
             /**
              * @description Cantidad por precio unitario, redondeado a céntimos
              * @example 35.00
              */
             subtotal: string;
             /**
-             * @description Solo para ADMIN. Costo del repuesto al consumirlo, en soles; null en un servicio
+             * @description Solo para ADMINISTRADOR. Costo del repuesto al consumirlo, en soles; null en un servicio
              * @example 18.50
              */
-            unitCost?: string | null;
+            costoUnitario?: string | null;
             /** Format: uuid */
-            serviceCatalogItemId: string | null;
+            servicioId: string | null;
             /** Format: uuid */
-            productId: string | null;
+            productoId: string | null;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
         };
         WorkOrderTotals: {
             /**
              * @description Mano de obra, en soles
              * @example 180.00
              */
-            labor: string;
+            manoObra: string;
             /**
              * @description Repuestos, en soles
              * @example 95.50
              */
-            parts: string;
+            repuestos: string;
             /**
              * @description Mano de obra más repuestos
              * @example 275.50
              */
             total: string;
             /**
-             * @description Solo para ADMIN. Lo que costaron los repuestos
+             * @description Solo para ADMINISTRADOR. Lo que costaron los repuestos
              * @example 61.00
              */
-            partsCost?: string;
+            costoRepuestos?: string;
             /**
-             * @description Solo para ADMIN. Repuestos menos su costo
+             * @description Solo para ADMINISTRADOR. Repuestos menos su costo
              * @example 34.50
              */
-            partsMargin?: string;
+            margenRepuestos?: string;
         };
         /** @enum {string} */
-        QuoteStatus: "PENDING" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+        EstadoPresupuesto: "PENDIENTE" | "APROBADO" | "RECHAZADO" | "REEMPLAZADO";
         /** @enum {string} */
-        DecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON" | "PORTAL";
+        CanalDecision: "TELEFONO" | "WHATSAPP" | "EN_PERSONA" | "PORTAL";
         QuoteItem: {
             /** Format: uuid */
-            quoteItemId: string;
-            type: components["schemas"]["ItemType"];
+            detallePresupuestoId: string;
+            tipo: components["schemas"]["TipoDetalle"];
             /** @example FA-TOY-90915 · Filtro de aceite Toyota Yaris */
-            description: string;
+            descripcion: string;
             /** @example 1.00 */
-            quantity: string;
+            cantidad: string;
             /**
              * @description En soles
              * @example 35.00
              */
-            unitPrice: string;
+            precioUnitario: string;
             /**
              * @description Cantidad por precio unitario, redondeado a céntimos
              * @example 35.00
@@ -1209,198 +1226,198 @@ export interface components {
         };
         Quote: {
             /** Format: uuid */
-            quoteId: string;
+            presupuestoId: string;
             /**
              * @description 1, 2, 3… dentro de cada orden
              * @example 2
              */
             version: number;
-            status: components["schemas"]["QuoteStatus"];
+            estado: components["schemas"]["EstadoPresupuesto"];
             /**
              * @description En soles, congelado al enviarlo
              * @example 450.00
              */
             total: string;
             /** Format: date-time */
-            sentAt: string;
+            enviadoEn: string;
             /** @description Quién lo envió */
-            sentBy: components["schemas"]["WorkOrderUser"];
+            enviadoPor: components["schemas"]["WorkOrderUser"];
             /** Format: date-time */
-            decidedAt: string | null;
+            decididoEn: string | null;
             /** @description El administrador que registró la respuesta del cliente */
-            decidedBy: components["schemas"]["WorkOrderUser"] | null;
-            decisionChannel: components["schemas"]["DecisionChannel"] | null;
-            decisionNote: string | null;
-            /** @description Los ítems como estaban al enviarlo */
-            items: components["schemas"]["QuoteItem"][];
+            decididoPor: components["schemas"]["WorkOrderUser"] | null;
+            canalDecision: components["schemas"]["CanalDecision"] | null;
+            notaDecision: string | null;
+            /** @description Los detalles como estaban al enviarlo */
+            detalles: components["schemas"]["QuoteItem"][];
         };
         WorkOrderDetail: {
             /** Format: uuid */
-            workOrderId: string;
+            ordenTrabajoId: string;
             /**
              * @description Correlativo; se muestra como OT-000123
              * @example 123
              */
-            number: number;
+            numero: number;
             /** @example AFM-7K3Q9X */
-            trackingCode: string;
-            status: components["schemas"]["WorkOrderStatus"];
+            codigoSeguimiento: string;
+            estado: components["schemas"]["EstadoOrden"];
             /**
              * @description Kilometraje al ingreso, en km
              * @example 84500
              */
-            mileageIn: number;
+            kilometrajeIngreso: number;
             /** @example Ruido al frenar y vibración en el timón */
-            reason: string;
+            motivo: string;
             /**
              * Format: date
              * @example 2026-10-08
              */
-            promisedDate: string | null;
+            fechaPrometida: string | null;
             /** Format: date-time */
-            receivedAt: string;
+            recibidaEn: string;
             /** Format: date-time */
-            deliveredAt: string | null;
+            entregadaEn: string | null;
             /** @description La fecha prometida ya pasó (en Lima) y no se entregó ni se canceló */
-            isOverdue: boolean;
-            vehicle: components["schemas"]["WorkOrderVehicle"];
-            customer: components["schemas"]["WorkOrderCustomer"];
-            mechanic: components["schemas"]["WorkOrderUser"] | null;
+            vencida: boolean;
+            vehiculo: components["schemas"]["WorkOrderVehicle"];
+            cliente: components["schemas"]["WorkOrderCustomer"];
+            mecanico: components["schemas"]["WorkOrderUser"] | null;
             /**
              * @description La suma de sus servicios y repuestos, en soles
              * @example 275.50
              */
             total: string;
-            diagnosis: string | null;
+            diagnostico: string | null;
             /** Format: date-time */
-            cancelledAt: string | null;
-            cancelReason: string | null;
+            canceladaEn: string | null;
+            motivoCancelacion: string | null;
             /** @description Quién la registró */
-            createdBy: components["schemas"]["WorkOrderUser"];
+            creadoPor: components["schemas"]["WorkOrderUser"];
             /** @description La línea de tiempo, de la más antigua a la más reciente */
-            events: components["schemas"]["WorkOrderEvent"][];
+            eventos: components["schemas"]["WorkOrderEvent"][];
             /** @description Servicios y repuestos, en el orden en que se agregaron */
-            items: components["schemas"]["WorkOrderItem"][];
-            totals: components["schemas"]["WorkOrderTotals"];
+            detalles: components["schemas"]["WorkOrderItem"][];
+            totales: components["schemas"]["WorkOrderTotals"];
             /** @description Los presupuestos enviados, de la versión más nueva a la más vieja */
-            quotes: components["schemas"]["Quote"][];
+            presupuestos: components["schemas"]["Quote"][];
         };
         CreateWorkOrderDto: {
             /**
              * Format: uuid
              * @description El vehículo que ingresa
              */
-            vehicleId: string;
+            vehiculoId: string;
             /** @example 84500 */
-            mileageIn: number;
+            kilometrajeIngreso: number;
             /** @example Ruido al frenar y vibración en el timón */
-            reason: string;
+            motivo: string;
             /**
              * Format: date
              * @description Cuándo se le prometió al cliente (AAAA-MM-DD). No puede ser anterior a hoy en Lima
              * @example 2026-10-08
              */
-            promisedDate?: string | null;
+            fechaPrometida?: string | null;
             /**
              * Format: uuid
              * @description El mecánico asignado; vacío si todavía no se asigna
              */
-            mechanicId?: string | null;
+            mecanicoId?: string | null;
         };
         UpdateWorkOrderDto: {
             /** @example 84500 */
-            mileageIn?: number;
+            kilometrajeIngreso?: number;
             /** @example Ruido al frenar y vibración en el timón */
-            reason?: string;
+            motivo?: string;
             /**
              * Format: date
              * @description Cuándo se le prometió al cliente (AAAA-MM-DD). No puede ser anterior a hoy en Lima
              * @example 2026-10-08
              */
-            promisedDate?: string | null;
+            fechaPrometida?: string | null;
             /**
              * Format: uuid
              * @description El mecánico asignado; vacío si todavía no se asigna
              */
-            mechanicId?: string | null;
+            mecanicoId?: string | null;
         };
         UpdateWorkOrderDiagnosisDto: {
             /** @example Pastillas delanteras gastadas al 90 %; discos dentro de medida */
-            diagnosis: string | null;
+            diagnostico: string | null;
         };
         ChangeWorkOrderStatusDto: {
-            status: components["schemas"]["WorkOrderStatus"];
+            estado: components["schemas"]["EstadoOrden"];
             /** @description Obligatoria al cancelar: es el motivo */
-            note?: string | null;
+            nota?: string | null;
             /**
              * @description Si el cliente lo ve en el seguimiento
              * @default true
              */
-            isPublic: boolean;
+            esPublico: boolean;
         };
         CreateWorkOrderNoteDto: {
             /** @example Se pidió la pastilla de freno al proveedor */
-            note: string;
+            nota: string;
             /** @description Si el cliente la ve en el seguimiento */
-            isPublic: boolean;
+            esPublico: boolean;
         };
         CreateWorkOrderItemDto: {
-            type: components["schemas"]["ItemType"];
+            tipo: components["schemas"]["TipoDetalle"];
             /**
              * Format: uuid
-             * @description Obligatorio si type es SERVICE
+             * @description Obligatorio si tipo es SERVICIO
              */
-            serviceCatalogItemId?: string;
+            servicioId?: string;
             /**
              * Format: uuid
-             * @description Obligatorio si type es PRODUCT
+             * @description Obligatorio si tipo es PRODUCTO
              */
-            productId?: string;
+            productoId?: string;
             /** @description Mayor que 0, con hasta 2 decimales; por omisión, 1. En la unidad del repuesto; en un servicio, cuántas veces se hace */
-            quantity?: string | number;
-            /** @description Solo ADMIN. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
-            unitPrice?: string | number;
-            /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
-            description?: string;
+            cantidad?: string | number;
+            /** @description Solo ADMINISTRADOR. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
+            precioUnitario?: string | number;
+            /** @description Solo ADMINISTRADOR. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
+            descripcion?: string;
         };
         UpdateWorkOrderItemDto: {
             /** @description Mayor que 0, con hasta 2 decimales; por omisión, 1. En la unidad del repuesto; en un servicio, cuántas veces se hace */
-            quantity?: string | number;
-            /** @description Solo ADMIN. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
-            unitPrice?: string | number;
-            /** @description Solo ADMIN. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
-            description?: string;
+            cantidad?: string | number;
+            /** @description Solo ADMINISTRADOR. Precio unitario en soles; sin él, se copia el del catálogo o el del repuesto */
+            precioUnitario?: string | number;
+            /** @description Solo ADMINISTRADOR. Sin ella, se copia el nombre del servicio o «código · nombre» del repuesto */
+            descripcion?: string;
         };
         CreateQuoteDto: {
             /**
              * @description Para el cliente: va en la línea de tiempo pública, junto al total
              * @example Incluye el cambio de la bomba de agua; el termostato va de regalo
              */
-            note?: string | null;
+            nota?: string | null;
         };
         /** @enum {string} */
-        QuoteDecision: "APPROVED" | "REJECTED";
+        DecisionPresupuesto: "APROBADO" | "RECHAZADO";
         /** @enum {string} */
-        StaffDecisionChannel: "PHONE" | "WHATSAPP" | "IN_PERSON";
+        CanalDecisionPersonal: "TELEFONO" | "WHATSAPP" | "EN_PERSONA";
         DecideQuoteDto: {
-            decision: components["schemas"]["QuoteDecision"];
-            channel: components["schemas"]["StaffDecisionChannel"];
+            decision: components["schemas"]["DecisionPresupuesto"];
+            canal: components["schemas"]["CanalDecisionPersonal"];
             /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
-            note?: string | null;
+            nota?: string | null;
         };
         /** @enum {string} */
-        ProductKind: "PART" | "SUPPLY";
+        TipoProducto: "REPUESTO" | "INSUMO";
         Product: {
             /** Format: uuid */
-            productId: string;
+            productoId: string;
             /** @example FA-TOY-90915 */
-            code: string;
+            codigo: string;
             /** @example Filtro de aceite Toyota Yaris */
-            name: string;
-            kind: components["schemas"]["ProductKind"];
-            unit: components["schemas"]["UnitOfMeasure"];
+            nombre: string;
+            tipo: components["schemas"]["TipoProducto"];
+            unidad: components["schemas"]["UnidadMedida"];
             /** @example Toyota */
-            brand: string | null;
+            marca: string | null;
             /**
              * @description En la unidad del producto. Solo lo cambian los movimientos de stock
              * @example 12.00
@@ -1410,210 +1427,210 @@ export interface components {
              * @description En la unidad del producto
              * @example 4.00
              */
-            minStock: string;
-            /** @description El stock está en el mínimo o debajo (stock <= minStock) */
-            isLowStock: boolean;
+            stockMinimo: string;
+            /** @description El stock está en el mínimo o debajo (stock <= stockMinimo) */
+            stockBajo: boolean;
             /**
-             * @description Último costo de compra, en soles. Solo para ADMIN
+             * @description Último costo de compra, en soles. Solo para ADMINISTRADOR
              * @example 18.50
              */
-            cost?: string;
+            costo?: string;
             /**
              * @description Precio de venta, en soles
              * @example 30.00
              */
-            price: string;
+            precio: string;
             /**
-             * @description Precio menos costo, en soles; negativo si se vende por debajo del costo. Solo para ADMIN
+             * @description Precio menos costo, en soles; negativo si se vende por debajo del costo. Solo para ADMINISTRADOR
              * @example 11.50
              */
-            margin?: string;
-            isActive: boolean;
+            margen?: string;
+            activo: boolean;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
             /** Format: date-time */
-            updatedAt: string;
+            actualizadoEn: string;
         };
         CreateProductDto: {
             /**
              * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
              * @example FA-TOY-90915
              */
-            code: string;
+            codigo: string;
             /** @example Filtro de aceite Toyota Yaris */
-            name: string;
-            kind: components["schemas"]["ProductKind"];
-            unit: components["schemas"]["UnitOfMeasure"];
+            nombre: string;
+            tipo: components["schemas"]["TipoProducto"];
+            unidad: components["schemas"]["UnidadMedida"];
             /** @example Toyota */
-            brand?: string | null;
+            marca?: string | null;
             /** @description Stock mínimo, en la unidad del producto: de 0 a 99999999.99, con hasta 2 decimales. Con el stock en este valor o debajo, el producto sale como stock bajo */
-            minStock: string | number;
+            stockMinimo: string | number;
             /** @description Último costo de compra, en soles: de 0 a 99999999.99, con hasta 2 decimales */
-            cost: string | number;
+            costo: string | number;
             /** @description Precio de venta al cliente, en soles: de 0 a 99999999.99, con hasta 2 decimales */
-            price: string | number;
+            precio: string | number;
             /** @default true */
-            isActive: boolean;
+            activo: boolean;
         };
         UpdateProductDto: {
             /**
              * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
              * @example FA-TOY-90915
              */
-            code?: string;
+            codigo?: string;
             /** @example Filtro de aceite Toyota Yaris */
-            name?: string;
-            kind?: components["schemas"]["ProductKind"];
-            unit?: components["schemas"]["UnitOfMeasure"];
+            nombre?: string;
+            tipo?: components["schemas"]["TipoProducto"];
+            unidad?: components["schemas"]["UnidadMedida"];
             /** @example Toyota */
-            brand?: string | null;
+            marca?: string | null;
             /** @description Stock mínimo, en la unidad del producto: de 0 a 99999999.99, con hasta 2 decimales. Con el stock en este valor o debajo, el producto sale como stock bajo */
-            minStock?: string | number;
+            stockMinimo?: string | number;
             /** @description Último costo de compra, en soles: de 0 a 99999999.99, con hasta 2 decimales */
-            cost?: string | number;
+            costo?: string | number;
             /** @description Precio de venta al cliente, en soles: de 0 a 99999999.99, con hasta 2 decimales */
-            price?: string | number;
+            precio?: string | number;
             /** @default true */
-            isActive: boolean;
+            activo: boolean;
         };
         /** @enum {string} */
-        StockMovementType: "PURCHASE" | "WORK_ORDER" | "ADJUSTMENT";
+        TipoMovimiento: "COMPRA" | "ORDEN_TRABAJO" | "AJUSTE";
         StockMovementProduct: {
             /** Format: uuid */
-            productId: string;
+            productoId: string;
             /** @example FA-TOY-90915 */
-            code: string;
+            codigo: string;
             /** @example Filtro de aceite Toyota Yaris */
-            name: string;
-            unit: components["schemas"]["UnitOfMeasure"];
+            nombre: string;
+            unidad: components["schemas"]["UnidadMedida"];
         };
         StockMovementUser: {
             /** Format: uuid */
-            userId: string;
+            usuarioId: string;
             /** @example Rosa Quispe Mamani */
-            name: string;
+            nombre: string;
         };
         StockMovement: {
             /** Format: uuid */
-            stockMovementId: string;
-            type: components["schemas"]["StockMovementType"];
+            movimientoStockId: string;
+            tipo: components["schemas"]["TipoMovimiento"];
             /**
              * @description Con signo, en la unidad del producto: positiva entra y negativa sale
              * @example -2.00
              */
-            quantity: string;
+            cantidad: string;
             /**
-             * @description Costo unitario en soles: el de la compra, o el del producto al momento de un ajuste o un consumo. Solo para ADMIN
+             * @description Costo unitario en soles: el de la compra, o el del producto al momento de un ajuste o un consumo. Solo para ADMINISTRADOR
              * @example 18.50
              */
-            unitCost?: string | null;
+            costoUnitario?: string | null;
             /** @example Inventario físico de fin de mes */
-            note: string | null;
+            nota: string | null;
             /**
              * Format: uuid
-             * @description El ítem de la orden de trabajo que generó la salida. Solo en WORK_ORDER; vacío si el ítem se quitó de la orden
+             * @description El detalle de la orden de trabajo que generó la salida. Solo en ORDEN_TRABAJO; vacío si el detalle se quitó de la orden
              */
-            workOrderItemId: string | null;
-            product: components["schemas"]["StockMovementProduct"];
+            detalleOrdenId: string | null;
+            producto: components["schemas"]["StockMovementProduct"];
             /** @description Quién lo registró */
-            createdBy: components["schemas"]["StockMovementUser"];
+            creadoPor: components["schemas"]["StockMovementUser"];
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
         };
         CreatePurchaseDto: {
             /** Format: uuid */
-            productId: string;
+            productoId: string;
             /** @description Lo que entra, en la unidad del producto: mayor que 0, con hasta 2 decimales */
-            quantity: string | number;
+            cantidad: string | number;
             /** @description Costo unitario de la compra, en soles. Pasa a ser el costo del producto */
-            unitCost: string | number;
+            costoUnitario: string | number;
             /**
              * @description El proveedor, el número de factura…
              * @example Distribuidora Autopartes Lima, factura F001-004512
              */
-            note?: string | null;
+            nota?: string | null;
         };
         CreateAdjustmentDto: {
             /** Format: uuid */
-            productId: string;
+            productoId: string;
             /** @description Con signo, en la unidad del producto: positiva suma al stock y negativa resta. Distinta de 0, con hasta 2 decimales */
-            quantity: string | number;
+            cantidad: string | number;
             /**
              * @description El motivo del ajuste: inventario físico, merma, corrección…
              * @example Inventario físico de fin de mes
              */
-            note: string;
+            nota: string;
         };
         PortalVehicle: {
             /** Format: uuid */
-            vehicleId: string;
+            vehiculoId: string;
             /** @example ABC123 */
-            plate: string;
+            placa: string;
             /** @example Toyota */
-            brand: string;
+            marca: string;
             /** @example Yaris */
-            model: string;
+            modelo: string;
             /** @example 2018 */
-            year: number | null;
+            anio: number | null;
             /** @example Gris */
             color: string | null;
             /**
              * @description Órdenes registradas en el taller
              * @example 3
              */
-            workOrdersCount: number;
+            cantidadOrdenes: number;
         };
         PortalWorkOrderVehicle: {
             /** Format: uuid */
-            vehicleId: string;
+            vehiculoId: string;
             /** @example ABC123 */
-            plate: string;
+            placa: string;
             /** @example Toyota */
-            brand: string;
+            marca: string;
             /** @example Yaris */
-            model: string;
+            modelo: string;
         };
         PortalWorkOrder: {
             /** Format: uuid */
-            workOrderId: string;
+            ordenTrabajoId: string;
             /**
              * @description Código de seguimiento
              * @example AFM-7K3Q9X
              */
-            trackingCode: string;
-            status: components["schemas"]["WorkOrderStatus"];
+            codigoSeguimiento: string;
+            estado: components["schemas"]["EstadoOrden"];
             /** @example Ruido al frenar */
-            reason: string;
-            vehicle: components["schemas"]["PortalWorkOrderVehicle"];
+            motivo: string;
+            vehiculo: components["schemas"]["PortalWorkOrderVehicle"];
             /** Format: date-time */
-            receivedAt: string;
+            recibidaEn: string;
             /**
              * Format: date
              * @example 2026-10-20
              */
-            promisedDate: string | null;
+            fechaPrometida: string | null;
             /** Format: date-time */
-            deliveredAt: string | null;
+            entregadaEn: string | null;
             /**
              * @description En soles
              * @example 450.00
              */
             total: string;
             /** @description Hay un presupuesto esperando su respuesta */
-            hasPendingQuote: boolean;
+            tienePresupuestoPendiente: boolean;
         };
         /** @enum {string} */
-        PortalWorkOrderState: "OPEN" | "CLOSED";
+        EstadoListaPortal: "EN_CURSO" | "ANTERIORES";
         PortalLine: {
-            type: components["schemas"]["ItemType"];
+            tipo: components["schemas"]["TipoDetalle"];
             /** @example Cambio de aceite y filtro */
-            description: string;
+            descripcion: string;
             /** @example 1.00 */
-            quantity: string;
+            cantidad: string;
             /** @description Solo en repuestos */
-            unit: components["schemas"]["UnitOfMeasure"] | null;
+            unidad: components["schemas"]["UnidadMedida"] | null;
             /** @example 35.00 */
-            unitPrice: string;
+            precioUnitario: string;
             /** @example 35.00 */
             subtotal: string;
         };
@@ -1622,158 +1639,219 @@ export interface components {
              * @description Mano de obra
              * @example 120.00
              */
-            labor: string;
+            manoObra: string;
             /**
              * @description Repuestos
              * @example 330.00
              */
-            parts: string;
+            repuestos: string;
             /** @example 450.00 */
             total: string;
         };
         PortalEvent: {
             /** @description El estado al que pasó; null si es solo una nota */
-            status: components["schemas"]["WorkOrderStatus"] | null;
-            note: string | null;
+            estado: components["schemas"]["EstadoOrden"] | null;
+            nota: string | null;
             /** Format: date-time */
-            createdAt: string;
+            creadoEn: string;
         };
         PortalQuote: {
             /** Format: uuid */
-            quoteId: string;
+            presupuestoId: string;
             /** @example 2 */
             version: number;
-            status: components["schemas"]["QuoteStatus"];
+            estado: components["schemas"]["EstadoPresupuesto"];
             /** @example 450.00 */
             total: string;
             /** Format: date-time */
-            sentAt: string;
+            enviadoEn: string;
             /** Format: date-time */
-            decidedAt: string | null;
-            decisionChannel: components["schemas"]["DecisionChannel"] | null;
-            decisionNote: string | null;
+            decididoEn: string | null;
+            canalDecision: components["schemas"]["CanalDecision"] | null;
+            notaDecision: string | null;
             /** @description Como estaban al enviarlo */
-            items: components["schemas"]["PortalLine"][];
+            detalles: components["schemas"]["PortalLine"][];
         };
         PortalWorkOrderDetail: {
             /** Format: uuid */
-            workOrderId: string;
+            ordenTrabajoId: string;
             /**
              * @description Código de seguimiento
              * @example AFM-7K3Q9X
              */
-            trackingCode: string;
-            status: components["schemas"]["WorkOrderStatus"];
+            codigoSeguimiento: string;
+            estado: components["schemas"]["EstadoOrden"];
             /** @example Ruido al frenar */
-            reason: string;
-            vehicle: components["schemas"]["PortalWorkOrderVehicle"];
+            motivo: string;
+            vehiculo: components["schemas"]["PortalWorkOrderVehicle"];
             /** Format: date-time */
-            receivedAt: string;
+            recibidaEn: string;
             /**
              * Format: date
              * @example 2026-10-20
              */
-            promisedDate: string | null;
+            fechaPrometida: string | null;
             /** Format: date-time */
-            deliveredAt: string | null;
+            entregadaEn: string | null;
             /**
              * @description En soles
              * @example 450.00
              */
             total: string;
             /** @description Hay un presupuesto esperando su respuesta */
-            hasPendingQuote: boolean;
+            tienePresupuestoPendiente: boolean;
             /** @example 85000 */
-            mileageIn: number;
-            diagnosis: string | null;
+            kilometrajeIngreso: number;
+            diagnostico: string | null;
             /**
              * @description El mecánico que atiende su vehículo
              * @example Juan Quispe
              */
-            mechanicName: string | null;
-            cancelReason: string | null;
-            items: components["schemas"]["PortalLine"][];
-            totals: components["schemas"]["PortalTotals"];
+            nombreMecanico: string | null;
+            motivoCancelacion: string | null;
+            detalles: components["schemas"]["PortalLine"][];
+            totales: components["schemas"]["PortalTotals"];
             /** @description Solo los eventos públicos, del más antiguo al más nuevo */
-            events: components["schemas"]["PortalEvent"][];
+            eventos: components["schemas"]["PortalEvent"][];
             /** @description Las versiones del presupuesto, de la más nueva a la más vieja */
-            quotes: components["schemas"]["PortalQuote"][];
+            presupuestos: components["schemas"]["PortalQuote"][];
         };
         DecidePortalQuoteDto: {
-            decision: components["schemas"]["QuoteDecision"];
+            decision: components["schemas"]["DecisionPresupuesto"];
             /** @example Aprobó por WhatsApp; pide que lo llamen antes de entregar */
-            note?: string | null;
+            nota?: string | null;
         };
-        /** @enum {string} */
-        ToolStatus: "AVAILABLE" | "IN_REPAIR" | "RETIRED";
-        ToolAssignee: {
+        DashboardIndicators: {
+            /**
+             * @description Órdenes sin entregar ni cancelar
+             * @example 14
+             */
+            abiertas: number;
+            /**
+             * @description Abiertas esperando que el cliente apruebe el presupuesto
+             * @example 3
+             */
+            esperandoAprobacion: number;
+            /**
+             * @description Listas para recoger
+             * @example 2
+             */
+            listas: number;
+            /**
+             * @description Abiertas con la fecha prometida ya pasada (en Lima): la misma regla que el filtro `vencidas` del listado
+             * @example 1
+             */
+            vencidas: number;
+            /**
+             * @description Entregadas en el mes actual de Lima
+             * @example 22
+             */
+            entregadasMes: number;
+            /**
+             * @description Solo para ADMINISTRADOR (null para el mecánico). Lo cobrado en las órdenes entregadas en el mes, en soles
+             * @example 8450.50
+             */
+            valorEntregadoMes: string | null;
+            /**
+             * @description Solo para ADMINISTRADOR (null para el mecánico). Productos activos con stock en su mínimo o por debajo
+             * @example 4
+             */
+            stockBajo: number | null;
+        };
+        DashboardStatusCount: {
+            estado: components["schemas"]["EstadoOrden"];
+            /** @example 4 */
+            cantidad: number;
+        };
+        DashboardMonthTrend: {
+            /**
+             * @description Mes de Lima, AAAA-MM
+             * @example 2026-11
+             */
+            mes: string;
+            /**
+             * @description Por su fecha de recepción
+             * @example 25
+             */
+            recibidas: number;
+            /**
+             * @description Por su fecha de entrega
+             * @example 22
+             */
+            entregadas: number;
+        };
+        DashboardMechanicLoad: {
+            /**
+             * Format: uuid
+             * @description null en la fila «Sin asignar»
+             */
+            usuarioId: string | null;
+            /** @example Luis Quispe */
+            nombre: string;
+            /** @example 5 */
+            abiertas: number;
+        };
+        DashboardServiceCount: {
+            /** @example Cambio de aceite */
+            nombre: string;
+            /**
+             * @description Detalles de orden con el servicio
+             * @example 12
+             */
+            cantidad: number;
+        };
+        DashboardAttentionOrder: {
             /** Format: uuid */
-            userId: string;
-            /** @example Jorge Quispe Huamán */
-            name: string;
+            ordenTrabajoId: string;
+            /**
+             * @description Correlativo; se muestra como OT-000123
+             * @example 123
+             */
+            numero: number;
+            /** @example ABK582 */
+            placa: string;
+            estado: components["schemas"]["EstadoOrden"];
+            /**
+             * Format: date
+             * @example 2026-11-16
+             */
+            fechaPrometida: string;
+            /** @description La fecha prometida ya pasó; si no, vence en 2 días o menos */
+            vencida: boolean;
         };
-        Tool: {
+        DashboardLowStockProduct: {
             /** Format: uuid */
-            toolId: string;
-            /** @example HER-TORQ-01 */
-            code: string;
-            /** @example Torquímetro de 1/2" 40-200 N·m */
-            name: string;
-            /** @example Stanley */
-            brand: string | null;
-            status: components["schemas"]["ToolStatus"];
-            notes: string | null;
-            /** @description Quién la tiene; null si está en el almacén */
-            assignedTo: components["schemas"]["ToolAssignee"] | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
+            productoId: string;
+            /** @example FA-TOY-90915 */
+            codigo: string;
+            /** @example Filtro de aceite Toyota Yaris */
+            nombre: string;
+            /**
+             * @description En la unidad del producto
+             * @example 1.00
+             */
+            stock: string;
+            /**
+             * @description En la unidad del producto
+             * @example 4.00
+             */
+            stockMinimo: string;
+            unidad: components["schemas"]["UnidadMedida"];
         };
-        CreateToolDto: {
-            /**
-             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
-             * @example HER-TORQ-01
-             */
-            code: string;
-            /** @example Torquímetro de 1/2" 40-200 N·m */
-            name: string;
-            /** @example Stanley */
-            brand?: string | null;
-            /** @default AVAILABLE */
-            status: components["schemas"]["ToolStatus"];
-            /**
-             * Format: uuid
-             * @description El usuario activo que la tiene. Vacío o null: en el almacén. Solo una herramienta operativa se asigna
-             */
-            assignedToId?: string | null;
-            notes?: string | null;
-        };
-        UpdateToolDto: {
-            /**
-             * @description Único. Se guarda en mayúsculas y sin espacios al inicio o al final
-             * @example HER-TORQ-01
-             */
-            code?: string;
-            /** @example Torquímetro de 1/2" 40-200 N·m */
-            name?: string;
-            /** @example Stanley */
-            brand?: string | null;
-            /** @default AVAILABLE */
-            status: components["schemas"]["ToolStatus"];
-            /**
-             * Format: uuid
-             * @description El usuario activo que la tiene. Vacío o null: en el almacén. Solo una herramienta operativa se asigna
-             */
-            assignedToId?: string | null;
-            notes?: string | null;
-        };
-        AssignToolDto: {
-            /**
-             * Format: uuid
-             * @description El usuario activo que se la lleva, o null para devolverla al almacén
-             */
-            assignedToId: string | null;
+        Dashboard: {
+            indicadores: components["schemas"]["DashboardIndicators"];
+            /** @description Las órdenes abiertas por estado, en el orden del flujo y con los estados en 0 */
+            porEstado: components["schemas"]["DashboardStatusCount"][];
+            /** @description Los últimos 6 meses de Lima, del más antiguo al actual */
+            tendencia: components["schemas"]["DashboardMonthTrend"][];
+            /** @description Solo para ADMINISTRADOR (null para el mecánico). Órdenes abiertas por mecánico, de la más cargada a la menos; las sin mecánico van en «Sin asignar» */
+            cargaMecanicos: components["schemas"]["DashboardMechanicLoad"][] | null;
+            /** @description Solo para ADMINISTRADOR (null para el mecánico). Los 5 servicios más agregados a órdenes recibidas en el mes (sin las canceladas) */
+            serviciosTop: components["schemas"]["DashboardServiceCount"][] | null;
+            /** @description Hasta 6 órdenes abiertas vencidas o que vencen en 2 días o menos, de la fecha prometida más antigua a la más nueva */
+            atencion: components["schemas"]["DashboardAttentionOrder"][];
+            /** @description Solo para ADMINISTRADOR (null para el mecánico). Hasta 6 productos activos con stock bajo, los que más les falta primero; el total está en indicadores.stockBajo */
+            productosStockBajo: components["schemas"]["DashboardLowStockProduct"][] | null;
         };
     };
     responses: never;
@@ -1964,6 +2042,34 @@ export interface operations {
             };
         };
     };
+    AuthController_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaseResponseDto"] & {
+                        data: components["schemas"]["Profile"];
+                    };
+                };
+            };
+            /** @description Sin sesión, sesión expirada o acceso dado de baja */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AuthController_changePassword: {
         parameters: {
             query?: never;
@@ -2079,10 +2185,10 @@ export interface operations {
                 pageSize?: number;
                 /** @description Búsqueda libre */
                 search?: string;
-                documentType?: components["schemas"]["DocumentType"];
-                isActive?: boolean;
-                sortBy?: "name" | "createdAt";
-                sortOrder?: "asc" | "desc";
+                tipoDocumento?: components["schemas"]["TipoDocumento"];
+                activo?: boolean;
+                ordenarPor?: "nombre" | "creadoEn";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -2252,10 +2358,10 @@ export interface operations {
                 pageSize?: number;
                 /** @description Búsqueda libre */
                 search?: string;
-                role?: components["schemas"]["UserRole"];
-                isActive?: boolean;
-                sortBy?: "name" | "createdAt" | "lastLoginAt";
-                sortOrder?: "asc" | "desc";
+                rol?: components["schemas"]["RolUsuario"];
+                activo?: boolean;
+                ordenarPor?: "nombre" | "creadoEn" | "ultimoIngresoEn";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -2470,11 +2576,11 @@ export interface operations {
                 /** @description Búsqueda libre */
                 search?: string;
                 /** @description El dueño */
-                customerId?: string;
+                clienteId?: string;
                 /** @description Marca exacta, sin distinguir mayúsculas */
-                brand?: string;
-                sortBy?: "plate" | "brand" | "createdAt";
-                sortOrder?: "asc" | "desc";
+                marca?: string;
+                ordenarPor?: "placa" | "marca" | "creadoEn";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -2686,13 +2792,13 @@ export interface operations {
                 pageSize?: number;
                 /** @description Búsqueda libre */
                 search?: string;
-                isActive?: boolean;
+                activo?: boolean;
                 /** @description Precio de mano de obra desde, en soles (incluido) */
-                minPrice?: string;
+                precioMinimo?: string;
                 /** @description Precio de mano de obra hasta, en soles (incluido) */
-                maxPrice?: string;
-                sortBy?: "name" | "laborPrice" | "createdAt";
-                sortOrder?: "asc" | "desc";
+                precioMaximo?: string;
+                ordenarPor?: "nombre" | "precioManoObra" | "creadoEn";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -2870,19 +2976,19 @@ export interface operations {
                 /** @description Búsqueda libre */
                 search?: string;
                 /** @description Uno o varios estados, separados por coma */
-                status?: string;
-                /** @description Solo para ADMIN: el mecánico ve siempre las suyas */
-                mechanicId?: string;
-                vehicleId?: string;
-                customerId?: string;
+                estado?: string;
+                /** @description Solo para ADMINISTRADOR: el mecánico ve siempre las suyas */
+                mecanicoId?: string;
+                vehiculoId?: string;
+                clienteId?: string;
                 /** @description true: solo las vencidas (la fecha prometida ya pasó en Lima y no se entregó ni se canceló) */
-                overdue?: boolean;
+                vencidas?: boolean;
                 /** @description Ingresadas desde este día (AAAA-MM-DD), en la hora de Lima */
-                from?: string;
+                desde?: string;
                 /** @description Ingresadas hasta este día inclusive (AAAA-MM-DD), en la hora de Lima */
-                to?: string;
-                sortBy?: "receivedAt" | "promisedDate" | "number";
-                sortOrder?: "asc" | "desc";
+                hasta?: string;
+                ordenarPor?: "recibidaEn" | "fechaPrometida" | "numero";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -3009,7 +3115,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description La orden tiene ítems, presupuestos o pagos: se cancela */
+            /** @description La orden tiene detalles o presupuestos: se cancela */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3221,7 +3327,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description El servicio o el repuesto está inactivo, o el ítem trae datos del otro tipo */
+            /** @description El servicio o el repuesto está inactivo, o el detalle trae datos del otro tipo */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3242,7 +3348,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description La orden no está en un estado en que se cambien sus ítems, cambió mientras tanto, o no alcanza el stock */
+            /** @description La orden no está en un estado en que se cambien sus detalles, cambió mientras tanto, o no alcanza el stock */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3263,7 +3369,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Ítem quitado; si es un repuesto, vuelve al stock */
+            /** @description Detalle quitado; si es un repuesto, vuelve al stock */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3275,14 +3381,14 @@ export interface operations {
                     };
                 };
             };
-            /** @description No existe, o el mecánico no la tiene asignada; o el ítem no es de esta orden */
+            /** @description No existe, o el mecánico no la tiene asignada; o el detalle no es de esta orden */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            /** @description La orden no está en un estado en que se cambien sus detalles, o cambió mientras tanto */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3331,14 +3437,14 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description No existe, o el mecánico no la tiene asignada; o el ítem no es de esta orden */
+            /** @description No existe, o el mecánico no la tiene asignada; o el detalle no es de esta orden */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description La orden no está en un estado en que se cambien sus ítems, o cambió mientras tanto */
+            /** @description La orden no está en un estado en que se cambien sus detalles, o cambió mientras tanto */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3372,7 +3478,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description La orden no tiene ítems */
+            /** @description La orden no tiene detalles */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3444,12 +3550,12 @@ export interface operations {
                 pageSize?: number;
                 /** @description Búsqueda libre */
                 search?: string;
-                kind?: components["schemas"]["ProductKind"];
-                isActive?: boolean;
+                tipo?: components["schemas"]["TipoProducto"];
+                activo?: boolean;
                 /** @description true: solo los de stock bajo (stock menor o igual al mínimo); false: solo los que están por encima del mínimo */
-                lowStock?: boolean;
-                sortBy?: "name" | "code" | "stock" | "price";
-                sortOrder?: "asc" | "desc";
+                stockBajo?: boolean;
+                ordenarPor?: "nombre" | "codigo" | "stock" | "precio";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -3619,14 +3725,14 @@ export interface operations {
                 pageSize?: number;
                 /** @description Búsqueda libre */
                 search?: string;
-                type?: components["schemas"]["StockMovementType"];
-                productId?: string;
+                tipo?: components["schemas"]["TipoMovimiento"];
+                productoId?: string;
                 /** @description Desde este día (AAAA-MM-DD), en la hora de Lima */
-                from?: string;
+                desde?: string;
                 /** @description Hasta este día inclusive (AAAA-MM-DD), en la hora de Lima */
-                to?: string;
-                sortBy?: "createdAt" | "quantity";
-                sortOrder?: "asc" | "desc";
+                hasta?: string;
+                ordenarPor?: "creadoEn" | "cantidad";
+                sentido?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -3845,8 +3951,8 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
-                state?: components["schemas"]["PortalWorkOrderState"];
-                vehicleId?: string;
+                estado?: components["schemas"]["EstadoListaPortal"];
+                vehiculoId?: string;
             };
             header?: never;
             path?: never;
@@ -3960,95 +4066,13 @@ export interface operations {
             };
         };
     };
-    ToolsController_findAll: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                /** @description Búsqueda libre */
-                search?: string;
-                status?: components["schemas"]["ToolStatus"];
-                /** @description Solo las que tiene este usuario */
-                assignedToId?: string;
-                /** @description true: solo las asignadas a alguien; false: solo las que están en el almacén */
-                isAssigned?: boolean;
-                sortBy?: "code" | "name" | "status";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["Tool"][];
-                        meta: components["schemas"]["PaginationMeta"];
-                    };
-                };
-            };
-        };
-    };
-    ToolsController_create: {
+    DashboardController_overview: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateToolDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["Tool"];
-                    };
-                };
-            };
-            /** @description La herramienta no está operativa, o el usuario está inactivo */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No se encontró el usuario */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Ya existe una herramienta con ese código */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ToolsController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                toolId: string;
-            };
-            cookie?: never;
-        };
         requestBody?: never;
         responses: {
             200: {
@@ -4057,144 +4081,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["Tool"];
+                        data: components["schemas"]["Dashboard"];
                     };
                 };
-            };
-            /** @description No se encontró la herramienta */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ToolsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                toolId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Herramienta eliminada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        /** @example null */
-                        data: Record<string, never> | null;
-                    };
-                };
-            };
-            /** @description No se encontró la herramienta */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Alguien la tiene: primero se devuelve al almacén */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ToolsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                toolId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateToolDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["Tool"];
-                    };
-                };
-            };
-            /** @description La herramienta no está operativa, o el usuario está inactivo */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No se encontró la herramienta o el usuario */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Ya existe una herramienta con ese código */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ToolsController_assign: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                toolId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignToolDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BaseResponseDto"] & {
-                        data: components["schemas"]["Tool"];
-                    };
-                };
-            };
-            /** @description La herramienta no está operativa, o el usuario está inactivo */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No se encontró la herramienta o el usuario */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };

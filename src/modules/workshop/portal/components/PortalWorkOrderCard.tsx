@@ -12,7 +12,7 @@ export function PortalWorkOrderCard({ order }: { order: PortalWorkOrder }) {
   return (
     <Link
       to="/portal/work-orders/$workOrderId"
-      params={{ workOrderId: order.workOrderId }}
+      params={{ workOrderId: order.ordenTrabajoId }}
       className="block rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
       <Card className="transition-colors hover:bg-muted/50">
@@ -20,27 +20,27 @@ export function PortalWorkOrderCard({ order }: { order: PortalWorkOrder }) {
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium">
-                {order.vehicle.brand} {order.vehicle.model}
+                {order.vehiculo.marca} {order.vehiculo.modelo}
               </span>
               <span className="text-sm text-muted-foreground">
-                {order.vehicle.plate}
+                {order.vehiculo.placa}
               </span>
-              <WorkOrderStatusBadge status={order.status} />
-              {order.hasPendingQuote && (
+              <WorkOrderStatusBadge status={order.estado} />
+              {order.tienePresupuestoPendiente && (
                 <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
                   <ClockIcon />
                   Presupuesto por responder
                 </Badge>
               )}
             </div>
-            <p className="truncate text-sm">{order.reason}</p>
+            <p className="truncate text-sm">{order.motivo}</p>
             <p className="text-xs text-muted-foreground">
-              {order.trackingCode} · Ingresó el{' '}
-              {formatDateTime(order.receivedAt)}
-              {order.deliveredAt
-                ? ` · Entregado el ${formatDateTime(order.deliveredAt)}`
-                : order.promisedDate
-                  ? ` · Prometido para el ${formatDateOnly(order.promisedDate)}`
+              {order.codigoSeguimiento} · Ingresó el{' '}
+              {formatDateTime(order.recibidaEn)}
+              {order.entregadaEn
+                ? ` · Entregado el ${formatDateTime(order.entregadaEn)}`
+                : order.fechaPrometida
+                  ? ` · Prometido para el ${formatDateOnly(order.fechaPrometida)}`
                   : ''}
             </p>
           </div>

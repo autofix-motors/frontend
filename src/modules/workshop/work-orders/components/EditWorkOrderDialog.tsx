@@ -43,7 +43,7 @@ export function EditWorkOrderDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            Editar {formatWorkOrderNumber(workOrder.number)}
+            Editar {formatWorkOrderNumber(workOrder.numero)}
           </DialogTitle>
           <DialogDescription>
             Cambiar el mecánico queda anotado en la línea de tiempo (como nota
@@ -75,13 +75,16 @@ function EditWorkOrderForm({
   const form = useAppForm({
     defaultValues: workOrderToForm(workOrder),
     validators: {
-      onChange: updateWorkOrderFormSchema(workOrder.promisedDate),
+      onChange: updateWorkOrderFormSchema(workOrder.fechaPrometida),
     },
     // Un rechazo de la API (mecánico inactivo, la orden se cerró mientras
     // tanto) deja el diálogo abierto con su mensaje y no se relanza.
     onSubmit: ({ value }) =>
       update
-        .mutateAsync({ workOrderId: workOrder.workOrderId, values: value })
+        .mutateAsync({
+          ordenTrabajoId: workOrder.ordenTrabajoId,
+          values: value,
+        })
         .then(onDone, () => undefined),
   })
 
@@ -94,7 +97,7 @@ function EditWorkOrderForm({
     >
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="mileageIn">
+          <form.AppField name="kilometrajeIngreso">
             {(field) => (
               <field.TextField
                 label="Kilometraje al ingreso"
@@ -103,7 +106,7 @@ function EditWorkOrderForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="promisedDate">
+          <form.AppField name="fechaPrometida">
             {(field) => (
               <field.DateField
                 label="Fecha prometida (opcional)"
@@ -112,12 +115,12 @@ function EditWorkOrderForm({
             )}
           </form.AppField>
         </div>
-        <form.AppField name="reason">
+        <form.AppField name="motivo">
           {(field) => (
             <field.TextareaField label="Motivo del ingreso" rows={3} />
           )}
         </form.AppField>
-        <form.AppField name="mechanicId">
+        <form.AppField name="mecanicoId">
           {(field) => (
             <field.ComboboxField
               label="Mecánico"
@@ -127,10 +130,10 @@ function EditWorkOrderForm({
               clearLabel="Dejarla sin asignar"
               optionsQuery={activeUserOptions}
               selectedOption={
-                workOrder.mechanic
+                workOrder.mecanico
                   ? {
-                      value: workOrder.mechanic.userId,
-                      label: workOrder.mechanic.name,
+                      value: workOrder.mecanico.usuarioId,
+                      label: workOrder.mecanico.nombre,
                     }
                   : undefined
               }

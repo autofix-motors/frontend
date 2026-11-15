@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronsUpDownIcon, KeyRoundIcon, LogOutIcon } from 'lucide-react'
+import { ChevronsUpDownIcon, LogOutIcon, UserRoundIcon } from 'lucide-react'
 import { Avatar, AvatarFallback } from '#/components/ui/avatar'
 import {
   DropdownMenu,
@@ -25,13 +25,13 @@ function UserSummary({ session }: { session: StaffSession }) {
     <>
       <Avatar className="size-8 rounded-lg">
         <AvatarFallback className="rounded-lg">
-          {initials(session.name)}
+          {initials(session.nombre)}
         </AvatarFallback>
       </Avatar>
       <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-medium">{session.name}</span>
+        <span className="truncate font-medium">{session.nombre}</span>
         <span className="truncate text-xs text-muted-foreground">
-          {session.email}
+          {session.correo}
         </span>
       </div>
     </>
@@ -67,14 +67,14 @@ export function NavUser({ session }: { session: StaffSession }) {
                 <UserSummary session={session} />
               </div>
               <p className="px-1 pb-1.5 text-xs text-muted-foreground">
-                {ROLE_LABELS[session.role]}
+                {ROLE_LABELS[session.rol]}
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/change-password">
-                <KeyRoundIcon />
-                Cambiar contraseña
+              <Link to="/account/profile">
+                <UserRoundIcon />
+                Mi perfil
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem

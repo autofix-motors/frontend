@@ -18,7 +18,7 @@ export function WorkOrderTimeline({ events }: { events: WorkOrderEvent[] }) {
   return (
     <ol aria-label="Línea de tiempo" className="flex flex-col">
       {ordered.map((event, index) => (
-        <li key={event.workOrderEventId} className="relative flex gap-3 pb-5">
+        <li key={event.eventoOrdenId} className="relative flex gap-3 pb-5">
           {/* La línea que une los eventos, salvo después del último. */}
           {index < ordered.length - 1 && (
             <span
@@ -30,25 +30,25 @@ export function WorkOrderTimeline({ events }: { events: WorkOrderEvent[] }) {
             aria-hidden
             className={cn(
               'relative mt-1.5 size-[11px] shrink-0 rounded-full border-2',
-              event.status
+              event.estado
                 ? 'border-primary bg-primary'
                 : 'border-muted-foreground bg-background',
             )}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
-              {event.status ? (
-                <WorkOrderStatusBadge status={event.status} />
+              {event.estado ? (
+                <WorkOrderStatusBadge status={event.estado} />
               ) : (
                 <span className="text-sm font-medium">Nota</span>
               )}
-              <VisibilityBadge isPublic={event.isPublic} />
+              <VisibilityBadge esPublico={event.esPublico} />
             </div>
-            {event.note && (
-              <p className="text-sm whitespace-pre-line">{event.note}</p>
+            {event.nota && (
+              <p className="text-sm whitespace-pre-line">{event.nota}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              {authorName(event.createdBy)} · {formatDateTime(event.createdAt)}
+              {authorName(event.creadoPor)} · {formatDateTime(event.creadoEn)}
             </p>
           </div>
         </li>
@@ -57,8 +57,8 @@ export function WorkOrderTimeline({ events }: { events: WorkOrderEvent[] }) {
   )
 }
 
-function VisibilityBadge({ isPublic }: { isPublic: boolean }) {
-  return isPublic ? (
+function VisibilityBadge({ esPublico }: { esPublico: boolean }) {
+  return esPublico ? (
     <Badge variant="outline">
       <EyeIcon />
       Lo ve el cliente

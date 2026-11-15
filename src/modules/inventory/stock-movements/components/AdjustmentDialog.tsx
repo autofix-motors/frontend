@@ -78,7 +78,7 @@ function AdjustmentForm({
   const create = useCreateAdjustment()
 
   const form = useAppForm({
-    defaultValues: emptyAdjustmentForm(product?.productId),
+    defaultValues: emptyAdjustmentForm(product?.productoId),
     validators: { onChange: adjustmentFormSchema },
     // Si la API lo rechaza (stock insuficiente, producto inactivo), el
     // diálogo sigue abierto con el mensaje de `create.error`. El error no se
@@ -89,10 +89,10 @@ function AdjustmentForm({
   })
 
   // El producto elegido, con su unidad y su stock actual.
-  const productId = useStore(form.store, (state) => state.values.productId)
+  const productoId = useStore(form.store, (state) => state.values.productoId)
   const selected = useQuery({
-    ...productsQueries.detail(productId),
-    enabled: Boolean(productId),
+    ...productsQueries.detail(productoId),
+    enabled: Boolean(productoId),
   }).data
 
   return (
@@ -103,7 +103,7 @@ function AdjustmentForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="productId">
+        <form.AppField name="productoId">
           {(field) => (
             <field.ComboboxField
               label="Producto"
@@ -115,23 +115,23 @@ function AdjustmentForm({
             />
           )}
         </form.AppField>
-        <form.AppField name="quantity">
+        <form.AppField name="cantidad">
           {(field) => (
             <field.QuantityField
               label="Cantidad"
               placeholder="-2"
-              unit={selected && UNIT_OF_MEASURE_SYMBOLS[selected.unit]}
+              unit={selected && UNIT_OF_MEASURE_SYMBOLS[selected.unidad]}
               description={[
                 'Positiva suma al stock; negativa resta (merma, faltante).',
                 selected &&
-                  `Stock actual: ${formatStock(selected.stock, selected.unit)}.`,
+                  `Stock actual: ${formatStock(selected.stock, selected.unidad)}.`,
               ]
                 .filter(Boolean)
                 .join(' ')}
             />
           )}
         </form.AppField>
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               label="Motivo"

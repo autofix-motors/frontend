@@ -39,8 +39,8 @@ const column = createColumns<Product>()
 
 // En plural, como se lee en el filtro.
 const KIND_OPTIONS = [
-  { value: 'PART', label: 'Repuestos' },
-  { value: 'SUPPLY', label: 'Insumos' },
+  { value: 'REPUESTO', label: 'Repuestos' },
+  { value: 'INSUMO', label: 'Insumos' },
 ] satisfies { value: ProductKind; label: string }[]
 
 const STATUS_OPTIONS = [
@@ -74,26 +74,26 @@ type RowActions = {
  */
 function productColumns(canManage: boolean, actions: RowActions | undefined) {
   return column.columns([
-    column.accessor('code', {
+    column.accessor('codigo', {
       header: 'Código',
       cell: (info) => (
         <span className="font-mono text-xs">{info.getValue()}</span>
       ),
     }),
-    column.accessor('name', {
+    column.accessor('nombre', {
       header: 'Producto',
       cell: (info) => (
         <div className="flex max-w-sm flex-col">
           <span className="font-medium">{info.getValue()}</span>
-          {info.row.original.brand && (
+          {info.row.original.marca && (
             <span className="truncate text-xs text-muted-foreground">
-              {info.row.original.brand}
+              {info.row.original.marca}
             </span>
           )}
         </div>
       ),
     }),
-    column.accessor('kind', {
+    column.accessor('tipo', {
       header: 'Tipo',
       enableSorting: false,
       cell: (info) => PRODUCT_KIND_LABELS[info.getValue()],
@@ -101,17 +101,17 @@ function productColumns(canManage: boolean, actions: RowActions | undefined) {
     column.accessor('stock', {
       header: 'Stock',
       cell: (info) => {
-        const { unit, minStock, isLowStock } = info.row.original
+        const { unidad, stockMinimo, stockBajo } = info.row.original
         return (
           <div className="flex flex-col gap-0.5">
             <span className="flex items-center gap-2">
               <span className="tabular-nums">
-                {formatStock(info.getValue(), unit)}
+                {formatStock(info.getValue(), unidad)}
               </span>
-              {isLowStock && <Badge variant="destructive">Stock bajo</Badge>}
+              {stockBajo && <Badge variant="destructive">Stock bajo</Badge>}
             </span>
             <span className="text-xs text-muted-foreground tabular-nums">
-              Mín. {formatStock(minStock, unit)}
+              Mín. {formatStock(stockMinimo, unidad)}
             </span>
           </div>
         )
@@ -119,7 +119,7 @@ function productColumns(canManage: boolean, actions: RowActions | undefined) {
     }),
     ...(canManage
       ? [
-          column.accessor('cost', {
+          column.accessor('costo', {
             header: 'Costo',
             enableSorting: false,
             cell: (info) => (
@@ -130,7 +130,7 @@ function productColumns(canManage: boolean, actions: RowActions | undefined) {
           }),
         ]
       : []),
-    column.accessor('price', {
+    column.accessor('precio', {
       header: 'Precio',
       cell: (info) => (
         <span className="tabular-nums">{formatMoney(info.getValue())}</span>
@@ -138,7 +138,7 @@ function productColumns(canManage: boolean, actions: RowActions | undefined) {
     }),
     ...(canManage
       ? [
-          column.accessor('margin', {
+          column.accessor('margen', {
             header: 'Margen',
             enableSorting: false,
             cell: (info) => {
@@ -158,7 +158,7 @@ function productColumns(canManage: boolean, actions: RowActions | undefined) {
           }),
         ]
       : []),
-    column.accessor('isActive', {
+    column.accessor('activo', {
       header: 'Estado',
       enableSorting: false,
       cell: (info) =>
@@ -192,7 +192,7 @@ function actionsColumn(actions: RowActions | undefined) {
                 to="/inventory/stock-movements"
                 search={{
                   ...defaultStockMovementsSearch,
-                  productId: product.productId,
+                  productoId: product.productoId,
                 }}
               >
                 <HistoryIcon />
@@ -203,7 +203,7 @@ function actionsColumn(actions: RowActions | undefined) {
               <>
                 {/* La API no registra compras de un producto inactivo. */}
                 <DropdownMenuItem
-                  disabled={!product.isActive}
+                  disabled={!product.activo}
                   onSelect={() => actions.onPurchase(product)}
                 >
                   <PackagePlusIcon />
@@ -285,9 +285,9 @@ export function ProductTable({
 
   const isFiltered = Boolean(
     search.search ||
-    search.kind !== undefined ||
-    search.isActive !== undefined ||
-    search.lowStock !== undefined,
+    search.tipo !== undefined ||
+    search.activo !== undefined ||
+    search.stockBajo !== undefined,
   )
 
   return (
@@ -304,11 +304,11 @@ export function ProductTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as ProductsSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as ProductsSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -336,24 +336,26 @@ export function ProductTable({
               label="Tipo"
               allLabel="Todos los tipos"
               options={KIND_OPTIONS}
-              value={search.kind}
+              value={search.tipo}
               onChange={(value) =>
-                filter({ kind: value as ProductsSearch['kind'] })
+                filter({ tipo: value as ProductsSearch['tipo'] })
               }
             />
             <DataTableFilter
               label="Estado"
               allLabel="Todos los estados"
               options={STATUS_OPTIONS}
-              value={fromBooleanFilter(search.isActive)}
-              onChange={(value) => filter({ isActive: toBooleanFilter(value) })}
+              value={fromBooleanFilter(search.activo)}
+              onChange={(value) => filter({ activo: toBooleanFilter(value) })}
             />
             <DataTableFilter
               label="Stock"
               allLabel="Todo el stock"
               options={STOCK_OPTIONS}
-              value={fromBooleanFilter(search.lowStock)}
-              onChange={(value) => filter({ lowStock: toBooleanFilter(value) })}
+              value={fromBooleanFilter(search.stockBajo)}
+              onChange={(value) =>
+                filter({ stockBajo: toBooleanFilter(value) })
+              }
             />
           </DataTableToolbar>
         }

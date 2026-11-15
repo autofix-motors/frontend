@@ -31,9 +31,9 @@ describe('whatsappUrl', () => {
 describe('temporaryPasswordMessage', () => {
   it('lleva el usuario, la contraseña, dónde entrar y que debe cambiarla', () => {
     const text = temporaryPasswordMessage({
-      name: 'Juan Pérez Rojas',
-      loginIdentifier: '45678912',
-      temporaryPassword: 'Hk7mQ4pZr2Tx',
+      nombre: 'Juan Pérez Rojas',
+      identificadorAcceso: '45678912',
+      contrasenaTemporal: 'Hk7mQ4pZr2Tx',
       loginUrl: 'https://taller.pe/login',
       isStaff: false,
     })
@@ -48,9 +48,9 @@ describe('temporaryPasswordMessage', () => {
   it('al personal le dice que entre con «Soy interno»', () => {
     expect(
       temporaryPasswordMessage({
-        name: 'Ana',
-        loginIdentifier: '45678912',
-        temporaryPassword: 'x',
+        nombre: 'Ana',
+        identificadorAcceso: '45678912',
+        contrasenaTemporal: 'x',
         loginUrl: 'https://taller.pe/login',
         isStaff: true,
       }),

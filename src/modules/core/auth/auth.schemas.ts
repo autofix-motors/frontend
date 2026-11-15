@@ -1,44 +1,51 @@
 import { z } from 'zod'
+import { DOCUMENT_TYPE_LABELS } from '#/modules/customer/customers/customers.schemas'
 import type { components } from '#/types/api.gen'
 
 // La sesión que devuelve la API en los logins, /auth/refresh, /auth/session y
 // /auth/password: quién es, con qué rol y si tiene que cambiar la contraseña.
 export type CurrentSession = components['schemas']['CurrentSession']
 /** Los roles del personal (lo que se elige en Personal). */
-export type UserRole = components['schemas']['UserRole']
+export type UserRole = components['schemas']['RolUsuario']
 /** Quién puede tener una sesión: el personal o un cliente. */
-export type SessionRole = components['schemas']['SessionRole']
+export type SessionRole = components['schemas']['RolSesion']
 
 /** Una sesión del personal: la que hay dentro de la app (`_app`). */
 export type StaffSession = CurrentSession & {
-  role: UserRole
-  userId: string
-  email: string
+  rol: UserRole
+  usuarioId: string
+  correo: string
 }
 
 /** Una sesión de cliente: la que hay dentro de su portal. */
 export type CustomerSession = CurrentSession & {
-  role: 'CUSTOMER'
-  customerId: string
+  rol: 'CLIENTE'
+  clienteId: string
 }
+
+/**
+ * Los datos de quien tiene la sesión, para «Mi perfil» (GET /auth/profile).
+ * Solo lectura; las fechas llegan como marca de tiempo ISO.
+ */
+export type Profile = components['schemas']['Profile']
 
 /** Cómo se le muestra cada rol al usuario. */
 export const ROLE_LABELS: Record<SessionRole, string> = {
-  ADMIN: 'Administrador',
-  MECHANIC: 'Mecánico',
-  CUSTOMER: 'Cliente',
+  ADMINISTRADOR: 'Administrador',
+  MECANICO: 'Mecánico',
+  CLIENTE: 'Cliente',
 }
 
 export function isStaffSession(
   session: CurrentSession,
 ): session is StaffSession {
-  return session.role !== 'CUSTOMER'
+  return session.rol !== 'CLIENTE'
 }
 
 export function isCustomerSession(
   session: CurrentSession,
 ): session is CustomerSession {
-  return session.role === 'CUSTOMER'
+  return session.rol === 'CLIENTE'
 }
 
 /**
@@ -47,10 +54,10 @@ export function isCustomerSession(
  * comprobarlo; esto es para la experiencia, no para la seguridad.
  */
 export function hasRole(
-  session: Pick<CurrentSession, 'role'>,
+  session: Pick<CurrentSession, 'rol'>,
   ...roles: SessionRole[]
 ): boolean {
-  return roles.includes(session.role)
+  return roles.includes(session.rol)
 }
 
 /**
@@ -64,7 +71,7 @@ export type LoginAudience = 'customer' | 'staff'
 // documento o correo lo interpreta la API; aquí solo se exige que esté y, si
 // parece un correo, que lo sea.
 export const loginSchema = z.object({
-  identifier: z
+  identificador: z
     .string()
     .trim()
     .min(1, 'Ingresa tu documento o correo')
@@ -73,7 +80,7 @@ export const loginSchema = z.object({
       (value) => !value.includes('@') || z.email().safeParse(value).success,
       'Ingresa un correo válido',
     ),
-  password: z
+  contrasena: z
     .string()
     .min(1, 'Ingresa la contraseña')
     .max(200, 'La contraseña es demasiado larga'),
@@ -93,28 +100,31 @@ export type LoginRequest = z.infer<typeof loginRequestSchema>
  */
 export const changePasswordFormSchema = z
   .object({
-    currentPassword: z
+    contrasenaActual: z
       .string()
       .min(1, 'Ingresa tu contraseña actual')
       .max(200, 'La contraseña es demasiado larga'),
-    newPassword: z
+    contrasenaNueva: z
       .string()
       .min(8, 'La contraseña nueva tiene al menos 8 caracteres')
       .max(200, 'La contraseña es demasiado larga'),
-    confirmation: z.string(),
+    confirmacion: z.string(),
   })
   .superRefine((value, ctx) => {
-    if (value.newPassword !== value.confirmation) {
+    if (value.contrasenaNueva !== value.confirmacion) {
       ctx.addIssue({
         code: 'custom',
-        path: ['confirmation'],
+        path: ['confirmacion'],
         message: 'Las contraseñas no coinciden',
       })
     }
-    if (value.newPassword && value.newPassword === value.currentPassword) {
+    if (
+      value.contrasenaNueva &&
+      value.contrasenaNueva === value.contrasenaActual
+    ) {
       ctx.addIssue({
         code: 'custom',
-        path: ['newPassword'],
+        path: ['contrasenaNueva'],
         message: 'La contraseña nueva tiene que ser distinta de la actual',
       })
     }
@@ -123,14 +133,17 @@ export const changePasswordFormSchema = z
 export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>
 
 export const emptyChangePasswordForm: ChangePasswordFormValues = {
-  currentPassword: '',
-  newPassword: '',
-  confirmation: '',
+  contrasenaActual: '',
+  contrasenaNueva: '',
+  confirmacion: '',
 }
 
 /** Lo que se le manda a la API: sin la confirmación. */
 export const changePasswordRequestSchema = changePasswordFormSchema.transform(
-  ({ currentPassword, newPassword }) => ({ currentPassword, newPassword }),
+  ({ contrasenaActual, contrasenaNueva }) => ({
+    contrasenaActual,
+    contrasenaNueva,
+  }),
 )
 
 /**
@@ -138,8 +151,37 @@ export const changePasswordRequestSchema = changePasswordFormSchema.transform(
  * no, el portal para el cliente y la app para el personal.
  */
 export function homeFor(session: CurrentSession): string {
-  if (session.mustChangePassword) return '/change-password'
+  if (session.debeCambiarContrasena) return '/change-password'
   return isCustomerSession(session) ? '/portal' : '/'
+}
+
+/**
+ * «Mi perfil», dentro del layout de cada uno: el portal para el cliente y la
+ * app para el personal. Ahí también se cambia la contraseña por gusto;
+ * `/change-password` queda solo para la temporal.
+ */
+export function profilePageFor(
+  session: CurrentSession,
+): '/portal/profile' | '/account/profile' {
+  return isCustomerSession(session) ? '/portal/profile' : '/account/profile'
+}
+
+/** De quién es la sesión: el usuario del personal o el cliente. */
+export function sessionOwnerId(session: CurrentSession): string {
+  return session.usuarioId ?? session.clienteId ?? ''
+}
+
+/**
+ * «DNI 45678912», «Carné de extranjería 001234567»; null si no tiene
+ * documento registrado.
+ */
+export function documentLabel(
+  profile: Pick<Profile, 'tipoDocumento' | 'numeroDocumento'>,
+): string | null {
+  if (!profile.numeroDocumento) return null
+  return profile.tipoDocumento
+    ? `${DOCUMENT_TYPE_LABELS[profile.tipoDocumento]} ${profile.numeroDocumento}`
+    : profile.numeroDocumento
 }
 
 /**
@@ -149,7 +191,7 @@ export function homeFor(session: CurrentSession): string {
  */
 export function afterLogin(session: CurrentSession, redirect?: string): string {
   const home = homeFor(session)
-  if (session.mustChangePassword || !redirect) return home
+  if (session.debeCambiarContrasena || !redirect) return home
   const target = safeRedirect(redirect)
   const isPortal = target === '/portal' || target.startsWith('/portal/')
   return isPortal === isCustomerSession(session) ? target : home

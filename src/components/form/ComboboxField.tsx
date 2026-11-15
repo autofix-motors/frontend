@@ -24,7 +24,7 @@ type ComboboxFieldProps<TQueryKey extends QueryKey> = {
   emptyMessage?: string
   /**
    * Si el campo es opcional: ofrece quitar la elección con este texto (que
-   * la herramienta quede en el almacén). El valor vuelve a ser vacío.
+   * la orden quede sin mecánico asignado). El valor vuelve a ser vacío.
    */
   clearLabel?: string
   disabled?: boolean

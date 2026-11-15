@@ -120,12 +120,12 @@ describe('callApi', () => {
         jsonResponse(200, {
           success: true,
           message: 'Usuarios obtenidos',
-          data: [{ userId: '1' }],
+          data: [{ usuarioId: '1' }],
           statusCode: 200,
         }),
       ),
     )
-    await expect(callApi('/users')).resolves.toEqual([{ userId: '1' }])
+    await expect(callApi('/users')).resolves.toEqual([{ usuarioId: '1' }])
   })
 
   it('devuelve las filas y la paginación de un listado', async () => {
@@ -136,14 +136,14 @@ describe('callApi', () => {
         jsonResponse(200, {
           success: true,
           message: 'Clientes obtenidos',
-          data: [{ customerId: 'c1' }],
+          data: [{ clienteId: 'c1' }],
           statusCode: 200,
           meta,
         }),
       ),
     )
     await expect(callApiPage('/customers')).resolves.toEqual({
-      items: [{ customerId: 'c1' }],
+      items: [{ clienteId: 'c1' }],
       meta,
     })
   })
@@ -180,10 +180,10 @@ describe('toQueryString', () => {
       toQueryString({
         page: 1,
         search: '',
-        isActive: false,
-        documentType: undefined,
+        activo: false,
+        tipoDocumento: undefined,
       }),
-    ).toBe('?page=1&isActive=false')
+    ).toBe('?page=1&activo=false')
   })
 
   it('queda vacío sin filtros', () => {

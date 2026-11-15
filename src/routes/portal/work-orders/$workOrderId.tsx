@@ -9,7 +9,11 @@ import { portalWorkOrderIdSchema } from '#/modules/workshop/portal/portal.schema
 // function lanza `notFound()`; un id que ni es UUID, igual, sin llamar a la API.
 export const Route = createFileRoute('/portal/work-orders/$workOrderId')({
   loader: ({ context: { queryClient }, params }) => {
-    if (!portalWorkOrderIdSchema.safeParse(params).success) throw notFound()
+    if (
+      !portalWorkOrderIdSchema.safeParse({ ordenTrabajoId: params.workOrderId })
+        .success
+    )
+      throw notFound()
     return queryClient.ensureQueryData(
       portalQueries.workOrder(params.workOrderId),
     )
@@ -17,7 +21,7 @@ export const Route = createFileRoute('/portal/work-orders/$workOrderId')({
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: `${loaderData ? loaderData.trackingCode : 'Orden'} · AutoFix Motors`,
+        title: `${loaderData ? loaderData.codigoSeguimiento : 'Orden'} · AutoFix Motors`,
       },
     ],
   }),

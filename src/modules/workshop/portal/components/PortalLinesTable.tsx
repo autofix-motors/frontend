@@ -35,18 +35,18 @@ export function PortalLinesTable({
         </TableHeader>
         <TableBody>
           {lines.map((line, index) => (
-            <TableRow key={`${line.description}-${index}`}>
+            <TableRow key={`${line.descripcion}-${index}`}>
               <TableCell className="min-w-48 whitespace-normal">
-                {line.description}
+                {line.descripcion}
                 <span className="block text-xs text-muted-foreground">
-                  {line.type === 'SERVICE' ? 'Servicio' : 'Repuesto'}
+                  {line.tipo === 'SERVICIO' ? 'Servicio' : 'Repuesto'}
                 </span>
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {formatItemQuantity(line)}
               </TableCell>
               <TableCell className="text-right tabular-nums">
-                {formatMoney(line.unitPrice)}
+                {formatMoney(line.precioUnitario)}
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {formatMoney(line.subtotal)}

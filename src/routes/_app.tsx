@@ -28,7 +28,7 @@ export const Route = createFileRoute('/_app')({
     }
     // La app es del personal: un cliente va a su portal, y con la contraseña
     // temporal la API no deja hacer nada más que cambiarla.
-    if (!isStaffSession(session) || session.mustChangePassword) {
+    if (!isStaffSession(session) || session.debeCambiarContrasena) {
       throw redirect({ href: homeFor(session) })
     }
     // Queda en el contexto: la leen la barra lateral y cualquier página con
