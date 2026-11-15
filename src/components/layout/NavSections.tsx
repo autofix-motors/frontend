@@ -13,10 +13,14 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '#/components/ui/sidebar'
+import { TONES } from '#/lib/tones'
+import { cn } from '#/lib/utils'
 import type { NavSection } from './navigation'
 
 /**
- * Secciones colapsables del menú, cada una con sus módulos.
+ * Secciones colapsables del menú, cada una con sus módulos y su tono
+ * (`lib/tones.ts`): el ícono va en un cuadrito del tono y el módulo actual se
+ * marca con el mismo color.
  */
 export function NavSections({ sections }: { sections: NavSection[] }) {
   const matchRoute = useMatchRoute()
@@ -29,15 +33,27 @@ export function NavSections({ sections }: { sections: NavSection[] }) {
         <Collapsible
           key={section.label}
           asChild
-          // Abierta si contiene la página actual: al entrar por un enlace, el
-          // usuario ve dónde está sin abrir nada.
-          defaultOpen={section.items.some((item) => isActive(item.to))}
+          // Todas abiertas al entrar: son pocas y así se ve el menú completo
+          // sin abrir nada. El usuario puede cerrar la que no use.
+          defaultOpen
           className="group/collapsible"
         >
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton tooltip={section.label}>
-                <section.icon />
+              <SidebarMenuButton
+                tooltip={section.label}
+                // Colapsada a íconos, el botón mide 32 px: con menos relleno
+                // el cuadrito de 24 px queda centrado y entero.
+                className="group-data-[collapsible=icon]:p-1!"
+              >
+                <span
+                  className={cn(
+                    'flex size-6 shrink-0 items-center justify-center rounded-md',
+                    TONES[section.tone].chip,
+                  )}
+                >
+                  <section.icon />
+                </span>
                 <span>{section.label}</span>
                 <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
               </SidebarMenuButton>
@@ -46,7 +62,14 @@ export function NavSections({ sections }: { sections: NavSection[] }) {
               <SidebarMenuSub>
                 {section.items.map((item) => (
                   <SidebarMenuSubItem key={item.to}>
-                    <SidebarMenuSubButton asChild isActive={isActive(item.to)}>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={isActive(item.to)}
+                      className={cn(
+                        'data-active:font-medium',
+                        TONES[section.tone].active,
+                      )}
+                    >
                       <Link to={item.to}>
                         <span>{item.label}</span>
                       </Link>

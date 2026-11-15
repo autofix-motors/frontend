@@ -16,7 +16,7 @@ export function AddNoteForm({ workOrderId }: { workOrderId: string }) {
     validators: { onChange: noteFormSchema },
     // Si la API la rechaza, el mensaje queda debajo y no se relanza.
     onSubmit: ({ value, formApi }) =>
-      add.mutateAsync({ workOrderId, values: value }).then(
+      add.mutateAsync({ ordenTrabajoId: workOrderId, values: value }).then(
         () => formApi.reset(),
         () => undefined,
       ),
@@ -30,7 +30,7 @@ export function AddNoteForm({ workOrderId }: { workOrderId: string }) {
       }}
     >
       <FieldGroup className="gap-3">
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               id="timeline-note"
@@ -41,7 +41,7 @@ export function AddNoteForm({ workOrderId }: { workOrderId: string }) {
           )}
         </form.AppField>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <form.AppField name="isPublic">
+          <form.AppField name="esPublico">
             {(field) => (
               <field.SwitchField
                 id="timeline-note-public"

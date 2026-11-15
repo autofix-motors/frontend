@@ -11,9 +11,9 @@ import {
 
 const valid = {
   ...emptyNewUserForm,
-  email: 'jquispe@autofix.local',
-  documentNumber: '45678912',
-  name: 'Juan Quispe',
+  correo: 'jquispe@autofix.local',
+  numeroDocumento: '45678912',
+  nombre: 'Juan Quispe',
 }
 
 const messagesOf = (
@@ -31,10 +31,13 @@ describe('newUserFormSchema', () => {
 
   it('exige el DNI de 8 dígitos, sin importar puntos ni espacios', () => {
     expect(
-      messagesOf(newUserFormSchema, { ...valid, documentNumber: '45.678 912' }),
+      messagesOf(newUserFormSchema, {
+        ...valid,
+        numeroDocumento: '45.678 912',
+      }),
     ).toEqual([])
     expect(
-      messagesOf(newUserFormSchema, { ...valid, documentNumber: '1234' }),
+      messagesOf(newUserFormSchema, { ...valid, numeroDocumento: '1234' }),
     ).toEqual(['El DNI tiene 8 dígitos'])
   })
 
@@ -42,8 +45,8 @@ describe('newUserFormSchema', () => {
     expect(
       messagesOf(newUserFormSchema, {
         ...valid,
-        email: 'juan@',
-        phone: '12',
+        correo: 'juan@',
+        telefono: '12',
       }),
     ).toEqual([
       'Ingresa un correo válido',
@@ -57,15 +60,15 @@ describe('createUserInputSchema', () => {
     expect(
       createUserInputSchema.parse({
         ...valid,
-        email: ' JQuispe@AutoFix.Local ',
-        documentNumber: '45.678.912',
+        correo: ' JQuispe@AutoFix.Local ',
+        numeroDocumento: '45.678.912',
       }),
     ).toStrictEqual({
-      email: 'jquispe@autofix.local',
-      documentNumber: '45678912',
-      name: 'Juan Quispe',
-      phone: null,
-      role: 'MECHANIC',
+      correo: 'jquispe@autofix.local',
+      numeroDocumento: '45678912',
+      nombre: 'Juan Quispe',
+      telefono: null,
+      rol: 'MECANICO',
     })
   })
 })
@@ -74,20 +77,20 @@ describe('updateUserInputSchema', () => {
   it('lleva el estado y el DNI, y no la contraseña', () => {
     expect(
       updateUserInputSchema.parse({
-        email: 'jquispe@autofix.local',
-        documentNumber: '45678912',
-        name: 'Juan Quispe',
-        phone: '987 654 321',
-        role: 'ADMIN',
-        isActive: false,
+        correo: 'jquispe@autofix.local',
+        numeroDocumento: '45678912',
+        nombre: 'Juan Quispe',
+        telefono: '987 654 321',
+        rol: 'ADMINISTRADOR',
+        activo: false,
       }),
     ).toStrictEqual({
-      email: 'jquispe@autofix.local',
-      documentNumber: '45678912',
-      name: 'Juan Quispe',
-      phone: '987 654 321',
-      role: 'ADMIN',
-      isActive: false,
+      correo: 'jquispe@autofix.local',
+      numeroDocumento: '45678912',
+      nombre: 'Juan Quispe',
+      telefono: '987 654 321',
+      rol: 'ADMINISTRADOR',
+      activo: false,
     })
   })
 })
@@ -97,8 +100,8 @@ describe('usersSearchSchema', () => {
     expect(usersSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      sortBy: 'name',
-      sortOrder: 'asc',
+      ordenarPor: 'nombre',
+      sentido: 'asc',
     })
   })
 
@@ -107,10 +110,10 @@ describe('usersSearchSchema', () => {
       page: 2,
       pageSize: 20,
       search: 'quispe',
-      role: 'MECHANIC',
-      isActive: false,
-      sortBy: 'lastLoginAt',
-      sortOrder: 'desc',
+      rol: 'MECANICO',
+      activo: false,
+      ordenarPor: 'ultimoIngresoEn',
+      sentido: 'desc',
     })
     // Así lo combina la ruta al navegar; JSON hace lo que la URL: las claves
     // en undefined no viajan.
@@ -121,15 +124,15 @@ describe('usersSearchSchema', () => {
     expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
       page: 1,
       pageSize: 20,
-      sortBy: 'lastLoginAt',
-      sortOrder: 'desc',
+      ordenarPor: 'ultimoIngresoEn',
+      sentido: 'desc',
     })
   })
 
   it('cae al valor por defecto si alguien edita la URL a mano', () => {
     expect(
-      usersSearchSchema.parse({ role: 'OWNER', sortBy: 'email', page: 0 }),
-    ).toMatchObject({ role: undefined, sortBy: 'name', page: 1 })
+      usersSearchSchema.parse({ rol: 'OWNER', ordenarPor: 'correo', page: 0 }),
+    ).toMatchObject({ rol: undefined, ordenarPor: 'nombre', page: 1 })
   })
 })
 
@@ -137,10 +140,10 @@ describe('userOption', () => {
   it('muestra el nombre, y debajo el rol y el correo', () => {
     expect(
       userOption({
-        userId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
-        name: 'Juan Quispe',
-        role: 'MECHANIC',
-        email: 'jquispe@autofix.local',
+        usuarioId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
+        nombre: 'Juan Quispe',
+        rol: 'MECANICO',
+        correo: 'jquispe@autofix.local',
       }),
     ).toEqual({
       value: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',

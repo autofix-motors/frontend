@@ -6,6 +6,7 @@ import {
   WrenchIcon,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { Tone } from '#/lib/tones'
 import type { UserRole } from '#/modules/core/auth/auth.schemas'
 import type { FileRoutesByTo } from '#/routeTree.gen'
 
@@ -25,6 +26,11 @@ export type NavItem = {
 export type NavSection = {
   label: string
   icon: LucideIcon
+  /**
+   * El color de la sección (`lib/tones.ts`). Hoy todas usan el azul pastel
+   * (`sky`): decisión de quien dirige el proyecto, un solo color en el menú.
+   */
+  tone: Tone
   items: NavItem[]
 }
 
@@ -38,58 +44,72 @@ export const SECTIONS: NavSection[] = [
   {
     label: 'Taller',
     icon: WrenchIcon,
+    tone: 'sky',
     items: [
       // El mecánico ve las suyas («Mis órdenes»): la API se lo impone.
       {
         label: 'Órdenes de trabajo',
         to: '/workshop/work-orders',
-        roles: ['ADMIN', 'MECHANIC'],
+        roles: ['ADMINISTRADOR', 'MECANICO'],
       },
       // El mecánico lo consulta (en solo lectura) para armar sus órdenes.
       {
         label: 'Catálogo de servicios',
         to: '/workshop/service-catalog',
-        roles: ['ADMIN', 'MECHANIC'],
+        roles: ['ADMINISTRADOR', 'MECANICO'],
       },
     ],
   },
   {
     label: 'Clientes',
     icon: UsersIcon,
+    tone: 'sky',
     items: [
-      { label: 'Clientes', to: '/customer/customers', roles: ['ADMIN'] },
-      { label: 'Vehículos', to: '/customer/vehicles', roles: ['ADMIN'] },
+      {
+        label: 'Clientes',
+        to: '/customer/customers',
+        roles: ['ADMINISTRADOR'],
+      },
+      {
+        label: 'Vehículos',
+        to: '/customer/vehicles',
+        roles: ['ADMINISTRADOR'],
+      },
     ],
   },
   {
     label: 'Inventario',
     icon: PackageIcon,
+    tone: 'sky',
     items: [
       // El mecánico consulta el stock (en solo lectura y sin costos).
       {
         label: 'Repuestos e insumos',
         to: '/inventory/products',
-        roles: ['ADMIN', 'MECHANIC'],
+        roles: ['ADMINISTRADOR', 'MECANICO'],
       },
       // El mecánico consulta el kardex (en solo lectura y sin costos).
       {
         label: 'Movimientos',
         to: '/inventory/stock-movements',
-        roles: ['ADMIN', 'MECHANIC'],
-      },
-      // El mecánico consulta qué hay y quién tiene qué (en solo lectura).
-      {
-        label: 'Herramientas',
-        to: '/inventory/tools',
-        roles: ['ADMIN', 'MECHANIC'],
+        roles: ['ADMINISTRADOR', 'MECANICO'],
       },
     ],
   },
   {
     label: 'Administración',
     icon: ShieldIcon,
-    items: [{ label: 'Personal', to: '/core/users', roles: ['ADMIN'] }],
+    tone: 'sky',
+    items: [{ label: 'Personal', to: '/core/users', roles: ['ADMINISTRADOR'] }],
   },
+]
+
+/**
+ * Páginas que no son ítems del menú pero sí tienen su lugar en el breadcrumb:
+ * las de la cuenta, a las que se entra desde el menú del usuario.
+ */
+export const OFF_MENU_PAGES: { to: AppPath; trail: string[] }[] = [
+  { to: '/account/profile', trail: ['Cuenta', 'Mi perfil'] },
 ]
 
 /** Las secciones con solo los ítems que el rol del usuario puede abrir. */
@@ -112,13 +132,17 @@ export function visibleSections(
  * el módulo (`['Taller', 'Órdenes de trabajo']`). Lo usa el breadcrumb. Una
  * ruta con un parámetro justo debajo de un módulo
  * (`/workshop/work-orders/$workOrderId`, como la da `fullPath`) es su
- * detalle: suma «Detalle» al módulo.
+ * detalle: suma «Detalle» al módulo. Las páginas fuera del menú declaran
+ * su camino en `OFF_MENU_PAGES`.
  */
 export function breadcrumbFor(path: string): string[] {
   const normalized = path.replace(/\/$/, '') || '/'
 
   const general = GENERAL_ITEMS.find((item) => item.to === normalized)
   if (general) return [general.label]
+
+  const offMenu = OFF_MENU_PAGES.find((page) => page.to === normalized)
+  if (offMenu) return offMenu.trail
 
   const parentPath = /^(.+)\/\$[^/]+$/.exec(normalized)?.[1]
   for (const section of SECTIONS) {

@@ -72,7 +72,7 @@ function PurchaseForm({
   const create = useCreatePurchase()
 
   const form = useAppForm({
-    defaultValues: emptyPurchaseForm(product?.productId),
+    defaultValues: emptyPurchaseForm(product?.productoId),
     validators: { onChange: purchaseFormSchema },
     // Si la API lo rechaza (stock insuficiente, producto inactivo), el
     // diálogo sigue abierto con el mensaje de `create.error`. El error no se
@@ -83,10 +83,10 @@ function PurchaseForm({
   })
 
   // El producto elegido, con su unidad, su stock y su costo actuales.
-  const productId = useStore(form.store, (state) => state.values.productId)
+  const productoId = useStore(form.store, (state) => state.values.productoId)
   const selected = useQuery({
-    ...productsQueries.detail(productId),
-    enabled: Boolean(productId),
+    ...productsQueries.detail(productoId),
+    enabled: Boolean(productoId),
   }).data
 
   return (
@@ -97,7 +97,7 @@ function PurchaseForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="productId">
+        <form.AppField name="productoId">
           {(field) => (
             <field.ComboboxField
               label="Producto"
@@ -110,31 +110,31 @@ function PurchaseForm({
           )}
         </form.AppField>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="quantity">
+          <form.AppField name="cantidad">
             {(field) => (
               <field.QuantityField
                 label="Cantidad"
-                unit={selected && UNIT_OF_MEASURE_SYMBOLS[selected.unit]}
+                unit={selected && UNIT_OF_MEASURE_SYMBOLS[selected.unidad]}
                 description={
                   selected &&
-                  `Stock actual: ${formatStock(selected.stock, selected.unit)}`
+                  `Stock actual: ${formatStock(selected.stock, selected.unidad)}`
                 }
               />
             )}
           </form.AppField>
-          <form.AppField name="unitCost">
+          <form.AppField name="costoUnitario">
             {(field) => (
               <field.MoneyField
                 label="Costo unitario"
                 description={
-                  selected?.cost &&
-                  `Costo actual: ${formatMoney(selected.cost)}`
+                  selected?.costo &&
+                  `Costo actual: ${formatMoney(selected.costo)}`
                 }
               />
             )}
           </form.AppField>
         </div>
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               label="Nota (opcional)"

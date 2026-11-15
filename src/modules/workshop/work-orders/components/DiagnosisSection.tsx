@@ -67,13 +67,13 @@ function DiagnosisForm({
   const update = useUpdateWorkOrderDiagnosis()
 
   const form = useAppForm({
-    defaultValues: { diagnosis: diagnosis ?? '' },
+    defaultValues: { diagnostico: diagnosis ?? '' },
     validators: { onChange: diagnosisFormSchema },
     // Si la API lo rechaza (la orden cambió de estado), el mensaje queda
     // debajo y no se relanza.
     onSubmit: ({ value }) =>
       update
-        .mutateAsync({ workOrderId, values: value })
+        .mutateAsync({ ordenTrabajoId: workOrderId, values: value })
         .then(onDone, () => undefined),
   })
 
@@ -85,7 +85,7 @@ function DiagnosisForm({
       }}
     >
       <FieldGroup className="gap-3">
-        <form.AppField name="diagnosis">
+        <form.AppField name="diagnostico">
           {(field) => (
             <field.TextareaField
               label="Diagnóstico"

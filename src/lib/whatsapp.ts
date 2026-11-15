@@ -25,26 +25,26 @@ export function whatsappUrl(phone: string, text: string): string | null {
  * dónde, y que tiene que cambiarla.
  */
 export function temporaryPasswordMessage({
-  name,
-  loginIdentifier,
-  temporaryPassword,
+  nombre,
+  identificadorAcceso,
+  contrasenaTemporal,
   loginUrl,
   isStaff,
 }: {
-  name: string
-  loginIdentifier: string
-  temporaryPassword: string
+  nombre: string
+  identificadorAcceso: string
+  contrasenaTemporal: string
   loginUrl: string
   /** El personal entra con «Soy interno»; el cliente, directo. */
   isStaff: boolean
 }): string {
-  const firstName = name.trim().split(/\s+/)[0] ?? name
+  const firstName = nombre.trim().split(/\s+/)[0] ?? nombre
   return [
     `Hola, ${firstName}. Este es tu acceso a AutoFix Motors:`,
     '',
     `Ingresa en: ${loginUrl}${isStaff ? ' (botón «Soy interno»)' : ''}`,
-    `Usuario: ${loginIdentifier}`,
-    `Contraseña temporal: ${temporaryPassword}`,
+    `Usuario: ${identificadorAcceso}`,
+    `Contraseña temporal: ${contrasenaTemporal}`,
     '',
     'Al entrar te pediremos cambiarla por una tuya. La temporal vence en unos días; si se vence, pídenos una nueva.',
   ].join('\n')

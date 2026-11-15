@@ -12,34 +12,34 @@ export type WorkOrder = components['schemas']['WorkOrder']
 /** Una orden completa: lo del listado más el diagnóstico y la línea de tiempo. */
 export type WorkOrderDetail = components['schemas']['WorkOrderDetail']
 export type WorkOrderEvent = components['schemas']['WorkOrderEvent']
-export type WorkOrderStatus = components['schemas']['WorkOrderStatus']
-/** Un servicio o repuesto de la orden. `unitCost` solo llega para ADMIN. */
+export type WorkOrderStatus = components['schemas']['EstadoOrden']
+/** Un servicio o repuesto de la orden. `costoUnitario` solo llega para ADMINISTRADOR. */
 export type WorkOrderItem = components['schemas']['WorkOrderItem']
-/** Los montos de la orden. `partsCost` y `partsMargin` solo para ADMIN. */
+/** Los montos de la orden. `costoRepuestos` y `margenRepuestos` solo para ADMINISTRADOR. */
 export type WorkOrderTotals = components['schemas']['WorkOrderTotals']
-export type ItemType = components['schemas']['ItemType']
+export type ItemType = components['schemas']['TipoDetalle']
 
 export const WORK_ORDER_STATUSES = [
-  'RECEIVED',
-  'DIAGNOSIS',
-  'WAITING_APPROVAL',
-  'IN_PROGRESS',
-  'WAITING_PARTS',
-  'READY',
-  'DELIVERED',
-  'CANCELLED',
+  'RECIBIDO',
+  'EN_DIAGNOSTICO',
+  'ESPERANDO_APROBACION',
+  'EN_REPARACION',
+  'ESPERANDO_REPUESTOS',
+  'LISTO',
+  'ENTREGADO',
+  'CANCELADO',
 ] as const satisfies readonly WorkOrderStatus[]
 
 /** Cómo se le muestra cada estado al usuario. */
 export const WORK_ORDER_STATUS_LABELS: Record<WorkOrderStatus, string> = {
-  RECEIVED: 'Recibido',
-  DIAGNOSIS: 'En diagnóstico',
-  WAITING_APPROVAL: 'Esperando aprobación',
-  IN_PROGRESS: 'En reparación',
-  WAITING_PARTS: 'Esperando repuestos',
-  READY: 'Listo para recoger',
-  DELIVERED: 'Entregado',
-  CANCELLED: 'Cancelado',
+  RECIBIDO: 'Recibido',
+  EN_DIAGNOSTICO: 'En diagnóstico',
+  ESPERANDO_APROBACION: 'Esperando aprobación',
+  EN_REPARACION: 'En reparación',
+  ESPERANDO_REPUESTOS: 'Esperando repuestos',
+  LISTO: 'Listo para recoger',
+  ENTREGADO: 'Entregado',
+  CANCELADO: 'Cancelado',
 }
 
 /**
@@ -47,18 +47,18 @@ export const WORK_ORDER_STATUS_LABELS: Record<WorkOrderStatus, string> = {
  * proveedor) en ámbar; lo listo en verde; lo cerrado, apagado.
  */
 export const WORK_ORDER_STATUS_COLORS: Record<WorkOrderStatus, string> = {
-  RECEIVED: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
-  DIAGNOSIS: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300',
-  WAITING_APPROVAL:
+  RECIBIDO: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
+  EN_DIAGNOSTICO: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300',
+  ESPERANDO_APROBACION:
     'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-  IN_PROGRESS:
+  EN_REPARACION:
     'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300',
-  WAITING_PARTS:
+  ESPERANDO_REPUESTOS:
     'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300',
-  READY:
+  LISTO:
     'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-  DELIVERED: 'bg-muted text-muted-foreground',
-  CANCELLED: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
+  ENTREGADO: 'bg-muted text-muted-foreground',
+  CANCELADO: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
 }
 
 /** Cómo nombra el taller a una orden: «OT-000123». */
@@ -73,24 +73,24 @@ export function formatWorkOrderNumber(number: number): string {
 /** A dónde se puede llevar una orden a mano desde cada estado. */
 const MANUAL_TRANSITIONS: Record<WorkOrderStatus, readonly WorkOrderStatus[]> =
   {
-    RECEIVED: ['DIAGNOSIS', 'IN_PROGRESS', 'CANCELLED'],
-    DIAGNOSIS: ['IN_PROGRESS', 'CANCELLED'],
+    RECIBIDO: ['EN_DIAGNOSTICO', 'EN_REPARACION', 'CANCELADO'],
+    EN_DIAGNOSTICO: ['EN_REPARACION', 'CANCELADO'],
     // Entra y sale con el presupuesto, no a mano: solo se puede cancelar.
-    WAITING_APPROVAL: ['CANCELLED'],
-    IN_PROGRESS: ['WAITING_PARTS', 'READY', 'CANCELLED'],
-    WAITING_PARTS: ['IN_PROGRESS', 'CANCELLED'],
+    ESPERANDO_APROBACION: ['CANCELADO'],
+    EN_REPARACION: ['ESPERANDO_REPUESTOS', 'LISTO', 'CANCELADO'],
+    ESPERANDO_REPUESTOS: ['EN_REPARACION', 'CANCELADO'],
     // Volver a reparación es el retrabajo; cancelar vale antes de entregar.
-    READY: ['DELIVERED', 'IN_PROGRESS', 'CANCELLED'],
-    DELIVERED: [],
-    CANCELLED: [],
+    LISTO: ['ENTREGADO', 'EN_REPARACION', 'CANCELADO'],
+    ENTREGADO: [],
+    CANCELADO: [],
   }
 
 /** Entregar y cancelar son del administrador. */
 const MECHANIC_TARGETS: readonly WorkOrderStatus[] = [
-  'DIAGNOSIS',
-  'IN_PROGRESS',
-  'WAITING_PARTS',
-  'READY',
+  'EN_DIAGNOSTICO',
+  'EN_REPARACION',
+  'ESPERANDO_REPUESTOS',
+  'LISTO',
 ]
 
 /** Si `role` puede llevar a mano una orden de `from` a `to` (como la API). */
@@ -100,7 +100,7 @@ export function canTransition(
   role: UserRole,
 ): boolean {
   if (!MANUAL_TRANSITIONS[from].includes(to)) return false
-  return role === 'ADMIN' || MECHANIC_TARGETS.includes(to)
+  return role === 'ADMINISTRADOR' || MECHANIC_TARGETS.includes(to)
 }
 
 /** Los estados a los que `role` puede llevar una orden que está en `from`. */
@@ -112,27 +112,30 @@ export function allowedTransitions(
 }
 
 /** Entregada o cancelada: ya no se edita ni cambia de estado. */
-export function isClosed(status: WorkOrderStatus): boolean {
-  return status === 'DELIVERED' || status === 'CANCELLED'
+export function isClosed(estado: WorkOrderStatus): boolean {
+  return estado === 'ENTREGADO' || estado === 'CANCELADO'
 }
 
 /** Mientras se trabaja la orden, el diagnóstico se puede escribir (como la API). */
-export function canEditDiagnosis(status: WorkOrderStatus): boolean {
-  return ['RECEIVED', 'DIAGNOSIS', 'IN_PROGRESS', 'WAITING_PARTS'].includes(
-    status,
-  )
+export function canEditDiagnosis(estado: WorkOrderStatus): boolean {
+  return [
+    'RECIBIDO',
+    'EN_DIAGNOSTICO',
+    'EN_REPARACION',
+    'ESPERANDO_REPUESTOS',
+  ].includes(estado)
 }
 
 /** El texto del botón que lleva la orden a cada estado. */
 export const TRANSITION_LABELS: Record<WorkOrderStatus, string> = {
-  RECEIVED: 'Recibir',
-  DIAGNOSIS: 'Iniciar diagnóstico',
-  WAITING_APPROVAL: 'Enviar a aprobación',
-  IN_PROGRESS: 'Iniciar reparación',
-  WAITING_PARTS: 'Esperar repuestos',
-  READY: 'Marcar como listo',
-  DELIVERED: 'Entregar al cliente',
-  CANCELLED: 'Cancelar orden',
+  RECIBIDO: 'Recibir',
+  EN_DIAGNOSTICO: 'Iniciar diagnóstico',
+  ESPERANDO_APROBACION: 'Enviar a aprobación',
+  EN_REPARACION: 'Iniciar reparación',
+  ESPERANDO_REPUESTOS: 'Esperar repuestos',
+  LISTO: 'Marcar como listo',
+  ENTREGADO: 'Entregar al cliente',
+  CANCELADO: 'Cancelar orden',
 }
 
 // Las mismas reglas que valida la API (los DTO de work-orders), para avisar
@@ -177,14 +180,14 @@ const PAST_PROMISED_DATE = 'La fecha prometida no puede ser anterior a hoy'
  * prometida no puede haber pasado (en Lima, como la API).
  */
 export const createWorkOrderFormSchema = z.object({
-  vehicleId: z.string().min(1, 'Selecciona el vehículo'),
-  mileageIn: mileageField,
-  reason: reasonField,
-  promisedDate: promisedDateField.refine(
+  vehiculoId: z.string().min(1, 'Selecciona el vehículo'),
+  kilometrajeIngreso: mileageField,
+  motivo: reasonField,
+  fechaPrometida: promisedDateField.refine(
     (value) => !value || value >= limaToday(),
     PAST_PROMISED_DATE,
   ),
-  mechanicId: mechanicField,
+  mecanicoId: mechanicField,
 })
 
 export type CreateWorkOrderFormValues = z.infer<
@@ -192,20 +195,20 @@ export type CreateWorkOrderFormValues = z.infer<
 >
 
 export const emptyCreateWorkOrderForm: CreateWorkOrderFormValues = {
-  vehicleId: '',
-  mileageIn: '',
-  reason: '',
-  promisedDate: '',
-  mechanicId: '',
+  vehiculoId: '',
+  kilometrajeIngreso: '',
+  motivo: '',
+  fechaPrometida: '',
+  mecanicoId: '',
 }
 
 /** Lo que se le manda a la API: números como número y lo vacío como null. */
 export const createWorkOrderInputSchema = createWorkOrderFormSchema.transform(
   (value) => ({
     ...value,
-    mileageIn: Number(value.mileageIn),
-    promisedDate: value.promisedDate || null,
-    mechanicId: value.mechanicId || null,
+    kilometrajeIngreso: Number(value.kilometrajeIngreso),
+    fechaPrometida: value.fechaPrometida || null,
+    mecanicoId: value.mecanicoId || null,
   }),
 )
 
@@ -213,10 +216,10 @@ export type CreateWorkOrderInput = z.input<typeof createWorkOrderInputSchema>
 
 /** La edición: lo mismo sin el vehículo, que no se cambia. */
 const updateWorkOrderFieldsSchema = z.object({
-  mileageIn: mileageField,
-  reason: reasonField,
-  promisedDate: promisedDateField,
-  mechanicId: mechanicField,
+  kilometrajeIngreso: mileageField,
+  motivo: reasonField,
+  fechaPrometida: promisedDateField,
+  mecanicoId: mechanicField,
 })
 
 export type UpdateWorkOrderFormValues = z.infer<
@@ -230,11 +233,11 @@ export type UpdateWorkOrderFormValues = z.infer<
  */
 export function updateWorkOrderFormSchema(currentPromisedDate: string | null) {
   return updateWorkOrderFieldsSchema.refine(
-    ({ promisedDate }) =>
-      !promisedDate ||
-      promisedDate === currentPromisedDate ||
-      promisedDate >= limaToday(),
-    { message: PAST_PROMISED_DATE, path: ['promisedDate'] },
+    ({ fechaPrometida }) =>
+      !fechaPrometida ||
+      fechaPrometida === currentPromisedDate ||
+      fechaPrometida >= limaToday(),
+    { message: PAST_PROMISED_DATE, path: ['fechaPrometida'] },
   )
 }
 
@@ -242,38 +245,38 @@ export function updateWorkOrderFormSchema(currentPromisedDate: string | null) {
 export function workOrderToForm(
   order: Pick<
     WorkOrderDetail,
-    'mileageIn' | 'reason' | 'promisedDate' | 'mechanic'
+    'kilometrajeIngreso' | 'motivo' | 'fechaPrometida' | 'mecanico'
   >,
 ): UpdateWorkOrderFormValues {
   return {
-    mileageIn: String(order.mileageIn),
-    reason: order.reason,
-    promisedDate: order.promisedDate ?? '',
-    mechanicId: order.mechanic?.userId ?? '',
+    kilometrajeIngreso: String(order.kilometrajeIngreso),
+    motivo: order.motivo,
+    fechaPrometida: order.fechaPrometida ?? '',
+    mecanicoId: order.mecanico?.usuarioId ?? '',
   }
 }
 
 export const updateWorkOrderInputSchema = updateWorkOrderFieldsSchema.transform(
   (value) => ({
     ...value,
-    mileageIn: Number(value.mileageIn),
-    promisedDate: value.promisedDate || null,
-    mechanicId: value.mechanicId || null,
+    kilometrajeIngreso: Number(value.kilometrajeIngreso),
+    fechaPrometida: value.fechaPrometida || null,
+    mecanicoId: value.mecanicoId || null,
   }),
 )
 
 export type UpdateWorkOrderInput = z.input<typeof updateWorkOrderInputSchema>
 
-export const workOrderIdSchema = z.object({ workOrderId: z.uuid() })
+export const workOrderIdSchema = z.object({ ordenTrabajoId: z.uuid() })
 
 export const updateWorkOrderRequestSchema = z.object({
-  workOrderId: z.uuid(),
+  ordenTrabajoId: z.uuid(),
   values: updateWorkOrderInputSchema,
 })
 
 /** El diagnóstico entero; vacío lo borra. */
 export const diagnosisFormSchema = z.object({
-  diagnosis: z
+  diagnostico: z
     .string()
     .trim()
     .max(4000, 'El diagnóstico tiene como máximo 4000 caracteres'),
@@ -282,9 +285,9 @@ export const diagnosisFormSchema = z.object({
 export type DiagnosisFormValues = z.infer<typeof diagnosisFormSchema>
 
 export const updateDiagnosisRequestSchema = z.object({
-  workOrderId: z.uuid(),
+  ordenTrabajoId: z.uuid(),
   values: diagnosisFormSchema.transform((value) => ({
-    diagnosis: value.diagnosis || null,
+    diagnostico: value.diagnostico || null,
   })),
 })
 
@@ -297,12 +300,12 @@ const noteField = z
  * El cambio de estado: una nota opcional y si la ve el cliente. Cancelar
  * exige la nota, que es el motivo (la API lo guarda como tal).
  */
-export function statusChangeFormSchema(status: WorkOrderStatus) {
+export function statusChangeFormSchema(estado: WorkOrderStatus) {
   return z
-    .object({ note: noteField, isPublic: z.boolean() })
-    .refine(({ note }) => status !== 'CANCELLED' || note.length > 0, {
+    .object({ nota: noteField, esPublico: z.boolean() })
+    .refine(({ nota }) => estado !== 'CANCELADO' || nota.length > 0, {
       message: 'Indica el motivo de la cancelación',
-      path: ['note'],
+      path: ['nota'],
     })
 }
 
@@ -315,16 +318,16 @@ export type StatusChangeFormValues = z.infer<
  * interno por defecto: suele hablar de plata o del cliente.
  */
 export function emptyStatusChangeForm(
-  status: WorkOrderStatus,
+  estado: WorkOrderStatus,
 ): StatusChangeFormValues {
-  return { note: '', isPublic: status !== 'CANCELLED' }
+  return { nota: '', esPublico: estado !== 'CANCELADO' }
 }
 
 export const changeStatusRequestSchema = z.object({
-  workOrderId: z.uuid(),
-  status: z.enum(WORK_ORDER_STATUSES),
-  note: noteField.transform((value) => value || null),
-  isPublic: z.boolean(),
+  ordenTrabajoId: z.uuid(),
+  estado: z.enum(WORK_ORDER_STATUSES),
+  nota: noteField.transform((value) => value || null),
+  esPublico: z.boolean(),
 })
 
 export type ChangeStatusRequest = z.input<typeof changeStatusRequestSchema>
@@ -334,23 +337,23 @@ export type ChangeStatusRequest = z.input<typeof changeStatusRequestSchema>
  * que ser una decisión, no un descuido.
  */
 export const noteFormSchema = z.object({
-  note: noteField.min(1, 'Escribe la nota'),
-  isPublic: z.boolean(),
+  nota: noteField.min(1, 'Escribe la nota'),
+  esPublico: z.boolean(),
 })
 
 export type NoteFormValues = z.infer<typeof noteFormSchema>
 
-export const emptyNoteForm: NoteFormValues = { note: '', isPublic: false }
+export const emptyNoteForm: NoteFormValues = { nota: '', esPublico: false }
 
 export const addNoteRequestSchema = z.object({
-  workOrderId: z.uuid(),
+  ordenTrabajoId: z.uuid(),
   values: noteFormSchema,
 })
 
 export const WORK_ORDER_SORT_FIELDS = [
-  'receivedAt',
-  'promisedDate',
-  'number',
+  'recibidaEn',
+  'fechaPrometida',
+  'numero',
 ] as const
 
 // Un día AAAA-MM-DD que existe; cualquier otra cosa en la URL se descarta.
@@ -360,7 +363,7 @@ const dateOnly = z.string().refine(isDateOnly).optional().catch(undefined)
  * La búsqueda, los filtros, el orden y la página del listado, tal como viven
  * en la URL. Un valor inválido (alguien editó la URL a mano) cae a su valor
  * por defecto en vez de romper la página. Por defecto, lo último que entró
- * primero. `status` es una lista: la API recibe los estados separados por
+ * primero. `estado` es una lista: la API recibe los estados separados por
  * coma.
  */
 export const workOrdersSearchSchema = z.object({
@@ -370,19 +373,19 @@ export const workOrdersSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  status: z
+  estado: z
     .array(z.enum(WORK_ORDER_STATUSES))
     .min(1)
     .optional()
     .catch(undefined),
-  mechanicId: z.uuid().optional().catch(undefined),
-  vehicleId: z.uuid().optional().catch(undefined),
-  customerId: z.uuid().optional().catch(undefined),
-  overdue: z.boolean().optional().catch(undefined),
-  from: dateOnly,
-  to: dateOnly,
-  sortBy: z.enum(WORK_ORDER_SORT_FIELDS).catch('receivedAt'),
-  sortOrder: z.enum(['asc', 'desc']).catch('desc'),
+  mecanicoId: z.uuid().optional().catch(undefined),
+  vehiculoId: z.uuid().optional().catch(undefined),
+  clienteId: z.uuid().optional().catch(undefined),
+  vencidas: z.boolean().optional().catch(undefined),
+  desde: dateOnly,
+  hasta: dateOnly,
+  ordenarPor: z.enum(WORK_ORDER_SORT_FIELDS).catch('recibidaEn'),
+  sentido: z.enum(['asc', 'desc']).catch('desc'),
 })
 
 export type WorkOrdersSearch = z.infer<typeof workOrdersSearchSchema>
@@ -402,27 +405,27 @@ export const defaultWorkOrdersSearch: WorkOrdersSearch =
  */
 export const WORK_ORDER_FILTERS_CLEARED = {
   search: undefined,
-  status: undefined,
-  mechanicId: undefined,
-  vehicleId: undefined,
-  customerId: undefined,
-  overdue: undefined,
-  from: undefined,
-  to: undefined,
+  estado: undefined,
+  mecanicoId: undefined,
+  vehiculoId: undefined,
+  clienteId: undefined,
+  vencidas: undefined,
+  desde: undefined,
+  hasta: undefined,
   page: 1,
 } satisfies Partial<WorkOrdersSearch>
 
 /** Los estados de una orden que sigue en el taller: el atajo «Abiertas». */
 export const OPEN_STATUSES = WORK_ORDER_STATUSES.filter(
-  (status) => !isClosed(status),
+  (estado) => !isClosed(estado),
 )
 
 // ── Servicios y repuestos ────────────────────────────────────────────────────
 
 /** Cómo se le muestra cada tipo de ítem al usuario. */
 export const ITEM_TYPE_LABELS: Record<ItemType, string> = {
-  SERVICE: 'Servicio',
-  PRODUCT: 'Repuesto',
+  SERVICIO: 'Servicio',
+  PRODUCTO: 'Repuesto',
 }
 
 /**
@@ -430,10 +433,13 @@ export const ITEM_TYPE_LABELS: Record<ItemType, string> = {
  * (`ITEM_STATUSES` en work-order-status.ts): mientras se diagnostica y se
  * repara. Sirve para mostrar los botones solo cuando la API los va a aceptar.
  */
-export function canChangeItems(status: WorkOrderStatus): boolean {
-  return ['RECEIVED', 'DIAGNOSIS', 'IN_PROGRESS', 'WAITING_PARTS'].includes(
-    status,
-  )
+export function canChangeItems(estado: WorkOrderStatus): boolean {
+  return [
+    'RECIBIDO',
+    'EN_DIAGNOSTICO',
+    'EN_REPARACION',
+    'ESPERANDO_REPUESTOS',
+  ].includes(estado)
 }
 
 /**
@@ -442,19 +448,19 @@ export function canChangeItems(status: WorkOrderStatus): boolean {
  * cantidad ya movió el stock), que son del administrador.
  */
 export function canEditItem(
-  item: Pick<WorkOrderItem, 'type'>,
+  item: Pick<WorkOrderItem, 'tipo'>,
   role: UserRole,
 ): boolean {
-  return role === 'ADMIN' || item.type === 'SERVICE'
+  return role === 'ADMINISTRADOR' || item.tipo === 'SERVICIO'
 }
 
 /** «2», «1.50» o, en un repuesto, con su unidad: «4.50 L». */
 export function formatItemQuantity(
-  item: Pick<WorkOrderItem, 'quantity' | 'unit'>,
+  item: Pick<WorkOrderItem, 'cantidad' | 'unidad'>,
 ): string {
-  return item.unit
-    ? formatStock(item.quantity, item.unit)
-    : formatQuantity(item.quantity)
+  return item.unidad
+    ? formatStock(item.cantidad, item.unidad)
+    : formatQuantity(item.cantidad)
 }
 
 // Las reglas de los DTO de ítems de la API.
@@ -507,13 +513,13 @@ export function addItemFormSchema(type: ItemType) {
       .string()
       .min(
         1,
-        type === 'SERVICE'
+        type === 'SERVICIO'
           ? 'Selecciona el servicio'
           : 'Selecciona el repuesto',
       ),
-    quantity: itemQuantityField,
-    unitPrice: itemPriceField,
-    description: itemDescriptionField,
+    cantidad: itemQuantityField,
+    precioUnitario: itemPriceField,
+    descripcion: itemDescriptionField,
   })
 }
 
@@ -521,9 +527,9 @@ export type AddItemFormValues = z.infer<ReturnType<typeof addItemFormSchema>>
 
 export const emptyAddItemForm: AddItemFormValues = {
   sourceId: '',
-  quantity: '1',
-  unitPrice: '',
-  description: '',
+  cantidad: '1',
+  precioUnitario: '',
+  descripcion: '',
 }
 
 // Lo vacío no viaja: la API copia el precio y la descripción del original.
@@ -534,21 +540,21 @@ const optionalDescription = itemDescriptionField.transform(
 
 /** Lo que se le manda a la API al agregar, con el id en su campo según el tipo. */
 export const addItemRequestSchema = z.object({
-  workOrderId: z.uuid(),
-  values: z.discriminatedUnion('type', [
+  ordenTrabajoId: z.uuid(),
+  values: z.discriminatedUnion('tipo', [
     z.object({
-      type: z.literal('SERVICE'),
-      serviceCatalogItemId: z.uuid({ error: 'Selecciona el servicio' }),
-      quantity: itemQuantityField,
-      unitPrice: optionalPrice,
-      description: optionalDescription,
+      tipo: z.literal('SERVICIO'),
+      servicioId: z.uuid({ error: 'Selecciona el servicio' }),
+      cantidad: itemQuantityField,
+      precioUnitario: optionalPrice,
+      descripcion: optionalDescription,
     }),
     z.object({
-      type: z.literal('PRODUCT'),
-      productId: z.uuid({ error: 'Selecciona el repuesto' }),
-      quantity: itemQuantityField,
-      unitPrice: optionalPrice,
-      description: optionalDescription,
+      tipo: z.literal('PRODUCTO'),
+      productoId: z.uuid({ error: 'Selecciona el repuesto' }),
+      cantidad: itemQuantityField,
+      precioUnitario: optionalPrice,
+      descripcion: optionalDescription,
     }),
   ]),
 })
@@ -557,16 +563,16 @@ export type AddItemRequest = z.input<typeof addItemRequestSchema>
 
 /** Del formulario de alta a lo que espera la API. */
 export function toAddItemRequest(
-  workOrderId: string,
+  ordenTrabajoId: string,
   type: ItemType,
   { sourceId, ...values }: AddItemFormValues,
 ): AddItemRequest {
   return {
-    workOrderId,
+    ordenTrabajoId,
     values:
-      type === 'SERVICE'
-        ? { type, serviceCatalogItemId: sourceId, ...values }
-        : { type, productId: sourceId, ...values },
+      type === 'SERVICIO'
+        ? { tipo: type, servicioId: sourceId, ...values }
+        : { tipo: type, productoId: sourceId, ...values },
   }
 }
 
@@ -582,9 +588,9 @@ export function editItemFormSchema({
   canEditPrice: boolean
 }) {
   return z.object({
-    quantity: canEditQuantity ? itemQuantityField : z.string(),
-    unitPrice: canEditPrice ? requiredItemPriceField : z.string(),
-    description: canEditPrice ? requiredItemDescriptionField : z.string(),
+    cantidad: canEditQuantity ? itemQuantityField : z.string(),
+    precioUnitario: canEditPrice ? requiredItemPriceField : z.string(),
+    descripcion: canEditPrice ? requiredItemDescriptionField : z.string(),
   })
 }
 
@@ -592,22 +598,22 @@ export type EditItemFormValues = z.infer<ReturnType<typeof editItemFormSchema>>
 
 /** Los valores actuales del ítem; «1» en vez de «1.00», como se escribiría. */
 export function itemToEditForm(
-  item: Pick<WorkOrderItem, 'quantity' | 'unitPrice' | 'description'>,
+  item: Pick<WorkOrderItem, 'cantidad' | 'precioUnitario' | 'descripcion'>,
 ): EditItemFormValues {
   return {
-    quantity: item.quantity.replace(/\.00$/, ''),
-    unitPrice: item.unitPrice,
-    description: item.description,
+    cantidad: item.cantidad.replace(/\.00$/, ''),
+    precioUnitario: item.precioUnitario,
+    descripcion: item.descripcion,
   }
 }
 
 export const updateItemRequestSchema = z.object({
-  workOrderId: z.uuid(),
-  workOrderItemId: z.uuid(),
+  ordenTrabajoId: z.uuid(),
+  detalleOrdenId: z.uuid(),
   values: z.object({
-    quantity: itemQuantityField.optional(),
-    unitPrice: requiredItemPriceField.optional(),
-    description: requiredItemDescriptionField.optional(),
+    cantidad: itemQuantityField.optional(),
+    precioUnitario: requiredItemPriceField.optional(),
+    descripcion: requiredItemDescriptionField.optional(),
   }),
 })
 
@@ -615,27 +621,27 @@ export type UpdateItemRequest = z.input<typeof updateItemRequestSchema>
 
 /** Lo que se manda al editar: solo lo que quien edita puede cambiar. */
 export function toUpdateItemRequest(
-  workOrderId: string,
-  item: Pick<WorkOrderItem, 'workOrderItemId' | 'type'>,
+  ordenTrabajoId: string,
+  item: Pick<WorkOrderItem, 'detalleOrdenId' | 'tipo'>,
   values: EditItemFormValues,
   role: UserRole,
 ): UpdateItemRequest {
   return {
-    workOrderId,
-    workOrderItemId: item.workOrderItemId,
+    ordenTrabajoId,
+    detalleOrdenId: item.detalleOrdenId,
     values: {
-      ...(item.type === 'SERVICE' && { quantity: values.quantity }),
-      ...(role === 'ADMIN' && {
-        unitPrice: values.unitPrice,
-        description: values.description,
+      ...(item.tipo === 'SERVICIO' && { cantidad: values.cantidad }),
+      ...(role === 'ADMINISTRADOR' && {
+        precioUnitario: values.precioUnitario,
+        descripcion: values.descripcion,
       }),
     },
   }
 }
 
 export const removeItemRequestSchema = z.object({
-  workOrderId: z.uuid(),
-  workOrderItemId: z.uuid(),
+  ordenTrabajoId: z.uuid(),
+  detalleOrdenId: z.uuid(),
 })
 
 // ── Presupuestos ─────────────────────────────────────────────────────────────
@@ -643,24 +649,25 @@ export const removeItemRequestSchema = z.object({
 /** Una versión del presupuesto, con sus ítems congelados al enviarla. */
 export type Quote = components['schemas']['Quote']
 export type QuoteItem = components['schemas']['QuoteItem']
-export type QuoteStatus = components['schemas']['QuoteStatus']
-export type DecisionChannel = components['schemas']['DecisionChannel']
-export type QuoteDecision = components['schemas']['QuoteDecision']
+export type QuoteStatus = components['schemas']['EstadoPresupuesto']
+export type DecisionChannel = components['schemas']['CanalDecision']
+export type QuoteDecision = components['schemas']['DecisionPresupuesto']
 
 export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
-  PENDING: 'Pendiente',
-  APPROVED: 'Aprobado',
-  REJECTED: 'Rechazado',
-  SUPERSEDED: 'Reemplazado',
+  PENDIENTE: 'Pendiente',
+  APROBADO: 'Aprobado',
+  RECHAZADO: 'Rechazado',
+  REEMPLAZADO: 'Reemplazado',
 }
 
 /** Lo que espera al cliente en ámbar, como la orden que espera aprobación. */
 export const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
-  PENDING: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-  APPROVED:
+  PENDIENTE:
+    'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
+  APROBADO:
     'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-  REJECTED: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
-  SUPERSEDED: 'bg-muted text-muted-foreground',
+  RECHAZADO: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
+  REEMPLAZADO: 'bg-muted text-muted-foreground',
 }
 
 /**
@@ -668,43 +675,45 @@ export const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
  * propio cliente desde su cuenta (la API lo rechaza aquí).
  */
 const DECISION_CHANNELS = [
-  'PHONE',
+  'TELEFONO',
   'WHATSAPP',
-  'IN_PERSON',
+  'EN_PERSONA',
 ] as const satisfies readonly DecisionChannel[]
 
 export const DECISION_CHANNEL_LABELS: Record<DecisionChannel, string> = {
-  PHONE: 'Llamada',
+  TELEFONO: 'Llamada',
   WHATSAPP: 'WhatsApp',
-  IN_PERSON: 'En el taller',
+  EN_PERSONA: 'En el taller',
   PORTAL: 'Portal del cliente',
 }
 
 /** Quién hizo algo en la orden: el personal por su nombre, o el cliente. */
-export function authorName(author: { name: string } | null): string {
-  return author?.name ?? 'El cliente (portal)'
+export function authorName(author: { nombre: string } | null): string {
+  return author?.nombre ?? 'El cliente (portal)'
 }
 
 const QUOTE_DECISIONS = [
-  'APPROVED',
-  'REJECTED',
+  'APROBADO',
+  'RECHAZADO',
 ] as const satisfies readonly QuoteDecision[]
 
 /** Qué le pasa a la orden con cada respuesta (como la API). */
 export const QUOTE_DECISION_EFFECTS: Record<QuoteDecision, string> = {
-  APPROVED: 'La orden pasa a «En reparación».',
-  REJECTED: 'La orden vuelve a «En diagnóstico» para ajustar el presupuesto.',
+  APROBADO: 'La orden pasa a «En reparación».',
+  RECHAZADO: 'La orden vuelve a «En diagnóstico» para ajustar el presupuesto.',
 }
 
 /**
  * COPIA de los estados desde los que la API deja enviar un presupuesto
- * (`SYSTEM_TRANSITIONS.QUOTE_SENT` en work-order-status.ts): al diagnosticar
+ * (`SYSTEM_TRANSITIONS.PRESUPUESTO_ENVIADO` en work-order-status.ts): al diagnosticar
  * o, si aparece otro problema, a mitad de la reparación. Sirve para mostrar el
  * botón solo cuando la API lo va a aceptar; que la orden tenga ítems lo mira
  * la pantalla aparte.
  */
-export function canSendQuote(status: WorkOrderStatus): boolean {
-  return ['DIAGNOSIS', 'IN_PROGRESS', 'WAITING_PARTS'].includes(status)
+export function canSendQuote(estado: WorkOrderStatus): boolean {
+  return ['EN_DIAGNOSTICO', 'EN_REPARACION', 'ESPERANDO_REPUESTOS'].includes(
+    estado,
+  )
 }
 
 /**
@@ -713,22 +722,22 @@ export function canSendQuote(status: WorkOrderStatus): boolean {
  * responde.
  */
 export function pendingQuote(
-  workOrder: Pick<WorkOrderDetail, 'status' | 'quotes'>,
+  workOrder: Pick<WorkOrderDetail, 'estado' | 'presupuestos'>,
 ): Quote | undefined {
-  if (workOrder.status !== 'WAITING_APPROVAL') return undefined
-  return workOrder.quotes.find((quote) => quote.status === 'PENDING')
+  if (workOrder.estado !== 'ESPERANDO_APROBACION') return undefined
+  return workOrder.presupuestos.find((quote) => quote.estado === 'PENDIENTE')
 }
 
 /** La nota para el cliente que acompaña al presupuesto; vacía no viaja. */
-export const sendQuoteFormSchema = z.object({ note: noteField })
+export const sendQuoteFormSchema = z.object({ nota: noteField })
 
 export type SendQuoteFormValues = z.infer<typeof sendQuoteFormSchema>
 
-export const emptySendQuoteForm: SendQuoteFormValues = { note: '' }
+export const emptySendQuoteForm: SendQuoteFormValues = { nota: '' }
 
 export const sendQuoteRequestSchema = z.object({
-  workOrderId: z.uuid(),
-  note: noteField.transform((value) => value || null),
+  ordenTrabajoId: z.uuid(),
+  nota: noteField.transform((value) => value || null),
 })
 
 export type SendQuoteRequest = z.input<typeof sendQuoteRequestSchema>
@@ -745,29 +754,29 @@ export const decideQuoteFormSchema = z.object({
       error: 'Indica si el cliente aprobó o rechazó el presupuesto',
     }),
   ),
-  channel: z.union([z.literal(''), z.enum(DECISION_CHANNELS)]).pipe(
+  canal: z.union([z.literal(''), z.enum(DECISION_CHANNELS)]).pipe(
     z.enum(DECISION_CHANNELS, {
       error: 'Indica por dónde respondió el cliente',
     }),
   ),
-  note: noteField,
+  nota: noteField,
 })
 
 export type DecideQuoteFormValues = z.input<typeof decideQuoteFormSchema>
 
 export const emptyDecideQuoteForm: DecideQuoteFormValues = {
   decision: '',
-  channel: '',
-  note: '',
+  canal: '',
+  nota: '',
 }
 
 /** Lo que se le manda a la API: la nota vacía como null. */
 export const decideQuoteRequestSchema = z.object({
-  workOrderId: z.uuid(),
-  quoteId: z.uuid(),
+  ordenTrabajoId: z.uuid(),
+  presupuestoId: z.uuid(),
   values: decideQuoteFormSchema.transform((value) => ({
     ...value,
-    note: value.note || null,
+    nota: value.nota || null,
   })),
 })
 

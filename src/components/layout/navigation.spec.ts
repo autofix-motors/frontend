@@ -7,20 +7,22 @@ describe('visibleSections', () => {
     {
       label: 'Taller',
       icon: HouseIcon,
+      tone: 'sky',
       items: [
         { label: 'Inicio', to: '/' },
-        { label: 'Solo admin', to: '/', roles: ['ADMIN'] },
+        { label: 'Solo admin', to: '/', roles: ['ADMINISTRADOR'] },
       ],
     },
     {
       label: 'Administración',
       icon: HouseIcon,
-      items: [{ label: 'Solo admin', to: '/', roles: ['ADMIN'] }],
+      tone: 'violet',
+      items: [{ label: 'Solo admin', to: '/', roles: ['ADMINISTRADOR'] }],
     },
   ]
 
   it('muestra todo al rol que puede abrirlo', () => {
-    const visible = visibleSections(sections, 'ADMIN')
+    const visible = visibleSections(sections, 'ADMINISTRADOR')
     expect(visible.map((section) => section.label)).toEqual([
       'Taller',
       'Administración',
@@ -29,7 +31,7 @@ describe('visibleSections', () => {
   })
 
   it('oculta los ítems de otro rol, y la sección que queda vacía', () => {
-    const visible = visibleSections(sections, 'MECHANIC')
+    const visible = visibleSections(sections, 'MECANICO')
     expect(visible.map((section) => section.label)).toEqual(['Taller'])
     expect(visible[0]?.items.map((item) => item.label)).toEqual(['Inicio'])
   })
@@ -38,6 +40,10 @@ describe('visibleSections', () => {
 describe('breadcrumbFor', () => {
   it('usa solo la etiqueta en las páginas generales', () => {
     expect(breadcrumbFor('/')).toEqual(['Inicio'])
+  })
+
+  it('una página de la cuenta, fuera del menú, tiene su propio camino', () => {
+    expect(breadcrumbFor('/account/profile')).toEqual(['Cuenta', 'Mi perfil'])
   })
 
   it('queda vacío en una ruta que no está en el menú', () => {
@@ -63,8 +69,8 @@ it('cada módulo del menú tiene una ruta distinta', () => {
   expect(new Set(paths).size).toBe(paths.length)
 })
 
-it('el mecánico ve sus órdenes, el catálogo de servicios, los repuestos, sus movimientos y las herramientas', () => {
-  const visible = visibleSections(SECTIONS, 'MECHANIC')
+it('el mecánico ve sus órdenes, el catálogo de servicios, los repuestos y sus movimientos', () => {
+  const visible = visibleSections(SECTIONS, 'MECANICO')
   expect(
     visible.map((section) => [
       section.label,
@@ -72,7 +78,7 @@ it('el mecánico ve sus órdenes, el catálogo de servicios, los repuestos, sus 
     ]),
   ).toEqual([
     ['Taller', ['Órdenes de trabajo', 'Catálogo de servicios']],
-    ['Inventario', ['Repuestos e insumos', 'Movimientos', 'Herramientas']],
+    ['Inventario', ['Repuestos e insumos', 'Movimientos']],
   ])
   expect(breadcrumbFor('/workshop/work-orders/')).toEqual([
     'Taller',
@@ -89,9 +95,5 @@ it('el mecánico ve sus órdenes, el catálogo de servicios, los repuestos, sus 
   expect(breadcrumbFor('/inventory/stock-movements')).toEqual([
     'Inventario',
     'Movimientos',
-  ])
-  expect(breadcrumbFor('/inventory/tools')).toEqual([
-    'Inventario',
-    'Herramientas',
   ])
 })

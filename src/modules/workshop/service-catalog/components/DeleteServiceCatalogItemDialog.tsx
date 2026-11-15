@@ -38,7 +38,7 @@ export function DeleteServiceCatalogItemDialog({
         <DialogHeader>
           <DialogTitle>Eliminar servicio</DialogTitle>
           <DialogDescription>
-            Se eliminará <strong>{item?.name}</strong> del catálogo de forma
+            Se eliminará <strong>{item?.nombre}</strong> del catálogo de forma
             definitiva. Esta acción no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
@@ -52,7 +52,7 @@ export function DeleteServiceCatalogItemDialog({
             disabled={!item || remove.isPending}
             onClick={() => {
               if (!item) return
-              remove.mutate(item.serviceCatalogItemId, {
+              remove.mutate(item.servicioId, {
                 onSuccess: () => onOpenChange(false),
               })
             }}

@@ -37,12 +37,12 @@ type AddItemDialogProps = {
 }
 
 const COPY: Record<ItemType, { title: string; description: string }> = {
-  SERVICE: {
+  SERVICIO: {
     title: 'Agregar servicio',
     description:
       'Un trabajo del catálogo. Su precio de mano de obra se copia a la orden.',
   },
-  PRODUCT: {
+  PRODUCTO: {
     title: 'Agregar repuesto',
     description:
       'Un repuesto o insumo del inventario. Su cantidad se descuenta del stock al agregarlo.',
@@ -98,8 +98,8 @@ function AddItemForm({
 }) {
   const add = useAddWorkOrderItem()
   const queryClient = useQueryClient()
-  const isAdmin = role === 'ADMIN'
-  const isProduct = type === 'PRODUCT'
+  const isAdmin = role === 'ADMINISTRADOR'
+  const isProduct = type === 'PRODUCTO'
 
   const form = useAppForm({
     defaultValues: emptyAddItemForm,
@@ -122,7 +122,7 @@ function AddItemForm({
     ...serviceCatalogQueries.detail(sourceId),
     enabled: !isProduct && Boolean(sourceId),
   }).data
-  const suggestedPrice = isProduct ? product?.price : service?.laborPrice
+  const suggestedPrice = isProduct ? product?.precio : service?.precioManoObra
 
   /**
    * Al elegir, el administrador ve el precio y la descripción del original ya
@@ -133,14 +133,14 @@ function AddItemForm({
     if (!isAdmin || !id) return
     if (isProduct) {
       const chosen = await queryClient.fetchQuery(productsQueries.detail(id))
-      form.setFieldValue('unitPrice', chosen.price)
-      form.setFieldValue('description', `${chosen.code} · ${chosen.name}`)
+      form.setFieldValue('precioUnitario', chosen.precio)
+      form.setFieldValue('descripcion', `${chosen.codigo} · ${chosen.nombre}`)
     } else {
       const chosen = await queryClient.fetchQuery(
         serviceCatalogQueries.detail(id),
       )
-      form.setFieldValue('unitPrice', chosen.laborPrice)
-      form.setFieldValue('description', chosen.name)
+      form.setFieldValue('precioUnitario', chosen.precioManoObra)
+      form.setFieldValue('descripcion', chosen.nombre)
     }
   }
 
@@ -171,7 +171,7 @@ function AddItemForm({
                 optionsQuery={activeProductOptions}
                 description={
                   !isAdmin && product
-                    ? `Precio: ${formatMoney(product.price)}`
+                    ? `Precio: ${formatMoney(product.precio)}`
                     : undefined
                 }
               />
@@ -184,7 +184,7 @@ function AddItemForm({
                 optionsQuery={serviceCatalogQueries.options}
                 description={
                   !isAdmin && service
-                    ? `Precio: ${formatMoney(service.laborPrice)}`
+                    ? `Precio: ${formatMoney(service.precioManoObra)}`
                     : undefined
                 }
               />
@@ -192,28 +192,28 @@ function AddItemForm({
           }
         </form.AppField>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="quantity">
+          <form.AppField name="cantidad">
             {(field) => (
               <field.QuantityField
                 label={isProduct ? 'Cantidad' : 'Veces'}
-                unit={product && UNIT_OF_MEASURE_SYMBOLS[product.unit]}
+                unit={product && UNIT_OF_MEASURE_SYMBOLS[product.unidad]}
                 description={
                   product &&
-                  `Stock disponible: ${formatStock(product.stock, product.unit)}`
+                  `Stock disponible: ${formatStock(product.stock, product.unidad)}`
                 }
               />
             )}
           </form.AppField>
           {isAdmin && (
-            <form.AppField name="unitPrice">
+            <form.AppField name="precioUnitario">
               {(field) => (
                 <field.MoneyField
                   label="Precio unitario"
                   description={
                     suggestedPrice &&
                     `${isProduct ? 'Precio de venta' : 'Del catálogo'}: ${formatMoney(suggestedPrice)}${
-                      product?.cost
-                        ? ` · costo ${formatMoney(product.cost)}`
+                      product?.costo
+                        ? ` · costo ${formatMoney(product.costo)}`
                         : ''
                     }`
                   }
@@ -223,7 +223,7 @@ function AddItemForm({
           )}
         </div>
         {isAdmin && (
-          <form.AppField name="description">
+          <form.AppField name="descripcion">
             {(field) => (
               <field.TextField
                 label="Descripción"

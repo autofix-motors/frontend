@@ -17,8 +17,8 @@ export const Route = createFileRoute('/portal/work-orders/')({
   loader: ({ context: { queryClient }, deps }) =>
     Promise.all([
       queryClient.ensureQueryData(portalQueries.workOrders(deps)),
-      deps.vehicleId &&
-        queryClient.prefetchQuery(portalQueries.vehicle(deps.vehicleId)),
+      deps.vehiculoId &&
+        queryClient.prefetchQuery(portalQueries.vehicle(deps.vehiculoId)),
     ]),
   head: () => ({ meta: [{ title: 'Mis reparaciones · AutoFix Motors' }] }),
   component: PortalWorkOrdersPage,
@@ -31,8 +31,8 @@ function PortalWorkOrdersPage() {
     portalQueries.workOrders(search),
   )
   const { data: vehicle } = useQuery({
-    ...portalQueries.vehicle(search.vehicleId ?? ''),
-    enabled: Boolean(search.vehicleId),
+    ...portalQueries.vehicle(search.vehiculoId ?? ''),
+    enabled: Boolean(search.vehiculoId),
   })
 
   return (

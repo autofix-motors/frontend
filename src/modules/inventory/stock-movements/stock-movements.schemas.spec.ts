@@ -21,21 +21,21 @@ const messagesOf = (
 
 describe('formatMovementQuantity', () => {
   it('pone el signo siempre: + entra y - sale, con la unidad', () => {
-    expect(formatMovementQuantity('12.00', 'UNIT')).toBe('+12 und')
-    expect(formatMovementQuantity('-2.50', 'LITER')).toBe('-2.50 L')
-    expect(formatMovementQuantity('-1.00', 'GALLON')).toBe('-1 gal')
+    expect(formatMovementQuantity('12.00', 'UNIDAD')).toBe('+12 und')
+    expect(formatMovementQuantity('-2.50', 'LITRO')).toBe('-2.50 L')
+    expect(formatMovementQuantity('-1.00', 'GALON')).toBe('-1 gal')
   })
 
   it('no le pone signo a una cantidad que no se entiende', () => {
-    expect(formatMovementQuantity('', 'UNIT')).toBe('—')
+    expect(formatMovementQuantity('', 'UNIDAD')).toBe('—')
   })
 })
 
 describe('purchaseFormSchema', () => {
   const valid = {
     ...emptyPurchaseForm(PRODUCT_ID),
-    quantity: '12',
-    unitCost: '18.50',
+    cantidad: '12',
+    costoUnitario: '18.50',
   }
 
   it('acepta una compra con la nota vacía', () => {
@@ -51,16 +51,16 @@ describe('purchaseFormSchema', () => {
   })
 
   it('la cantidad tiene que ser mayor que 0, como en la API', () => {
-    for (const quantity of ['0', '0.00', '-3']) {
-      expect(messagesOf(purchaseFormSchema, { ...valid, quantity })).toEqual([
+    for (const cantidad of ['0', '0.00', '-3']) {
+      expect(messagesOf(purchaseFormSchema, { ...valid, cantidad })).toEqual([
         'La cantidad tiene que ser mayor que 0',
       ])
     }
     expect(
       messagesOf(purchaseFormSchema, {
         ...valid,
-        quantity: '1.255',
-        unitCost: '-1',
+        cantidad: '1.255',
+        costoUnitario: '-1',
       }),
     ).toEqual([
       'La cantidad tiene como máximo 2 decimales',
@@ -69,20 +69,20 @@ describe('purchaseFormSchema', () => {
   })
 
   it('manda la nota vacía como null y la recorta', () => {
-    expect(purchaseInputSchema.parse({ ...valid, note: '  ' })).toStrictEqual({
-      productId: PRODUCT_ID,
-      quantity: '12',
-      unitCost: '18.50',
-      note: null,
+    expect(purchaseInputSchema.parse({ ...valid, nota: '  ' })).toStrictEqual({
+      productoId: PRODUCT_ID,
+      cantidad: '12',
+      costoUnitario: '18.50',
+      nota: null,
     })
     expect(
-      purchaseInputSchema.parse({ ...valid, note: ' Factura F001-4512 ' }).note,
+      purchaseInputSchema.parse({ ...valid, nota: ' Factura F001-4512 ' }).nota,
     ).toBe('Factura F001-4512')
   })
 
   it('limita la nota a 500 caracteres', () => {
     expect(
-      messagesOf(purchaseFormSchema, { ...valid, note: 'x'.repeat(501) }),
+      messagesOf(purchaseFormSchema, { ...valid, nota: 'x'.repeat(501) }),
     ).toEqual(['La nota tiene como máximo 500 caracteres'])
   })
 })
@@ -90,27 +90,27 @@ describe('purchaseFormSchema', () => {
 describe('adjustmentFormSchema', () => {
   const valid = {
     ...emptyAdjustmentForm(PRODUCT_ID),
-    quantity: '-2',
-    note: 'Merma: envase roto',
+    cantidad: '-2',
+    nota: 'Merma: envase roto',
   }
 
   it('acepta una cantidad con signo, que suma o resta', () => {
     expect(messagesOf(adjustmentFormSchema, valid)).toEqual([])
     expect(
-      messagesOf(adjustmentFormSchema, { ...valid, quantity: '3.5' }),
+      messagesOf(adjustmentFormSchema, { ...valid, cantidad: '3.5' }),
     ).toEqual([])
   })
 
   it('la cantidad no puede ser 0', () => {
     expect(
-      messagesOf(adjustmentFormSchema, { ...valid, quantity: '0' }),
+      messagesOf(adjustmentFormSchema, { ...valid, cantidad: '0' }),
     ).toEqual([
       'La cantidad no puede ser 0: positiva suma al stock y negativa resta',
     ])
   })
 
   it('el motivo es obligatorio', () => {
-    expect(messagesOf(adjustmentFormSchema, { ...valid, note: '   ' })).toEqual(
+    expect(messagesOf(adjustmentFormSchema, { ...valid, nota: '   ' })).toEqual(
       ['Ingresa el motivo del ajuste'],
     )
     expect(
@@ -126,24 +126,24 @@ describe('stockMovementsSearchSchema', () => {
     expect(stockMovementsSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      ordenarPor: 'creadoEn',
+      sentido: 'desc',
     })
   })
 
   it('acepta el tipo, el producto y el rango de fechas', () => {
     expect(
       stockMovementsSearchSchema.parse({
-        type: 'ADJUSTMENT',
-        productId: PRODUCT_ID,
-        from: '2026-10-01',
-        to: '2026-10-31',
+        tipo: 'AJUSTE',
+        productoId: PRODUCT_ID,
+        desde: '2026-10-01',
+        hasta: '2026-10-31',
       }),
     ).toMatchObject({
-      type: 'ADJUSTMENT',
-      productId: PRODUCT_ID,
-      from: '2026-10-01',
-      to: '2026-10-31',
+      tipo: 'AJUSTE',
+      productoId: PRODUCT_ID,
+      desde: '2026-10-01',
+      hasta: '2026-10-31',
     })
   })
 
@@ -152,12 +152,12 @@ describe('stockMovementsSearchSchema', () => {
       page: 3,
       pageSize: 20,
       search: 'aceite',
-      type: 'PURCHASE',
-      productId: PRODUCT_ID,
-      from: '2026-10-01',
-      to: '2026-10-04',
-      sortBy: 'quantity',
-      sortOrder: 'asc',
+      tipo: 'COMPRA',
+      productoId: PRODUCT_ID,
+      desde: '2026-10-01',
+      hasta: '2026-10-04',
+      ordenarPor: 'cantidad',
+      sentido: 'asc',
     })
     // Así lo combina la ruta al navegar: el cambio sobre la búsqueda actual.
     // JSON hace lo que la URL: las claves en undefined no viajan.
@@ -168,8 +168,8 @@ describe('stockMovementsSearchSchema', () => {
     expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
       page: 1,
       pageSize: 20,
-      sortBy: 'quantity',
-      sortOrder: 'asc',
+      ordenarPor: 'cantidad',
+      sentido: 'asc',
     })
   })
 
@@ -177,21 +177,21 @@ describe('stockMovementsSearchSchema', () => {
     expect(
       stockMovementsSearchSchema.parse({
         page: 0,
-        type: 'SALE',
-        productId: '123',
-        from: '2026-02-30',
-        to: '04/10/2026',
-        sortBy: 'unitCost',
-        sortOrder: 'up',
+        tipo: 'SALE',
+        productoId: '123',
+        desde: '2026-02-30',
+        hasta: '04/10/2026',
+        ordenarPor: 'costoUnitario',
+        sentido: 'up',
       }),
     ).toMatchObject({
       page: 1,
-      type: undefined,
-      productId: undefined,
-      from: undefined,
-      to: undefined,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      tipo: undefined,
+      productoId: undefined,
+      desde: undefined,
+      hasta: undefined,
+      ordenarPor: 'creadoEn',
+      sentido: 'desc',
     })
   })
 })

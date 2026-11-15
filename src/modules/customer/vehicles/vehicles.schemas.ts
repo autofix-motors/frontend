@@ -13,13 +13,13 @@ export type VehicleBrand = components['schemas']['VehicleBrand']
 export function vehicleOption(
   vehicle: Pick<
     Vehicle,
-    'vehicleId' | 'plate' | 'brand' | 'model' | 'customer'
+    'vehiculoId' | 'placa' | 'marca' | 'modelo' | 'cliente'
   >,
 ): ComboboxOption {
   return {
-    value: vehicle.vehicleId,
-    label: `${vehicle.plate} · ${vehicle.brand} ${vehicle.model}`,
-    description: vehicle.customer.name,
+    value: vehicle.vehiculoId,
+    label: `${vehicle.placa} · ${vehicle.marca} ${vehicle.modelo}`,
+    description: vehicle.cliente.nombre,
   }
 }
 
@@ -48,8 +48,8 @@ const optionalText = (max: number, message: string) =>
  * convierte en lo que espera la API.
  */
 export const vehicleFormSchema = z.object({
-  customerId: z.string().min(1, 'Selecciona el cliente'),
-  plate: z
+  clienteId: z.string().min(1, 'Selecciona el cliente'),
+  placa: z
     .string()
     .trim()
     .min(1, 'Ingresa la placa')
@@ -57,24 +57,24 @@ export const vehicleFormSchema = z.object({
       (value) => PLATE_PATTERN.test(normalizeIdentifier(value)),
       'La placa tiene de 5 a 7 letras o dígitos',
     ),
-  brand: z
+  marca: z
     .string()
     .trim()
     .min(1, 'Ingresa la marca')
     .max(60, 'La marca tiene como máximo 60 caracteres'),
-  model: z
+  modelo: z
     .string()
     .trim()
     .min(1, 'Ingresa el modelo')
     .max(60, 'El modelo tiene como máximo 60 caracteres'),
-  year: z
+  anio: z
     .string()
     .trim()
     .refine((value) => {
       if (!value) return true
-      const year = Number(value)
+      const anio = Number(value)
       return (
-        Number.isInteger(year) && year >= MIN_YEAR && year <= maxVehicleYear()
+        Number.isInteger(anio) && anio >= MIN_YEAR && anio <= maxVehicleYear()
       )
     }, `El año va de ${MIN_YEAR} a ${maxVehicleYear()}`),
   color: optionalText(40, 'El color tiene como máximo 40 caracteres'),
@@ -82,56 +82,56 @@ export const vehicleFormSchema = z.object({
     const vin = normalizeIdentifier(value)
     return !vin || VIN_PATTERN.test(vin)
   }, 'El VIN tiene 17 letras o dígitos, sin I, O ni Q'),
-  notes: optionalText(1000, 'Las notas tienen como máximo 1000 caracteres'),
+  notas: optionalText(1000, 'Las notas tienen como máximo 1000 caracteres'),
 })
 
 export type VehicleFormValues = z.infer<typeof vehicleFormSchema>
 
 export const emptyVehicleForm: VehicleFormValues = {
-  customerId: '',
-  plate: '',
-  brand: '',
-  model: '',
-  year: '',
+  clienteId: '',
+  placa: '',
+  marca: '',
+  modelo: '',
+  anio: '',
   color: '',
   vin: '',
-  notes: '',
+  notas: '',
 }
 
 /** Los valores del formulario para editar un vehículo existente. */
 export function vehicleToForm(vehicle: Vehicle): VehicleFormValues {
   return {
-    customerId: vehicle.customerId,
-    plate: vehicle.plate,
-    brand: vehicle.brand,
-    model: vehicle.model,
-    year: vehicle.year === null ? '' : String(vehicle.year),
+    clienteId: vehicle.clienteId,
+    placa: vehicle.placa,
+    marca: vehicle.marca,
+    modelo: vehicle.modelo,
+    anio: vehicle.anio === null ? '' : String(vehicle.anio),
     color: vehicle.color ?? '',
     vin: vehicle.vin ?? '',
-    notes: vehicle.notes ?? '',
+    notas: vehicle.notas ?? '',
   }
 }
 
 /** Lo que se le manda a la API: lo vacío viaja como null para borrar el dato. */
 export const vehicleInputSchema = vehicleFormSchema.transform((value) => ({
   ...value,
-  plate: normalizeIdentifier(value.plate),
-  year: value.year ? Number(value.year) : null,
+  placa: normalizeIdentifier(value.placa),
+  anio: value.anio ? Number(value.anio) : null,
   color: value.color || null,
   vin: normalizeIdentifier(value.vin) || null,
-  notes: value.notes || null,
+  notas: value.notas || null,
 }))
 
 export type VehicleInput = z.input<typeof vehicleInputSchema>
 
-export const vehicleIdSchema = z.object({ vehicleId: z.uuid() })
+export const vehicleIdSchema = z.object({ vehiculoId: z.uuid() })
 
 export const updateVehicleRequestSchema = z.object({
-  vehicleId: z.uuid(),
+  vehiculoId: z.uuid(),
   values: vehicleInputSchema,
 })
 
-export const VEHICLE_SORT_FIELDS = ['plate', 'brand', 'createdAt'] as const
+export const VEHICLE_SORT_FIELDS = ['placa', 'marca', 'creadoEn'] as const
 
 /**
  * La búsqueda, los filtros, el orden y la página del listado, tal como viven en
@@ -145,10 +145,10 @@ export const vehiclesSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  customerId: z.uuid().optional().catch(undefined),
-  brand: z.string().trim().min(1).max(60).optional().catch(undefined),
-  sortBy: z.enum(VEHICLE_SORT_FIELDS).catch('plate'),
-  sortOrder: z.enum(['asc', 'desc']).catch('asc'),
+  clienteId: z.uuid().optional().catch(undefined),
+  marca: z.string().trim().min(1).max(60).optional().catch(undefined),
+  ordenarPor: z.enum(VEHICLE_SORT_FIELDS).catch('placa'),
+  sentido: z.enum(['asc', 'desc']).catch('asc'),
 })
 
 export type VehiclesSearch = z.infer<typeof vehiclesSearchSchema>
@@ -169,7 +169,7 @@ export const defaultVehiclesSearch: VehiclesSearch = vehiclesSearchSchema.parse(
  */
 export const VEHICLE_FILTERS_CLEARED = {
   search: undefined,
-  customerId: undefined,
-  brand: undefined,
+  clienteId: undefined,
+  marca: undefined,
   page: 1,
 } satisfies Partial<VehiclesSearch>

@@ -6,22 +6,22 @@ import { formatQuantity, quantitySchema } from '#/lib/quantity'
 import type { components } from '#/types/api.gen'
 
 /**
- * Un repuesto o insumo. `cost` y `margin` solo llegan para el administrador:
+ * Un repuesto o insumo. `costo` y `margen` solo llegan para el administrador:
  * la API no se los manda al mecánico.
  */
 export type Product = components['schemas']['Product']
-export type ProductKind = components['schemas']['ProductKind']
-export type UnitOfMeasure = components['schemas']['UnitOfMeasure']
+export type ProductKind = components['schemas']['TipoProducto']
+export type UnitOfMeasure = components['schemas']['UnidadMedida']
 
 export const PRODUCT_KINDS = [
-  'PART',
-  'SUPPLY',
+  'REPUESTO',
+  'INSUMO',
 ] as const satisfies readonly ProductKind[]
 
 /** Cómo se le muestra cada tipo de producto al usuario. */
 export const PRODUCT_KIND_LABELS: Record<ProductKind, string> = {
-  PART: 'Repuesto',
-  SUPPLY: 'Insumo',
+  REPUESTO: 'Repuesto',
+  INSUMO: 'Insumo',
 }
 
 export const productKindOptions = PRODUCT_KINDS.map((value) => ({
@@ -30,29 +30,29 @@ export const productKindOptions = PRODUCT_KINDS.map((value) => ({
 }))
 
 export const UNITS_OF_MEASURE = [
-  'UNIT',
-  'LITER',
-  'GALLON',
+  'UNIDAD',
+  'LITRO',
+  'GALON',
   'KIT',
-  'METER',
+  'METRO',
 ] as const satisfies readonly UnitOfMeasure[]
 
 /** El nombre de cada unidad, para elegirla en el formulario. */
 export const UNIT_OF_MEASURE_LABELS: Record<UnitOfMeasure, string> = {
-  UNIT: 'Unidad',
-  LITER: 'Litro',
-  GALLON: 'Galón',
+  UNIDAD: 'Unidad',
+  LITRO: 'Litro',
+  GALON: 'Galón',
   KIT: 'Kit',
-  METER: 'Metro',
+  METRO: 'Metro',
 }
 
 /** La abreviatura de cada unidad, detrás de una cantidad («4.50 L»). */
 export const UNIT_OF_MEASURE_SYMBOLS: Record<UnitOfMeasure, string> = {
-  UNIT: 'und',
-  LITER: 'L',
-  GALLON: 'gal',
+  UNIDAD: 'und',
+  LITRO: 'L',
+  GALON: 'gal',
   KIT: 'kit',
-  METER: 'm',
+  METRO: 'm',
 }
 
 export const unitOfMeasureOptions = UNITS_OF_MEASURE.map((value) => ({
@@ -64,11 +64,11 @@ export const unitOfMeasureOptions = UNITS_OF_MEASURE.map((value) => ({
  * Una cantidad con su unidad: «12 und», «4.50 L», «2 gal». Sin decimales si es
  * entera, como la escribiría alguien en el almacén.
  */
-export function formatStock(value: string, unit: UnitOfMeasure): string {
+export function formatStock(value: string, unidad: UnitOfMeasure): string {
   const quantity = formatQuantity(value)
   return quantity === '—'
     ? quantity
-    : `${quantity} ${UNIT_OF_MEASURE_SYMBOLS[unit]}`
+    : `${quantity} ${UNIT_OF_MEASURE_SYMBOLS[unidad]}`
 }
 
 /**
@@ -77,12 +77,15 @@ export function formatStock(value: string, unit: UnitOfMeasure): string {
  * compra o un ajuste.
  */
 export function productOption(
-  product: Pick<Product, 'productId' | 'code' | 'name' | 'stock' | 'unit'>,
+  product: Pick<
+    Product,
+    'productoId' | 'codigo' | 'nombre' | 'stock' | 'unidad'
+  >,
 ): ComboboxOption {
   return {
-    value: product.productId,
-    label: `${product.code} · ${product.name}`,
-    description: `Stock: ${formatStock(product.stock, product.unit)}`,
+    value: product.productoId,
+    label: `${product.codigo} · ${product.nombre}`,
+    description: `Stock: ${formatStock(product.stock, product.unidad)}`,
   }
 }
 
@@ -93,49 +96,49 @@ export function productOption(
  * API: así no se pierden decimales.
  */
 export const productFormSchema = z.object({
-  code: z
+  codigo: z
     .string()
     .trim()
     .min(1, 'Ingresa el código')
     .max(30, 'El código tiene como máximo 30 caracteres'),
-  name: z
+  nombre: z
     .string()
     .trim()
     .min(1, 'Ingresa el nombre del producto')
     .max(150, 'El nombre tiene como máximo 150 caracteres'),
-  kind: z.enum(PRODUCT_KINDS, { error: 'Selecciona el tipo' }),
-  unit: z.enum(UNITS_OF_MEASURE, { error: 'Selecciona la unidad' }),
-  brand: z.string().trim().max(60, 'La marca tiene como máximo 60 caracteres'),
-  minStock: z
+  tipo: z.enum(PRODUCT_KINDS, { error: 'Selecciona el tipo' }),
+  unidad: z.enum(UNITS_OF_MEASURE, { error: 'Selecciona la unidad' }),
+  marca: z.string().trim().max(60, 'La marca tiene como máximo 60 caracteres'),
+  stockMinimo: z
     .string()
     .trim()
     .min(1, 'Ingresa el stock mínimo')
     .pipe(quantitySchema('El stock mínimo')),
-  cost: z
+  costo: z
     .string()
     .trim()
     .min(1, 'Ingresa el costo')
     .pipe(moneySchema('El costo')),
-  price: z
+  precio: z
     .string()
     .trim()
     .min(1, 'Ingresa el precio de venta')
     .pipe(moneySchema('El precio de venta')),
-  isActive: z.boolean(),
+  activo: z.boolean(),
 })
 
 export type ProductFormValues = z.infer<typeof productFormSchema>
 
 export const emptyProductForm: ProductFormValues = {
-  code: '',
-  name: '',
-  kind: 'PART',
-  unit: 'UNIT',
-  brand: '',
-  minStock: '0',
-  cost: '',
-  price: '',
-  isActive: true,
+  codigo: '',
+  nombre: '',
+  tipo: 'REPUESTO',
+  unidad: 'UNIDAD',
+  marca: '',
+  stockMinimo: '0',
+  costo: '',
+  precio: '',
+  activo: true,
 }
 
 /**
@@ -144,15 +147,15 @@ export const emptyProductForm: ProductFormValues = {
  */
 export function productToForm(product: Product): ProductFormValues {
   return {
-    code: product.code,
-    name: product.name,
-    kind: product.kind,
-    unit: product.unit,
-    brand: product.brand ?? '',
-    minStock: product.minStock,
-    cost: product.cost ?? '',
-    price: product.price,
-    isActive: product.isActive,
+    codigo: product.codigo,
+    nombre: product.nombre,
+    tipo: product.tipo,
+    unidad: product.unidad,
+    marca: product.marca ?? '',
+    stockMinimo: product.stockMinimo,
+    costo: product.costo ?? '',
+    precio: product.precio,
+    activo: product.activo,
   }
 }
 
@@ -162,20 +165,25 @@ export function productToForm(product: Product): ProductFormValues {
  */
 export const productInputSchema = productFormSchema.transform((value) => ({
   ...value,
-  code: value.code.toUpperCase(),
-  brand: value.brand || null,
+  codigo: value.codigo.toUpperCase(),
+  marca: value.marca || null,
 }))
 
 export type ProductInput = z.input<typeof productInputSchema>
 
-export const productIdSchema = z.object({ productId: z.uuid() })
+export const productIdSchema = z.object({ productoId: z.uuid() })
 
 export const updateProductRequestSchema = z.object({
-  productId: z.uuid(),
+  productoId: z.uuid(),
   values: productInputSchema,
 })
 
-export const PRODUCT_SORT_FIELDS = ['name', 'code', 'stock', 'price'] as const
+export const PRODUCT_SORT_FIELDS = [
+  'nombre',
+  'codigo',
+  'stock',
+  'precio',
+] as const
 
 /**
  * La búsqueda, los filtros, el orden y la página del listado, tal como viven en
@@ -189,11 +197,11 @@ export const productsSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  kind: z.enum(PRODUCT_KINDS).optional().catch(undefined),
-  isActive: z.boolean().optional().catch(undefined),
-  lowStock: z.boolean().optional().catch(undefined),
-  sortBy: z.enum(PRODUCT_SORT_FIELDS).catch('name'),
-  sortOrder: z.enum(['asc', 'desc']).catch('asc'),
+  tipo: z.enum(PRODUCT_KINDS).optional().catch(undefined),
+  activo: z.boolean().optional().catch(undefined),
+  stockBajo: z.boolean().optional().catch(undefined),
+  ordenarPor: z.enum(PRODUCT_SORT_FIELDS).catch('nombre'),
+  sentido: z.enum(['asc', 'desc']).catch('asc'),
 })
 
 export type ProductsSearch = z.infer<typeof productsSearchSchema>
@@ -214,8 +222,8 @@ export const defaultProductsSearch: ProductsSearch = productsSearchSchema.parse(
  */
 export const PRODUCT_FILTERS_CLEARED = {
   search: undefined,
-  kind: undefined,
-  isActive: undefined,
-  lowStock: undefined,
+  tipo: undefined,
+  activo: undefined,
+  stockBajo: undefined,
   page: 1,
 } satisfies Partial<ProductsSearch>

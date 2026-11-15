@@ -43,9 +43,9 @@ const TYPE_OPTIONS = STOCK_MOVEMENT_TYPES.map((value) => ({
 }))
 
 const TYPE_BADGES: Record<StockMovementType, 'secondary' | 'outline'> = {
-  PURCHASE: 'secondary',
-  WORK_ORDER: 'outline',
-  ADJUSTMENT: 'outline',
+  COMPRA: 'secondary',
+  ORDEN_TRABAJO: 'outline',
+  AJUSTE: 'outline',
 }
 
 const muted = <span className="text-muted-foreground">—</span>
@@ -57,7 +57,7 @@ const muted = <span className="text-muted-foreground">—</span>
  */
 function stockMovementColumns(canManage: boolean) {
   return column.columns([
-    column.accessor('createdAt', {
+    column.accessor('creadoEn', {
       header: 'Fecha',
       cell: (info) => (
         <span className="whitespace-nowrap tabular-nums">
@@ -65,22 +65,22 @@ function stockMovementColumns(canManage: boolean) {
         </span>
       ),
     }),
-    column.accessor('product', {
+    column.accessor('producto', {
       header: 'Producto',
       enableSorting: false,
       cell: (info) => {
         const product = info.getValue()
         return (
           <div className="flex max-w-xs flex-col">
-            <span className="truncate font-medium">{product.name}</span>
+            <span className="truncate font-medium">{product.nombre}</span>
             <span className="font-mono text-xs text-muted-foreground">
-              {product.code}
+              {product.codigo}
             </span>
           </div>
         )
       },
     }),
-    column.accessor('type', {
+    column.accessor('tipo', {
       header: 'Tipo',
       enableSorting: false,
       cell: (info) => (
@@ -89,7 +89,7 @@ function stockMovementColumns(canManage: boolean) {
         </Badge>
       ),
     }),
-    column.accessor('quantity', {
+    column.accessor('cantidad', {
       header: 'Cantidad',
       cell: (info) => {
         const quantity = info.getValue()
@@ -103,14 +103,17 @@ function stockMovementColumns(canManage: boolean) {
                 : 'text-emerald-600 dark:text-emerald-400',
             )}
           >
-            {formatMovementQuantity(quantity, info.row.original.product.unit)}
+            {formatMovementQuantity(
+              quantity,
+              info.row.original.producto.unidad,
+            )}
           </span>
         )
       },
     }),
     ...(canManage
       ? [
-          column.accessor('unitCost', {
+          column.accessor('costoUnitario', {
             header: 'Costo unit.',
             enableSorting: false,
             cell: (info) => (
@@ -121,7 +124,7 @@ function stockMovementColumns(canManage: boolean) {
           }),
         ]
       : []),
-    column.accessor('note', {
+    column.accessor('nota', {
       header: 'Nota',
       enableSorting: false,
       cell: (info) =>
@@ -138,10 +141,10 @@ function stockMovementColumns(canManage: boolean) {
           muted
         ),
     }),
-    column.accessor('createdBy', {
+    column.accessor('creadoPor', {
       header: 'Registró',
       enableSorting: false,
-      cell: (info) => info.getValue().name,
+      cell: (info) => info.getValue().nombre,
     }),
   ])
 }
@@ -175,19 +178,19 @@ export function StockMovementTable({
   // ejemplo, al llegar desde «Ver movimientos» en Repuestos). Con él también
   // se proponen los registros.
   const filterProduct = useQuery({
-    ...productsQueries.detail(search.productId ?? ''),
-    enabled: Boolean(search.productId),
+    ...productsQueries.detail(search.productoId ?? ''),
+    enabled: Boolean(search.productoId),
   })
-  const productFilterOption: ComboboxOption | undefined = search.productId
+  const productFilterOption: ComboboxOption | undefined = search.productoId
     ? filterProduct.data
       ? productOption(filterProduct.data)
       : filterProduct.isError
-        ? { value: search.productId, label: 'Producto no encontrado' }
+        ? { value: search.productoId, label: 'Producto no encontrado' }
         : undefined
     : undefined
   // Solo se propone un producto activo: la API no registra movimientos de
   // los inactivos.
-  const proposedProduct = filterProduct.data?.isActive
+  const proposedProduct = filterProduct.data?.activo
     ? filterProduct.data
     : undefined
 
@@ -198,10 +201,10 @@ export function StockMovementTable({
 
   const isFiltered = Boolean(
     search.search ||
-    search.type ||
-    search.productId ||
-    search.from ||
-    search.to,
+    search.tipo ||
+    search.productoId ||
+    search.desde ||
+    search.hasta,
   )
 
   return (
@@ -218,11 +221,11 @@ export function StockMovementTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as StockMovementsSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as StockMovementsSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -254,25 +257,25 @@ export function StockMovementTable({
               label="Producto"
               allLabel="Todos los productos"
               searchPlaceholder="Buscar por código, nombre o marca"
-              value={search.productId}
+              value={search.productoId}
               selectedOption={productFilterOption}
               optionsQuery={allProductOptions}
-              onChange={(productId) => filter({ productId })}
+              onChange={(productoId) => filter({ productoId })}
             />
             <DataTableFilter
               label="Tipo"
               allLabel="Todos los tipos"
               options={TYPE_OPTIONS}
-              value={search.type}
+              value={search.tipo}
               onChange={(value) =>
-                filter({ type: value as StockMovementsSearch['type'] })
+                filter({ tipo: value as StockMovementsSearch['tipo'] })
               }
             />
             <DataTableDateRangeFilter
               label="Fecha"
-              from={search.from}
-              to={search.to}
-              onChange={(range) => filter(range)}
+              from={search.desde}
+              to={search.hasta}
+              onChange={({ from, to }) => filter({ desde: from, hasta: to })}
             />
           </DataTableToolbar>
         }

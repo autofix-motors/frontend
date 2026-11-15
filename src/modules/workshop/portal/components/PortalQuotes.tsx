@@ -32,26 +32,26 @@ export function PortalQuotes({ quotes }: { quotes: PortalQuote[] }) {
   return (
     <ul className="flex flex-col divide-y">
       {quotes.map((quote, index) => (
-        <li key={quote.quoteId} className="py-3 first:pt-0 last:pb-0">
+        <li key={quote.presupuestoId} className="py-3 first:pt-0 last:pb-0">
           <Collapsible defaultOpen={index === 0}>
             <CollapsibleTrigger className="group flex w-full items-start justify-between gap-3 text-left">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">Versión {quote.version}</span>
-                  <Badge className={cn(QUOTE_STATUS_COLORS[quote.status])}>
-                    {QUOTE_STATUS_LABELS[quote.status]}
+                  <Badge className={cn(QUOTE_STATUS_COLORS[quote.estado])}>
+                    {QUOTE_STATUS_LABELS[quote.estado]}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Enviado el {formatDateTime(quote.sentAt)}
-                  {quote.decidedAt &&
-                    ` · ${QUOTE_STATUS_LABELS[quote.status]} el ${formatDateTime(quote.decidedAt)}`}
-                  {quote.decisionChannel &&
-                    ` (${DECISION_CHANNEL_LABELS[quote.decisionChannel]})`}
+                  Enviado el {formatDateTime(quote.enviadoEn)}
+                  {quote.decididoEn &&
+                    ` · ${QUOTE_STATUS_LABELS[quote.estado]} el ${formatDateTime(quote.decididoEn)}`}
+                  {quote.canalDecision &&
+                    ` (${DECISION_CHANNEL_LABELS[quote.canalDecision]})`}
                 </p>
-                {quote.decisionNote && (
+                {quote.notaDecision && (
                   <p className="text-sm whitespace-pre-line">
-                    {quote.decisionNote}
+                    {quote.notaDecision}
                   </p>
                 )}
               </div>
@@ -61,7 +61,7 @@ export function PortalQuotes({ quotes }: { quotes: PortalQuote[] }) {
               </span>
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-3">
-              <PortalLinesTable lines={quote.items} total={quote.total} />
+              <PortalLinesTable lines={quote.detalles} total={quote.total} />
             </CollapsibleContent>
           </Collapsible>
         </li>

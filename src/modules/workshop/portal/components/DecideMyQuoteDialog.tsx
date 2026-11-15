@@ -19,8 +19,8 @@ import {
 import type { PortalDecision, PortalQuote } from '../portal.schemas'
 
 const TITLES: Record<PortalDecision, string> = {
-  APPROVED: 'Aprobar el presupuesto',
-  REJECTED: 'Rechazar el presupuesto',
+  APROBADO: 'Aprobar el presupuesto',
+  RECHAZADO: 'Rechazar el presupuesto',
 }
 
 /**
@@ -78,17 +78,17 @@ function DecisionForm({
   const decide = useDecideMyQuote()
 
   const form = useAppForm({
-    defaultValues: { note: '' },
+    defaultValues: { nota: '' },
     validators: { onChange: portalDecisionFormSchema },
     // Un rechazo de la API (el taller ya registró la respuesta) queda en el
     // diálogo con su mensaje y no se relanza.
     onSubmit: ({ value }) =>
       decide
         .mutateAsync({
-          workOrderId,
-          quoteId: quote.quoteId,
+          ordenTrabajoId: workOrderId,
+          presupuestoId: quote.presupuestoId,
           decision,
-          note: value.note,
+          nota: value.nota,
         })
         .then(onDone, () => undefined),
   })
@@ -101,13 +101,13 @@ function DecisionForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               label="Nota para el taller (opcional)"
               rows={3}
               placeholder={
-                decision === 'APPROVED'
+                decision === 'APROBADO'
                   ? 'Por ejemplo: llámenme antes de entregar'
                   : 'Por ejemplo: solo quiero el cambio de pastillas'
               }
@@ -123,7 +123,7 @@ function DecisionForm({
           </DialogClose>
           <form.AppForm>
             <form.SubmitButton
-              label={decision === 'APPROVED' ? 'Aprobar' : 'Rechazar'}
+              label={decision === 'APROBADO' ? 'Aprobar' : 'Rechazar'}
               pendingLabel="Enviando…"
             />
           </form.AppForm>

@@ -4,13 +4,13 @@ import { PAGE_SIZES } from '#/components/data-table/DataTablePagination'
 import type { components } from '#/types/api.gen'
 
 export type Customer = components['schemas']['Customer']
-export type DocumentType = components['schemas']['DocumentType']
+export type DocumentType = components['schemas']['TipoDocumento']
 
 export const DOCUMENT_TYPES = [
   'DNI',
   'RUC',
   'CE',
-  'PASSPORT',
+  'PASAPORTE',
 ] as const satisfies readonly DocumentType[]
 
 /** Cómo se le muestra cada tipo de documento al usuario. */
@@ -18,7 +18,7 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   DNI: 'DNI',
   RUC: 'RUC',
   CE: 'Carné de extranjería',
-  PASSPORT: 'Pasaporte',
+  PASAPORTE: 'Pasaporte',
 }
 
 export const documentTypeOptions = DOCUMENT_TYPES.map((value) => ({
@@ -34,13 +34,13 @@ export const documentTypeOptions = DOCUMENT_TYPES.map((value) => ({
 export function customerOption(
   customer: Pick<
     Customer,
-    'customerId' | 'name' | 'documentType' | 'documentNumber'
+    'clienteId' | 'nombre' | 'tipoDocumento' | 'numeroDocumento'
   >,
 ): ComboboxOption {
   return {
-    value: customer.customerId,
-    label: customer.name,
-    description: `${DOCUMENT_TYPE_LABELS[customer.documentType]} ${customer.documentNumber}`,
+    value: customer.clienteId,
+    label: customer.nombre,
+    description: `${DOCUMENT_TYPE_LABELS[customer.tipoDocumento]} ${customer.numeroDocumento}`,
   }
 }
 
@@ -64,7 +64,7 @@ const DOCUMENT_RULES: Record<
     pattern: /^[A-Z0-9]{6,12}$/,
     message: 'El carné de extranjería tiene de 6 a 12 letras o dígitos',
   },
-  PASSPORT: {
+  PASAPORTE: {
     pattern: /^[A-Z0-9]{6,12}$/,
     message: 'El pasaporte tiene de 6 a 12 letras o dígitos',
   },
@@ -79,16 +79,16 @@ const optionalText = (max: number, message: string) =>
  */
 export const customerFormSchema = z
   .object({
-    documentType: z.enum(DOCUMENT_TYPES, {
+    tipoDocumento: z.enum(DOCUMENT_TYPES, {
       error: 'Selecciona el tipo de documento',
     }),
-    documentNumber: z.string().trim().min(1, 'Ingresa el número de documento'),
-    name: z
+    numeroDocumento: z.string().trim().min(1, 'Ingresa el número de documento'),
+    nombre: z
       .string()
       .trim()
       .min(1, 'Ingresa el nombre o la razón social')
       .max(150, 'El nombre tiene como máximo 150 caracteres'),
-    phone: z
+    telefono: z
       .string()
       .trim()
       .min(1, 'Ingresa el teléfono')
@@ -96,7 +96,7 @@ export const customerFormSchema = z
         (value) => /^\+?\d{6,15}$/.test(value.replace(/[\s()-]/g, '')),
         'El teléfono tiene de 6 a 15 dígitos y puede empezar con +',
       ),
-    email: z
+    correo: z
       .string()
       .trim()
       .max(254, 'El correo es demasiado largo')
@@ -104,17 +104,20 @@ export const customerFormSchema = z
         (value) => !value || z.email().safeParse(value).success,
         'Ingresa un correo válido',
       ),
-    address: optionalText(250, 'La dirección tiene como máximo 250 caracteres'),
-    notes: optionalText(1000, 'Las notas tienen como máximo 1000 caracteres'),
-    isActive: z.boolean(),
+    direccion: optionalText(
+      250,
+      'La dirección tiene como máximo 250 caracteres',
+    ),
+    notas: optionalText(1000, 'Las notas tienen como máximo 1000 caracteres'),
+    activo: z.boolean(),
   })
   .superRefine((value, ctx) => {
-    const rule = DOCUMENT_RULES[value.documentType]
-    const number = normalizeDocumentNumber(value.documentNumber)
+    const rule = DOCUMENT_RULES[value.tipoDocumento]
+    const number = normalizeDocumentNumber(value.numeroDocumento)
     if (number && !rule.pattern.test(number)) {
       ctx.addIssue({
         code: 'custom',
-        path: ['documentNumber'],
+        path: ['numeroDocumento'],
         message: rule.message,
       })
     }
@@ -123,45 +126,45 @@ export const customerFormSchema = z
 export type CustomerFormValues = z.infer<typeof customerFormSchema>
 
 export const emptyCustomerForm: CustomerFormValues = {
-  documentType: 'DNI',
-  documentNumber: '',
-  name: '',
-  phone: '',
-  email: '',
-  address: '',
-  notes: '',
-  isActive: true,
+  tipoDocumento: 'DNI',
+  numeroDocumento: '',
+  nombre: '',
+  telefono: '',
+  correo: '',
+  direccion: '',
+  notas: '',
+  activo: true,
 }
 
 /** Los valores del formulario para editar un cliente existente. */
 export function customerToForm(customer: Customer): CustomerFormValues {
   return {
-    documentType: customer.documentType,
-    documentNumber: customer.documentNumber,
-    name: customer.name,
-    phone: customer.phone,
-    email: customer.email ?? '',
-    address: customer.address ?? '',
-    notes: customer.notes ?? '',
-    isActive: customer.isActive,
+    tipoDocumento: customer.tipoDocumento,
+    numeroDocumento: customer.numeroDocumento,
+    nombre: customer.nombre,
+    telefono: customer.telefono,
+    correo: customer.correo ?? '',
+    direccion: customer.direccion ?? '',
+    notas: customer.notas ?? '',
+    activo: customer.activo,
   }
 }
 
 /** Lo que se le manda a la API: lo vacío viaja como null para borrar el dato. */
 export const customerInputSchema = customerFormSchema.transform((value) => ({
   ...value,
-  documentNumber: normalizeDocumentNumber(value.documentNumber),
-  email: value.email || null,
-  address: value.address || null,
-  notes: value.notes || null,
+  numeroDocumento: normalizeDocumentNumber(value.numeroDocumento),
+  correo: value.correo || null,
+  direccion: value.direccion || null,
+  notas: value.notas || null,
 }))
 
 export type CustomerInput = z.input<typeof customerInputSchema>
 
-export const customerIdSchema = z.object({ customerId: z.uuid() })
+export const customerIdSchema = z.object({ clienteId: z.uuid() })
 
 export const updateCustomerRequestSchema = z.object({
-  customerId: z.uuid(),
+  clienteId: z.uuid(),
   values: customerInputSchema,
 })
 
@@ -177,10 +180,10 @@ export const customersSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  documentType: z.enum(DOCUMENT_TYPES).optional().catch(undefined),
-  isActive: z.boolean().optional().catch(undefined),
-  sortBy: z.enum(['name', 'createdAt']).catch('name'),
-  sortOrder: z.enum(['asc', 'desc']).catch('asc'),
+  tipoDocumento: z.enum(DOCUMENT_TYPES).optional().catch(undefined),
+  activo: z.boolean().optional().catch(undefined),
+  ordenarPor: z.enum(['nombre', 'creadoEn']).catch('nombre'),
+  sentido: z.enum(['asc', 'desc']).catch('asc'),
 })
 
 export type CustomersSearch = z.infer<typeof customersSearchSchema>
@@ -201,7 +204,7 @@ export const defaultCustomersSearch: CustomersSearch =
  */
 export const CUSTOMER_FILTERS_CLEARED = {
   search: undefined,
-  documentType: undefined,
-  isActive: undefined,
+  tipoDocumento: undefined,
+  activo: undefined,
   page: 1,
 } satisfies Partial<CustomersSearch>

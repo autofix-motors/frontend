@@ -10,7 +10,7 @@ al frontend: qué pantallas hay, dónde viven y quién las ve.
 
 | Sección del menú | Pantalla | Ruta | Rol |
 |---|---|---|---|
-| — | Inicio (dashboard) | `/` | Todos; los ingresos del mes solo `ADMIN` |
+| — | Inicio (dashboard) | `/` | Todos |
 | Taller | Órdenes de trabajo | `/workshop/work-orders` | `ADMIN` ve todas; `MECHANIC` solo las suyas |
 | Taller | Detalle de una OT | `/workshop/work-orders/$workOrderId` | Ídem |
 | Taller | Catálogo de servicios | `/workshop/service-catalog` | Todos (consulta); `ADMIN` edita |
@@ -18,9 +18,6 @@ al frontend: qué pantallas hay, dónde viven y quién las ve.
 | Clientes | Vehículos | `/customer/vehicles` | `ADMIN` |
 | Inventario | Repuestos e insumos | `/inventory/products` | Todos; costo y margen solo `ADMIN` |
 | Inventario | Movimientos | `/inventory/stock-movements` | `ADMIN` |
-| Inventario | Herramientas | `/inventory/tools` | Todos (consulta); `ADMIN` edita |
-| Finanzas | Pagos | `/finance/payments` | `ADMIN` |
-| Finanzas | Reportes | `/finance/reports` | `ADMIN` |
 | Administración | Personal | `/core/users` | `ADMIN` |
 
 El menú se arma en `components/layout/navigation.ts` con `roles` por ítem: a un
@@ -36,7 +33,6 @@ seguridad: la API lo vuelve a comprobar con `@Roles()`.
   cliente.
 - Ítems (servicios y repuestos) y presupuestos con sus versiones. El
   `ADMIN` registra la decisión del cliente (aprobado o rechazado, canal y nota).
-- Pagos y saldo pendiente (solo `ADMIN`).
 - Constancia de ingreso imprimible, con el código de seguimiento.
 
 ## Pantalla pública (sin sesión)
@@ -65,5 +61,7 @@ Cada fase tiene su plan detallado en `docs/planificacion/<módulo>/` y su rama
 - [x] **Fase 3 — Portal del cliente** (antes «Seguimiento público», `/seguimiento`):
   login compartido, `/portal` con sus vehículos, sus órdenes y la respuesta a
   los presupuestos. Validada el 2026-10-24.
-- [x] **Fase 4 — Inventario.**
-- [ ] **Fase 5 — Ingresos.** Pagos, reportes y dashboard de inicio.
+- [x] **Fase 4 — Inventario.** Repuestos e insumos y kardex (herramientas
+  retiradas en 2026-11: fuera de alcance).
+- [x] ~~Fase 5 — Ingresos~~. Descartada en 2026-11: sin pagos ni reportes (fuera
+  de alcance; solo flujo operativo y de seguimiento).

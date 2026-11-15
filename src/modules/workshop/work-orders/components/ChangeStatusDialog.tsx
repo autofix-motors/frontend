@@ -45,7 +45,7 @@ export function ChangeStatusDialog({
             <DialogHeader>
               <DialogTitle>{TRANSITION_LABELS[status]}</DialogTitle>
               <DialogDescription>
-                La orden pasa de «{WORK_ORDER_STATUS_LABELS[workOrder.status]}»
+                La orden pasa de «{WORK_ORDER_STATUS_LABELS[workOrder.estado]}»
                 a «{WORK_ORDER_STATUS_LABELS[status]}».
                 {isClosed(status) &&
                   ' Queda cerrada: ya no se edita ni cambia de estado.'}
@@ -75,7 +75,7 @@ function ChangeStatusForm({
   onDone: () => void
 }) {
   const change = useChangeWorkOrderStatus()
-  const isCancel = status === 'CANCELLED'
+  const isCancel = status === 'CANCELADO'
 
   const form = useAppForm({
     defaultValues: emptyStatusChangeForm(status),
@@ -84,7 +84,11 @@ function ChangeStatusForm({
     // abierto con su mensaje y no se relanza.
     onSubmit: ({ value }) =>
       change
-        .mutateAsync({ workOrderId: workOrder.workOrderId, status, ...value })
+        .mutateAsync({
+          ordenTrabajoId: workOrder.ordenTrabajoId,
+          estado: status,
+          ...value,
+        })
         .then(onDone, () => undefined),
   })
 
@@ -96,7 +100,7 @@ function ChangeStatusForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               label={isCancel ? 'Motivo de la cancelación' : 'Nota (opcional)'}
@@ -110,7 +114,7 @@ function ChangeStatusForm({
             />
           )}
         </form.AppField>
-        <form.AppField name="isPublic">
+        <form.AppField name="esPublico">
           {(field) => (
             <field.SwitchField
               label="Lo ve el cliente"

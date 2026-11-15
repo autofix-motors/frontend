@@ -67,8 +67,8 @@ export function WorkOrderItemsSection({
   const [editing, setEditing] = useState<WorkOrderItem>()
   const [removing, setRemoving] = useState<WorkOrderItem>()
 
-  const canChange = canChangeItems(workOrder.status)
-  const { items, totals } = workOrder
+  const canChange = canChangeItems(workOrder.estado)
+  const { detalles: items, totales: totals } = workOrder
 
   return (
     <Card>
@@ -84,7 +84,7 @@ export function WorkOrderItemsSection({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => setAdding('SERVICE')}
+              onClick={() => setAdding('SERVICIO')}
             >
               <WrenchIcon />
               Agregar servicio
@@ -92,7 +92,7 @@ export function WorkOrderItemsSection({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => setAdding('PRODUCT')}
+              onClick={() => setAdding('PRODUCTO')}
             >
               <PackageIcon />
               Agregar repuesto
@@ -123,24 +123,24 @@ export function WorkOrderItemsSection({
             </TableHeader>
             <TableBody>
               {items.map((item) => (
-                <TableRow key={item.workOrderItemId}>
+                <TableRow key={item.detalleOrdenId}>
                   <TableCell>
                     <Badge
                       variant={
-                        item.type === 'SERVICE' ? 'secondary' : 'outline'
+                        item.tipo === 'SERVICIO' ? 'secondary' : 'outline'
                       }
                     >
-                      {ITEM_TYPE_LABELS[item.type]}
+                      {ITEM_TYPE_LABELS[item.tipo]}
                     </Badge>
                   </TableCell>
                   <TableCell className="max-w-72 whitespace-normal">
-                    {item.description}
+                    {item.descripcion}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap tabular-nums">
                     {formatItemQuantity(item)}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap tabular-nums">
-                    {formatMoney(item.unitPrice)}
+                    {formatMoney(item.precioUnitario)}
                   </TableCell>
                   <TableCell className="text-right font-medium whitespace-nowrap tabular-nums">
                     {formatMoney(item.subtotal)}
@@ -152,7 +152,7 @@ export function WorkOrderItemsSection({
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            aria-label={`Acciones de ${item.description}`}
+                            aria-label={`Acciones de ${item.descripcion}`}
                           >
                             <MoreHorizontalIcon />
                           </Button>
@@ -181,12 +181,12 @@ export function WorkOrderItemsSection({
             <TableFooter>
               <TotalRow
                 label="Mano de obra"
-                amount={totals.labor}
+                amount={totals.manoObra}
                 span={canChange}
               />
               <TotalRow
                 label="Repuestos"
-                amount={totals.parts}
+                amount={totals.repuestos}
                 span={canChange}
               />
               <TotalRow
@@ -198,41 +198,42 @@ export function WorkOrderItemsSection({
             </TableFooter>
           </Table>
         )}
-        {totals.partsCost !== undefined && totals.partsMargin !== undefined && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            Costo de los repuestos:{' '}
-            <span className="tabular-nums">
-              {formatMoney(totals.partsCost)}
-            </span>{' '}
-            · Margen:{' '}
-            <span
-              className={cn(
-                'font-medium tabular-nums',
-                totals.partsMargin.startsWith('-')
-                  ? 'text-destructive'
-                  : 'text-foreground',
-              )}
-            >
-              {formatMoney(totals.partsMargin)}
-            </span>
-          </p>
-        )}
+        {totals.costoRepuestos !== undefined &&
+          totals.margenRepuestos !== undefined && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Costo de los repuestos:{' '}
+              <span className="tabular-nums">
+                {formatMoney(totals.costoRepuestos)}
+              </span>{' '}
+              · Margen:{' '}
+              <span
+                className={cn(
+                  'font-medium tabular-nums',
+                  totals.margenRepuestos.startsWith('-')
+                    ? 'text-destructive'
+                    : 'text-foreground',
+                )}
+              >
+                {formatMoney(totals.margenRepuestos)}
+              </span>
+            </p>
+          )}
       </CardContent>
 
       <AddItemDialog
-        workOrderId={workOrder.workOrderId}
+        workOrderId={workOrder.ordenTrabajoId}
         type={adding}
         role={role}
         onOpenChange={(open) => !open && setAdding(undefined)}
       />
       <EditItemDialog
-        workOrderId={workOrder.workOrderId}
+        workOrderId={workOrder.ordenTrabajoId}
         item={editing}
         role={role}
         onOpenChange={(open) => !open && setEditing(undefined)}
       />
       <RemoveItemDialog
-        workOrderId={workOrder.workOrderId}
+        workOrderId={workOrder.ordenTrabajoId}
         item={removing}
         onOpenChange={(open) => !open && setRemoving(undefined)}
       />

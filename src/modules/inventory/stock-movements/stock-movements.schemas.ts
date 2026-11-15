@@ -8,23 +8,23 @@ import type { UnitOfMeasure } from '#/modules/inventory/products/products.schema
 import type { components } from '#/types/api.gen'
 
 /**
- * Un movimiento de stock: una línea del kardex. `unitCost` solo llega para el
+ * Un movimiento de stock: una línea del kardex. `costoUnitario` solo llega para el
  * administrador: la API no se lo manda al mecánico.
  */
 export type StockMovement = components['schemas']['StockMovement']
-export type StockMovementType = components['schemas']['StockMovementType']
+export type StockMovementType = components['schemas']['TipoMovimiento']
 
 export const STOCK_MOVEMENT_TYPES = [
-  'PURCHASE',
-  'WORK_ORDER',
-  'ADJUSTMENT',
+  'COMPRA',
+  'ORDEN_TRABAJO',
+  'AJUSTE',
 ] as const satisfies readonly StockMovementType[]
 
 /** Cómo se le muestra cada tipo de movimiento al usuario. */
 export const STOCK_MOVEMENT_TYPE_LABELS: Record<StockMovementType, string> = {
-  PURCHASE: 'Compra',
-  WORK_ORDER: 'Consumo en orden',
-  ADJUSTMENT: 'Ajuste',
+  COMPRA: 'Compra',
+  ORDEN_TRABAJO: 'Consumo en orden',
+  AJUSTE: 'Ajuste',
 }
 
 /**
@@ -33,10 +33,10 @@ export const STOCK_MOVEMENT_TYPE_LABELS: Record<StockMovementType, string> = {
  * un saldo.
  */
 export function formatMovementQuantity(
-  quantity: string,
-  unit: UnitOfMeasure,
+  cantidad: string,
+  unidad: UnitOfMeasure,
 ): string {
-  const text = formatStock(quantity, unit)
+  const text = formatStock(cantidad, unidad)
   return text === '—' || text.startsWith('-') ? text : `+${text}`
 }
 
@@ -51,18 +51,18 @@ const productIdField = z.string().min(1, 'Selecciona el producto')
  * `MoneyField` y como los recibe la API.
  */
 export const purchaseFormSchema = z.object({
-  productId: productIdField,
-  quantity: z
+  productoId: productIdField,
+  cantidad: z
     .string()
     .trim()
     .min(1, 'Ingresa la cantidad')
     .pipe(movementQuantitySchema('La cantidad', { signed: false })),
-  unitCost: z
+  costoUnitario: z
     .string()
     .trim()
     .min(1, 'Ingresa el costo unitario')
     .pipe(moneySchema('El costo unitario')),
-  note: z
+  nota: z
     .string()
     .trim()
     .max(NOTE_MAX_LENGTH, 'La nota tiene como máximo 500 caracteres'),
@@ -73,7 +73,7 @@ export type PurchaseFormValues = z.infer<typeof purchaseFormSchema>
 /** Lo que se le manda a la API: la nota vacía como null. */
 export const purchaseInputSchema = purchaseFormSchema.transform((value) => ({
   ...value,
-  note: value.note || null,
+  nota: value.nota || null,
 }))
 
 export type PurchaseInput = z.input<typeof purchaseInputSchema>
@@ -84,13 +84,13 @@ export type PurchaseInput = z.input<typeof purchaseInputSchema>
  * cambió sin rastro.
  */
 export const adjustmentFormSchema = z.object({
-  productId: productIdField,
-  quantity: z
+  productoId: productIdField,
+  cantidad: z
     .string()
     .trim()
     .min(1, 'Ingresa la cantidad')
     .pipe(movementQuantitySchema('La cantidad', { signed: true })),
-  note: z
+  nota: z
     .string()
     .trim()
     .min(1, 'Ingresa el motivo del ajuste')
@@ -100,16 +100,16 @@ export const adjustmentFormSchema = z.object({
 export type AdjustmentFormValues = z.infer<typeof adjustmentFormSchema>
 
 /** El formulario vacío de una compra, o con el producto ya elegido. */
-export function emptyPurchaseForm(productId = ''): PurchaseFormValues {
-  return { productId, quantity: '', unitCost: '', note: '' }
+export function emptyPurchaseForm(productoId = ''): PurchaseFormValues {
+  return { productoId, cantidad: '', costoUnitario: '', nota: '' }
 }
 
 /** El formulario vacío de un ajuste, o con el producto ya elegido. */
-export function emptyAdjustmentForm(productId = ''): AdjustmentFormValues {
-  return { productId, quantity: '', note: '' }
+export function emptyAdjustmentForm(productoId = ''): AdjustmentFormValues {
+  return { productoId, cantidad: '', nota: '' }
 }
 
-export const STOCK_MOVEMENT_SORT_FIELDS = ['createdAt', 'quantity'] as const
+export const STOCK_MOVEMENT_SORT_FIELDS = ['creadoEn', 'cantidad'] as const
 
 // Un día AAAA-MM-DD que existe; cualquier otra cosa en la URL se descarta.
 const dateOnly = z.string().refine(isDateOnly).optional().catch(undefined)
@@ -127,12 +127,12 @@ export const stockMovementsSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  type: z.enum(STOCK_MOVEMENT_TYPES).optional().catch(undefined),
-  productId: z.uuid().optional().catch(undefined),
-  from: dateOnly,
-  to: dateOnly,
-  sortBy: z.enum(STOCK_MOVEMENT_SORT_FIELDS).catch('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).catch('desc'),
+  tipo: z.enum(STOCK_MOVEMENT_TYPES).optional().catch(undefined),
+  productoId: z.uuid().optional().catch(undefined),
+  desde: dateOnly,
+  hasta: dateOnly,
+  ordenarPor: z.enum(STOCK_MOVEMENT_SORT_FIELDS).catch('creadoEn'),
+  sentido: z.enum(['asc', 'desc']).catch('desc'),
 })
 
 export type StockMovementsSearch = z.infer<typeof stockMovementsSearchSchema>
@@ -152,9 +152,9 @@ export const defaultStockMovementsSearch: StockMovementsSearch =
  */
 export const STOCK_MOVEMENT_FILTERS_CLEARED = {
   search: undefined,
-  type: undefined,
-  productId: undefined,
-  from: undefined,
-  to: undefined,
+  tipo: undefined,
+  productoId: undefined,
+  desde: undefined,
+  hasta: undefined,
   page: 1,
 } satisfies Partial<StockMovementsSearch>

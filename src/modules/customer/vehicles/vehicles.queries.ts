@@ -23,8 +23,8 @@ export const vehiclesKeys = {
   list: (search: VehiclesSearch) =>
     [...vehiclesKeys.all, 'list', search] as const,
   brands: () => [...vehiclesKeys.all, 'brands'] as const,
-  detail: (vehicleId: string) =>
-    [...vehiclesKeys.all, 'detail', vehicleId] as const,
+  detail: (vehiculoId: string) =>
+    [...vehiclesKeys.all, 'detail', vehiculoId] as const,
   options: (search: string) =>
     [...vehiclesKeys.all, 'options', search] as const,
 }
@@ -43,10 +43,10 @@ export const vehiclesQueries = {
       queryKey: vehiclesKeys.brands(),
       queryFn: () => listVehicleBrands(),
     }),
-  detail: (vehicleId: string) =>
+  detail: (vehiculoId: string) =>
     queryOptions({
-      queryKey: vehiclesKeys.detail(vehicleId),
-      queryFn: () => getVehicle({ data: { vehicleId } }),
+      queryKey: vehiclesKeys.detail(vehiculoId),
+      queryFn: () => getVehicle({ data: { vehiculoId } }),
     }),
   /**
    * Los vehículos para elegir en un combobox (el que ingresa en una orden de
@@ -90,7 +90,7 @@ export function useCreateVehicle() {
 export function useUpdateVehicle() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: { vehicleId: string; values: VehicleInput }) =>
+    mutationFn: (request: { vehiculoId: string; values: VehicleInput }) =>
       updateVehicle({ data: request }),
     onSuccess: ({ message }) => onChanged(queryClient, message),
   })
@@ -99,7 +99,7 @@ export function useUpdateVehicle() {
 export function useDeleteVehicle() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (vehicleId: string) => deleteVehicle({ data: { vehicleId } }),
+    mutationFn: (vehiculoId: string) => deleteVehicle({ data: { vehiculoId } }),
     onSuccess: ({ message }) => onChanged(queryClient, message),
   })
 }

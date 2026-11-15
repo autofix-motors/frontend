@@ -48,7 +48,7 @@ export function DeleteWorkOrderDialog({
           <DialogTitle>Eliminar orden</DialogTitle>
           <DialogDescription>
             Se eliminará{' '}
-            <strong>{formatWorkOrderNumber(workOrder.number)}</strong> y su
+            <strong>{formatWorkOrderNumber(workOrder.numero)}</strong> y su
             línea de tiempo de forma definitiva. Es para una orden registrada
             por error; si el trabajo no se hará, cancélala.
           </DialogDescription>
@@ -62,7 +62,7 @@ export function DeleteWorkOrderDialog({
             variant="destructive"
             disabled={remove.isPending}
             onClick={() =>
-              remove.mutate(workOrder.workOrderId, {
+              remove.mutate(workOrder.ordenTrabajoId, {
                 onSuccess: () =>
                   void navigate({
                     to: '/workshop/work-orders',

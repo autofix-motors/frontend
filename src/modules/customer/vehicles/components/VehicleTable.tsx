@@ -52,39 +52,39 @@ type RowActions = {
 
 function vehicleColumns({ onEdit, onDelete }: RowActions) {
   return column.columns([
-    column.accessor('plate', {
+    column.accessor('placa', {
       header: 'Placa',
       cell: (info) => (
         <span className="font-mono font-medium">{info.getValue()}</span>
       ),
     }),
-    column.accessor('brand', {
+    column.accessor('marca', {
       header: 'Vehículo',
       cell: (info) => {
-        const { model, year, color } = info.row.original
+        const { modelo, anio, color } = info.row.original
         return (
           <div className="flex flex-col">
             <span>
-              {info.getValue()} {model}
+              {info.getValue()} {modelo}
             </span>
             <span className="text-xs text-muted-foreground">
-              {[year, color].filter(Boolean).join(' · ') || '—'}
+              {[anio, color].filter(Boolean).join(' · ') || '—'}
             </span>
           </div>
         )
       },
     }),
-    column.accessor('customer', {
+    column.accessor('cliente', {
       header: 'Cliente',
       enableSorting: false,
       cell: (info) => {
         const customer = info.getValue()
         return (
           <div className="flex flex-col">
-            <span className="font-medium">{customer.name}</span>
+            <span className="font-medium">{customer.nombre}</span>
             <span className="text-xs text-muted-foreground">
-              {DOCUMENT_TYPE_LABELS[customer.documentType]}{' '}
-              {customer.documentNumber}
+              {DOCUMENT_TYPE_LABELS[customer.tipoDocumento]}{' '}
+              {customer.numeroDocumento}
             </span>
           </div>
         )
@@ -100,7 +100,7 @@ function vehicleColumns({ onEdit, onDelete }: RowActions) {
           muted
         ),
     }),
-    column.accessor('workOrdersCount', {
+    column.accessor('cantidadOrdenes', {
       header: 'Órdenes',
       enableSorting: false,
       // Lleva al listado de órdenes filtrado por este vehículo.
@@ -109,16 +109,16 @@ function vehicleColumns({ onEdit, onDelete }: RowActions) {
           to="/workshop/work-orders"
           search={{
             ...defaultWorkOrdersSearch,
-            vehicleId: info.row.original.vehicleId,
+            vehiculoId: info.row.original.vehiculoId,
           }}
           className="underline-offset-4 hover:underline"
-          aria-label={`Ver las órdenes de ${info.row.original.plate}`}
+          aria-label={`Ver las órdenes de ${info.row.original.placa}`}
         >
           {info.getValue()}
         </Link>
       ),
     }),
-    column.accessor('createdAt', {
+    column.accessor('creadoEn', {
       header: 'Registrado',
       cell: (info) => formatDateTime(info.getValue()),
     }),
@@ -138,7 +138,7 @@ function vehicleColumns({ onEdit, onDelete }: RowActions) {
                 to="/workshop/work-orders"
                 search={{
                   ...defaultWorkOrdersSearch,
-                  vehicleId: info.row.original.vehicleId,
+                  vehiculoId: info.row.original.vehiculoId,
                 }}
               >
                 <ClipboardListIcon />
@@ -197,30 +197,32 @@ export function VehicleTable({
   )
 
   const brands = useQuery(vehiclesQueries.brands())
-  const brandOptions = (brands.data ?? []).map(({ brand, vehiclesCount }) => ({
-    value: brand,
-    label: `${brand} (${vehiclesCount})`,
-  }))
+  const brandOptions = (brands.data ?? []).map(
+    ({ marca, cantidadVehiculos }) => ({
+      value: marca,
+      label: `${marca} (${cantidadVehiculos})`,
+    }),
+  )
   // La marca de la URL puede venir con otras mayúsculas («toyota»): se elige
   // la opción que le corresponde, que es como la compara la API.
   const brandValue =
-    search.brand &&
+    search.marca &&
     (brandOptions.find(
-      (option) => option.value.toLowerCase() === search.brand?.toLowerCase(),
+      (option) => option.value.toLowerCase() === search.marca?.toLowerCase(),
     )?.value ??
-      search.brand)
+      search.marca)
 
   // El nombre del cliente del filtro sale de la API: la URL solo trae su id
   // (por ejemplo, al llegar desde el listado de clientes).
   const filterCustomer = useQuery({
-    ...customersQueries.detail(search.customerId ?? ''),
-    enabled: Boolean(search.customerId),
+    ...customersQueries.detail(search.clienteId ?? ''),
+    enabled: Boolean(search.clienteId),
   })
-  const customerFilterOption: ComboboxOption | undefined = search.customerId
+  const customerFilterOption: ComboboxOption | undefined = search.clienteId
     ? filterCustomer.data
       ? customerOption(filterCustomer.data)
       : filterCustomer.isError
-        ? { value: search.customerId, label: 'Cliente no encontrado' }
+        ? { value: search.clienteId, label: 'Cliente no encontrado' }
         : undefined
     : undefined
 
@@ -229,7 +231,7 @@ export function VehicleTable({
   const filter = (changes: Partial<VehiclesSearch>) =>
     onSearchChange({ ...changes, page: 1 })
 
-  const isFiltered = Boolean(search.search || search.customerId || search.brand)
+  const isFiltered = Boolean(search.search || search.clienteId || search.marca)
 
   return (
     <>
@@ -245,11 +247,11 @@ export function VehicleTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as VehiclesSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as VehiclesSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -275,17 +277,17 @@ export function VehicleTable({
               label="Cliente"
               allLabel="Todos los clientes"
               searchPlaceholder="Buscar por nombre o documento"
-              value={search.customerId}
+              value={search.clienteId}
               selectedOption={customerFilterOption}
               optionsQuery={allCustomerOptions}
-              onChange={(customerId) => filter({ customerId })}
+              onChange={(clienteId) => filter({ clienteId })}
             />
             <DataTableFilter
               label="Marca"
               allLabel="Todas las marcas"
               options={brandOptions}
               value={brandValue}
-              onChange={(brand) => filter({ brand })}
+              onChange={(marca) => filter({ marca })}
             />
           </DataTableToolbar>
         }

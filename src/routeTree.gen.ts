@@ -15,6 +15,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalProfileRouteImport } from './routes/portal/profile'
+import { Route as AppAccountProfileRouteImport } from './routes/_app/account/profile'
 import { Route as PortalVehiclesIndexRouteImport } from './routes/portal/vehicles/index'
 import { Route as PortalWorkOrdersIndexRouteImport } from './routes/portal/work-orders/index'
 import { Route as PortalWorkOrdersWorkOrderIdRouteImport } from './routes/portal/work-orders/$workOrderId'
@@ -23,7 +25,6 @@ import { Route as AppCustomerCustomersIndexRouteImport } from './routes/_app/cus
 import { Route as AppCustomerVehiclesIndexRouteImport } from './routes/_app/customer/vehicles/index'
 import { Route as AppInventoryProductsIndexRouteImport } from './routes/_app/inventory/products/index'
 import { Route as AppInventoryStockMovementsIndexRouteImport } from './routes/_app/inventory/stock-movements/index'
-import { Route as AppInventoryToolsIndexRouteImport } from './routes/_app/inventory/tools/index'
 import { Route as AppWorkshopServiceCatalogIndexRouteImport } from './routes/_app/workshop/service-catalog/index'
 import { Route as AppWorkshopWorkOrdersIndexRouteImport } from './routes/_app/workshop/work-orders/index'
 import { Route as AppWorkshopWorkOrdersWorkOrderIdRouteImport } from './routes/_app/workshop/work-orders/$workOrderId'
@@ -56,6 +57,16 @@ const PortalIndexRoute = PortalIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PortalRoute,
+} as any)
+const PortalProfileRoute = PortalProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => PortalRoute,
+} as any)
+const AppAccountProfileRoute = AppAccountProfileRouteImport.update({
+  id: '/account/profile',
+  path: '/account/profile',
+  getParentRoute: () => AppRoute,
 } as any)
 const PortalVehiclesIndexRoute = PortalVehiclesIndexRouteImport.update({
   id: '/vehicles/',
@@ -102,11 +113,6 @@ const AppInventoryStockMovementsIndexRoute =
     path: '/inventory/stock-movements/',
     getParentRoute: () => AppRoute,
   } as any)
-const AppInventoryToolsIndexRoute = AppInventoryToolsIndexRouteImport.update({
-  id: '/inventory/tools/',
-  path: '/inventory/tools/',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppWorkshopServiceCatalogIndexRoute =
   AppWorkshopServiceCatalogIndexRouteImport.update({
     id: '/workshop/service-catalog/',
@@ -131,7 +137,9 @@ export interface FileRoutesByFullPath {
   '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
+  '/portal/profile': typeof PortalProfileRoute
   '/portal/': typeof PortalIndexRoute
+  '/account/profile': typeof AppAccountProfileRoute
   '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
   '/portal/vehicles/': typeof PortalVehiclesIndexRoute
   '/portal/work-orders/': typeof PortalWorkOrdersIndexRoute
@@ -141,15 +149,16 @@ export interface FileRoutesByFullPath {
   '/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
   '/inventory/products/': typeof AppInventoryProductsIndexRoute
   '/inventory/stock-movements/': typeof AppInventoryStockMovementsIndexRoute
-  '/inventory/tools/': typeof AppInventoryToolsIndexRoute
   '/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
   '/workshop/work-orders/': typeof AppWorkshopWorkOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
+  '/portal/profile': typeof PortalProfileRoute
   '/': typeof AppIndexRoute
   '/portal': typeof PortalIndexRoute
+  '/account/profile': typeof AppAccountProfileRoute
   '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
   '/portal/vehicles': typeof PortalVehiclesIndexRoute
   '/portal/work-orders': typeof PortalWorkOrdersIndexRoute
@@ -159,7 +168,6 @@ export interface FileRoutesByTo {
   '/customer/vehicles': typeof AppCustomerVehiclesIndexRoute
   '/inventory/products': typeof AppInventoryProductsIndexRoute
   '/inventory/stock-movements': typeof AppInventoryStockMovementsIndexRoute
-  '/inventory/tools': typeof AppInventoryToolsIndexRoute
   '/workshop/service-catalog': typeof AppWorkshopServiceCatalogIndexRoute
   '/workshop/work-orders': typeof AppWorkshopWorkOrdersIndexRoute
 }
@@ -169,8 +177,10 @@ export interface FileRoutesById {
   '/change-password': typeof ChangePasswordRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
+  '/portal/profile': typeof PortalProfileRoute
   '/_app/': typeof AppIndexRoute
   '/portal/': typeof PortalIndexRoute
+  '/_app/account/profile': typeof AppAccountProfileRoute
   '/portal/work-orders/$workOrderId': typeof PortalWorkOrdersWorkOrderIdRoute
   '/portal/vehicles/': typeof PortalVehiclesIndexRoute
   '/portal/work-orders/': typeof PortalWorkOrdersIndexRoute
@@ -180,7 +190,6 @@ export interface FileRoutesById {
   '/_app/customer/vehicles/': typeof AppCustomerVehiclesIndexRoute
   '/_app/inventory/products/': typeof AppInventoryProductsIndexRoute
   '/_app/inventory/stock-movements/': typeof AppInventoryStockMovementsIndexRoute
-  '/_app/inventory/tools/': typeof AppInventoryToolsIndexRoute
   '/_app/workshop/service-catalog/': typeof AppWorkshopServiceCatalogIndexRoute
   '/_app/workshop/work-orders/': typeof AppWorkshopWorkOrdersIndexRoute
 }
@@ -191,7 +200,9 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/login'
     | '/portal'
+    | '/portal/profile'
     | '/portal/'
+    | '/account/profile'
     | '/portal/work-orders/$workOrderId'
     | '/portal/vehicles/'
     | '/portal/work-orders/'
@@ -201,15 +212,16 @@ export interface FileRouteTypes {
     | '/customer/vehicles/'
     | '/inventory/products/'
     | '/inventory/stock-movements/'
-    | '/inventory/tools/'
     | '/workshop/service-catalog/'
     | '/workshop/work-orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/change-password'
     | '/login'
+    | '/portal/profile'
     | '/'
     | '/portal'
+    | '/account/profile'
     | '/portal/work-orders/$workOrderId'
     | '/portal/vehicles'
     | '/portal/work-orders'
@@ -219,7 +231,6 @@ export interface FileRouteTypes {
     | '/customer/vehicles'
     | '/inventory/products'
     | '/inventory/stock-movements'
-    | '/inventory/tools'
     | '/workshop/service-catalog'
     | '/workshop/work-orders'
   id:
@@ -228,8 +239,10 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/login'
     | '/portal'
+    | '/portal/profile'
     | '/_app/'
     | '/portal/'
+    | '/_app/account/profile'
     | '/portal/work-orders/$workOrderId'
     | '/portal/vehicles/'
     | '/portal/work-orders/'
@@ -239,7 +252,6 @@ export interface FileRouteTypes {
     | '/_app/customer/vehicles/'
     | '/_app/inventory/products/'
     | '/_app/inventory/stock-movements/'
-    | '/_app/inventory/tools/'
     | '/_app/workshop/service-catalog/'
     | '/_app/workshop/work-orders/'
   fileRoutesById: FileRoutesById
@@ -294,6 +306,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal/'
       preLoaderRoute: typeof PortalIndexRouteImport
       parentRoute: typeof PortalRoute
+    }
+    '/portal/profile': {
+      id: '/portal/profile'
+      path: '/profile'
+      fullPath: '/portal/profile'
+      preLoaderRoute: typeof PortalProfileRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/_app/account/profile': {
+      id: '/_app/account/profile'
+      path: '/account/profile'
+      fullPath: '/account/profile'
+      preLoaderRoute: typeof AppAccountProfileRouteImport
+      parentRoute: typeof AppRoute
     }
     '/portal/vehicles/': {
       id: '/portal/vehicles/'
@@ -351,13 +377,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryStockMovementsIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/inventory/tools/': {
-      id: '/_app/inventory/tools/'
-      path: '/inventory/tools'
-      fullPath: '/inventory/tools/'
-      preLoaderRoute: typeof AppInventoryToolsIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/workshop/service-catalog/': {
       id: '/_app/workshop/service-catalog/'
       path: '/workshop/service-catalog'
@@ -384,26 +403,26 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppAccountProfileRoute: typeof AppAccountProfileRoute
   AppWorkshopWorkOrdersWorkOrderIdRoute: typeof AppWorkshopWorkOrdersWorkOrderIdRoute
   AppCoreUsersIndexRoute: typeof AppCoreUsersIndexRoute
   AppCustomerCustomersIndexRoute: typeof AppCustomerCustomersIndexRoute
   AppCustomerVehiclesIndexRoute: typeof AppCustomerVehiclesIndexRoute
   AppInventoryProductsIndexRoute: typeof AppInventoryProductsIndexRoute
   AppInventoryStockMovementsIndexRoute: typeof AppInventoryStockMovementsIndexRoute
-  AppInventoryToolsIndexRoute: typeof AppInventoryToolsIndexRoute
   AppWorkshopServiceCatalogIndexRoute: typeof AppWorkshopServiceCatalogIndexRoute
   AppWorkshopWorkOrdersIndexRoute: typeof AppWorkshopWorkOrdersIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppAccountProfileRoute: AppAccountProfileRoute,
   AppWorkshopWorkOrdersWorkOrderIdRoute: AppWorkshopWorkOrdersWorkOrderIdRoute,
   AppCoreUsersIndexRoute: AppCoreUsersIndexRoute,
   AppCustomerCustomersIndexRoute: AppCustomerCustomersIndexRoute,
   AppCustomerVehiclesIndexRoute: AppCustomerVehiclesIndexRoute,
   AppInventoryProductsIndexRoute: AppInventoryProductsIndexRoute,
   AppInventoryStockMovementsIndexRoute: AppInventoryStockMovementsIndexRoute,
-  AppInventoryToolsIndexRoute: AppInventoryToolsIndexRoute,
   AppWorkshopServiceCatalogIndexRoute: AppWorkshopServiceCatalogIndexRoute,
   AppWorkshopWorkOrdersIndexRoute: AppWorkshopWorkOrdersIndexRoute,
 }
@@ -411,6 +430,7 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface PortalRouteChildren {
+  PortalProfileRoute: typeof PortalProfileRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalWorkOrdersWorkOrderIdRoute: typeof PortalWorkOrdersWorkOrderIdRoute
   PortalVehiclesIndexRoute: typeof PortalVehiclesIndexRoute
@@ -418,6 +438,7 @@ interface PortalRouteChildren {
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
+  PortalProfileRoute: PortalProfileRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalWorkOrdersWorkOrderIdRoute: PortalWorkOrdersWorkOrderIdRoute,
   PortalVehiclesIndexRoute: PortalVehiclesIndexRoute,

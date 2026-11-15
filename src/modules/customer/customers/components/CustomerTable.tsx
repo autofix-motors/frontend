@@ -68,30 +68,30 @@ function customerColumns({
   onDelete,
 }: RowActions) {
   return column.columns([
-    column.accessor('documentNumber', {
+    column.accessor('numeroDocumento', {
       header: 'Documento',
       enableSorting: false,
       cell: (info) => (
         <div className="flex flex-col">
           <span className="font-mono text-sm">{info.getValue()}</span>
           <span className="text-xs text-muted-foreground">
-            {DOCUMENT_TYPE_LABELS[info.row.original.documentType]}
+            {DOCUMENT_TYPE_LABELS[info.row.original.tipoDocumento]}
           </span>
         </div>
       ),
     }),
-    column.accessor('name', {
+    column.accessor('nombre', {
       header: 'Nombre',
       cell: (info) => <span className="font-medium">{info.getValue()}</span>,
     }),
-    column.accessor('phone', { header: 'Teléfono', enableSorting: false }),
-    column.accessor('email', {
+    column.accessor('telefono', { header: 'Teléfono', enableSorting: false }),
+    column.accessor('correo', {
       header: 'Correo',
       enableSorting: false,
       cell: (info) =>
         info.getValue() ?? <span className="text-muted-foreground">—</span>,
     }),
-    column.accessor('vehiclesCount', {
+    column.accessor('cantidadVehiculos', {
       header: 'Vehículos',
       enableSorting: false,
       // Lleva al listado de vehículos filtrado por este cliente.
@@ -100,16 +100,16 @@ function customerColumns({
           to="/customer/vehicles"
           search={{
             ...defaultVehiclesSearch,
-            customerId: info.row.original.customerId,
+            clienteId: info.row.original.clienteId,
           }}
           className="underline-offset-4 hover:underline"
-          aria-label={`Ver los vehículos de ${info.row.original.name}`}
+          aria-label={`Ver los vehículos de ${info.row.original.nombre}`}
         >
           {info.getValue()}
         </Link>
       ),
     }),
-    column.accessor('isActive', {
+    column.accessor('activo', {
       header: 'Estado',
       enableSorting: false,
       cell: (info) =>
@@ -119,29 +119,29 @@ function customerColumns({
           <Badge variant="outline">Inactivo</Badge>
         ),
     }),
-    column.accessor('portalAccess', {
+    column.accessor('accesoPortal', {
       header: 'Portal',
       enableSorting: false,
       cell: (info) => {
         const access = info.getValue()
         if (!access) return muted('Sin acceso')
         // Con la temporal todavía: o no entró, o no terminó de cambiarla.
-        if (access.mustChangePassword) {
+        if (access.debeCambiarContrasena) {
           return <Badge variant="outline">Por activar</Badge>
         }
         return (
           <div className="flex flex-col items-start gap-0.5">
             <Badge variant="secondary">Activo</Badge>
-            {access.lastLoginAt && (
+            {access.ultimoIngresoEn && (
               <span className="text-xs text-muted-foreground">
-                Entró el {formatDateTime(access.lastLoginAt)}
+                Entró el {formatDateTime(access.ultimoIngresoEn)}
               </span>
             )}
           </div>
         )
       },
     }),
-    column.accessor('createdAt', {
+    column.accessor('creadoEn', {
       header: 'Registrado',
       cell: (info) => formatDateTime(info.getValue()),
     }),
@@ -162,7 +162,7 @@ function customerColumns({
                 to="/workshop/work-orders"
                 search={{
                   ...defaultWorkOrdersSearch,
-                  customerId: info.row.original.customerId,
+                  clienteId: info.row.original.clienteId,
                 }}
               >
                 <ClipboardListIcon />
@@ -178,19 +178,19 @@ function customerColumns({
             {/* La API no le da acceso a un cliente inactivo: se muestra
                 deshabilitado en vez de ofrecer un botón que falla. */}
             <DropdownMenuItem
-              disabled={!info.row.original.isActive}
+              disabled={!info.row.original.activo}
               onSelect={() => onIssuePortalAccess(info.row.original)}
             >
-              {info.row.original.portalAccess ? (
+              {info.row.original.accesoPortal ? (
                 <KeyRoundIcon />
               ) : (
                 <UserCheckIcon />
               )}
-              {info.row.original.portalAccess
+              {info.row.original.accesoPortal
                 ? 'Restablecer contraseña del portal'
                 : 'Dar acceso al portal'}
             </DropdownMenuItem>
-            {info.row.original.portalAccess && (
+            {info.row.original.accesoPortal && (
               <DropdownMenuItem
                 onSelect={() => onRemovePortalAccess(info.row.original)}
               >
@@ -255,7 +255,7 @@ export function CustomerTable({
     onSearchChange({ ...changes, page: 1 })
 
   const isFiltered = Boolean(
-    search.search || search.documentType || search.isActive !== undefined,
+    search.search || search.tipoDocumento || search.activo !== undefined,
   )
 
   return (
@@ -272,11 +272,11 @@ export function CustomerTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as CustomersSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as CustomersSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -302,10 +302,10 @@ export function CustomerTable({
               label="Tipo de documento"
               allLabel="Todos los documentos"
               options={documentTypeOptions}
-              value={search.documentType}
+              value={search.tipoDocumento}
               onChange={(value) =>
                 filter({
-                  documentType: value as CustomersSearch['documentType'],
+                  tipoDocumento: value as CustomersSearch['tipoDocumento'],
                 })
               }
             />
@@ -314,13 +314,11 @@ export function CustomerTable({
               allLabel="Todos los estados"
               options={STATUS_OPTIONS}
               value={
-                search.isActive === undefined
-                  ? undefined
-                  : String(search.isActive)
+                search.activo === undefined ? undefined : String(search.activo)
               }
               onChange={(value) =>
                 filter({
-                  isActive: value === undefined ? undefined : value === 'true',
+                  activo: value === undefined ? undefined : value === 'true',
                 })
               }
             />

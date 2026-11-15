@@ -38,12 +38,12 @@ function staffCredentials(
   password: TemporaryPassword,
 ): TemporaryCredentials {
   return {
-    name: user.name,
-    phone: user.phone,
+    nombre: user.nombre,
+    telefono: user.telefono,
     // Con el DNI si lo tiene; el personal registrado antes, con su correo.
-    loginIdentifier: user.documentNumber ?? user.email,
-    temporaryPassword: password.temporaryPassword,
-    expiresAt: password.expiresAt,
+    identificadorAcceso: user.numeroDocumento ?? user.correo,
+    contrasenaTemporal: password.contrasenaTemporal,
+    expiraEn: password.expiraEn,
     isStaff: true,
   }
 }
@@ -73,46 +73,50 @@ function userColumns({
   onDelete,
 }: RowActions) {
   return column.columns([
-    column.accessor('name', {
+    column.accessor('nombre', {
       header: 'Nombre',
       cell: (info) => (
         <div className="flex flex-col">
           <span className="flex items-center gap-2 font-medium">
             {info.getValue()}
-            {info.row.original.userId === currentUserId && (
+            {info.row.original.usuarioId === currentUserId && (
               <Badge variant="outline">Tú</Badge>
             )}
           </span>
           <span className="text-xs text-muted-foreground">
-            {info.row.original.email}
+            {info.row.original.correo}
           </span>
         </div>
       ),
     }),
-    column.accessor('documentNumber', {
+    column.accessor('numeroDocumento', {
       header: 'DNI',
       enableSorting: false,
       cell: (info) => info.getValue() ?? muted('Sin DNI'),
     }),
-    column.accessor('phone', {
+    column.accessor('telefono', {
       header: 'Teléfono',
       enableSorting: false,
       cell: (info) => info.getValue() ?? muted('—'),
     }),
-    column.accessor('role', {
+    column.accessor('rol', {
       header: 'Rol',
       enableSorting: false,
       cell: (info) => (
-        <Badge variant={info.getValue() === 'ADMIN' ? 'default' : 'secondary'}>
+        <Badge
+          variant={
+            info.getValue() === 'ADMINISTRADOR' ? 'default' : 'secondary'
+          }
+        >
           {ROLE_LABELS[info.getValue()]}
         </Badge>
       ),
     }),
-    column.accessor('assignedWorkOrdersCount', {
+    column.accessor('cantidadOrdenesAsignadas', {
       header: 'Órdenes asignadas',
       enableSorting: false,
     }),
-    column.accessor('isActive', {
+    column.accessor('activo', {
       header: 'Estado',
       enableSorting: false,
       cell: (info) => (
@@ -123,18 +127,18 @@ function userColumns({
             <Badge variant="outline">Inactivo</Badge>
           )}
           {/* Todavía no entró a cambiar la contraseña que se le generó. */}
-          {info.row.original.mustChangePassword && (
+          {info.row.original.debeCambiarContrasena && (
             <Badge variant="outline">Contraseña temporal</Badge>
           )}
         </div>
       ),
     }),
-    column.accessor('lastLoginAt', {
+    column.accessor('ultimoIngresoEn', {
       header: 'Último ingreso',
       cell: (info) =>
         info.getValue() ? formatDateTime(info.getValue()) : muted('Nunca'),
     }),
-    column.accessor('createdAt', {
+    column.accessor('creadoEn', {
       header: 'Registrado',
       cell: (info) => formatDateTime(info.getValue()),
     }),
@@ -145,7 +149,7 @@ function userColumns({
         const user = info.row.original
         // La API no deja que el usuario de la sesión se borre: la acción se
         // muestra deshabilitada en vez de ofrecer un botón que falla.
-        const isSelf = user.userId === currentUserId
+        const isSelf = user.usuarioId === currentUserId
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -223,7 +227,7 @@ export function UserTable({
     onSearchChange({ ...changes, page: 1 })
 
   const isFiltered = Boolean(
-    search.search || search.role || search.isActive !== undefined,
+    search.search || search.rol || search.activo !== undefined,
   )
 
   return (
@@ -240,11 +244,11 @@ export function UserTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as UsersSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as UsersSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -270,23 +274,19 @@ export function UserTable({
               label="Rol"
               allLabel="Todos los roles"
               options={roleOptions}
-              value={search.role}
-              onChange={(value) =>
-                filter({ role: value as UsersSearch['role'] })
-              }
+              value={search.rol}
+              onChange={(value) => filter({ rol: value as UsersSearch['rol'] })}
             />
             <DataTableFilter
               label="Estado"
               allLabel="Todos los estados"
               options={STATUS_OPTIONS}
               value={
-                search.isActive === undefined
-                  ? undefined
-                  : String(search.isActive)
+                search.activo === undefined ? undefined : String(search.activo)
               }
               onChange={(value) =>
                 filter({
-                  isActive: value === undefined ? undefined : value === 'true',
+                  activo: value === undefined ? undefined : value === 'true',
                 })
               }
             />
@@ -298,13 +298,13 @@ export function UserTable({
         onOpenChange={setFormOpen}
         user={editing}
         currentUserId={currentUserId}
-        onCreated={({ user, ...password }) =>
-          setCredentials(staffCredentials(user, password))
+        onCreated={({ usuario, ...password }) =>
+          setCredentials(staffCredentials(usuario, password))
         }
       />
       <ResetPasswordDialog
         user={resettingPassword}
-        isSelf={resettingPassword?.userId === currentUserId}
+        isSelf={resettingPassword?.usuarioId === currentUserId}
         onOpenChange={(open) => !open && setResettingPassword(undefined)}
         onIssued={(user, password) =>
           setCredentials(staffCredentials(user, password))

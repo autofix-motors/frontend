@@ -24,7 +24,7 @@ export const listCustomers = createServerFn({ method: 'GET' })
 
 export const getCustomer = createServerFn({ method: 'GET' })
   .validator(customerIdSchema)
-  .handler(({ data }) => callApi<Customer>(`/customers/${data.customerId}`))
+  .handler(({ data }) => callApi<Customer>(`/customers/${data.clienteId}`))
 
 export const createCustomer = createServerFn({ method: 'POST' })
   .validator(customerInputSchema)
@@ -40,7 +40,7 @@ export const updateCustomer = createServerFn({ method: 'POST' })
   .validator(updateCustomerRequestSchema)
   .handler(async ({ data }) => {
     const { data: customer, message } = await callApiEnvelope<Customer>(
-      `/customers/${data.customerId}`,
+      `/customers/${data.clienteId}`,
       { method: 'PATCH', body: JSON.stringify(data.values) },
     )
     return { customer, message }
@@ -50,7 +50,7 @@ export const deleteCustomer = createServerFn({ method: 'POST' })
   .validator(customerIdSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/customers/${data.customerId}`,
+      `/customers/${data.clienteId}`,
       { method: 'DELETE' },
     )
     return { message }

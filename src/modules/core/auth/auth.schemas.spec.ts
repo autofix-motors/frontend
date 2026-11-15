@@ -4,31 +4,34 @@ import {
   changePasswordRequestSchema,
   hasRole,
   homeFor,
+  documentLabel,
   loginSchema,
+  profilePageFor,
   safeRedirect,
+  sessionOwnerId,
 } from './auth.schemas'
 import type { CurrentSession } from './auth.schemas'
 
 function session(overrides: Partial<CurrentSession> = {}): CurrentSession {
   return {
-    role: 'MECHANIC',
-    name: 'Ana',
-    email: 'ana@taller.local',
-    mustChangePassword: false,
-    userId: 'u1',
-    customerId: null,
+    rol: 'MECANICO',
+    nombre: 'Ana',
+    correo: 'ana@taller.local',
+    debeCambiarContrasena: false,
+    usuarioId: 'u1',
+    clienteId: null,
     ...overrides,
   }
 }
 
 const customer = (overrides: Partial<CurrentSession> = {}) =>
-  session({ role: 'CUSTOMER', userId: null, customerId: 'c1', ...overrides })
+  session({ rol: 'CLIENTE', usuarioId: null, clienteId: 'c1', ...overrides })
 
 describe('hasRole', () => {
   it('es verdadero si el usuario tiene alguno de los roles', () => {
-    expect(hasRole({ role: 'MECHANIC' }, 'ADMIN', 'MECHANIC')).toBe(true)
-    expect(hasRole({ role: 'MECHANIC' }, 'ADMIN')).toBe(false)
-    expect(hasRole({ role: 'CUSTOMER' }, 'ADMIN', 'MECHANIC')).toBe(false)
+    expect(hasRole({ rol: 'MECANICO' }, 'ADMINISTRADOR', 'MECANICO')).toBe(true)
+    expect(hasRole({ rol: 'MECANICO' }, 'ADMINISTRADOR')).toBe(false)
+    expect(hasRole({ rol: 'CLIENTE' }, 'ADMINISTRADOR', 'MECANICO')).toBe(false)
   })
 })
 
@@ -51,10 +54,10 @@ describe('safeRedirect', () => {
 
 describe('homeFor', () => {
   it('con la contraseña temporal, siempre a cambiarla', () => {
-    expect(homeFor(session({ mustChangePassword: true }))).toBe(
+    expect(homeFor(session({ debeCambiarContrasena: true }))).toBe(
       '/change-password',
     )
-    expect(homeFor(customer({ mustChangePassword: true }))).toBe(
+    expect(homeFor(customer({ debeCambiarContrasena: true }))).toBe(
       '/change-password',
     )
   })
@@ -62,6 +65,37 @@ describe('homeFor', () => {
   it('el cliente a su portal y el personal a la app', () => {
     expect(homeFor(customer())).toBe('/portal')
     expect(homeFor(session())).toBe('/')
+  })
+})
+
+describe('profilePageFor', () => {
+  it('cada uno tiene su perfil dentro de su layout', () => {
+    expect(profilePageFor(customer())).toBe('/portal/profile')
+    expect(profilePageFor(session())).toBe('/account/profile')
+  })
+})
+
+describe('sessionOwnerId', () => {
+  it('es el usuario del personal o el cliente', () => {
+    expect(sessionOwnerId(session())).toBe('u1')
+    expect(sessionOwnerId(customer())).toBe('c1')
+  })
+})
+
+describe('documentLabel', () => {
+  it('une el tipo, con su nombre largo, y el número', () => {
+    expect(
+      documentLabel({ tipoDocumento: 'DNI', numeroDocumento: '45678912' }),
+    ).toBe('DNI 45678912')
+    expect(
+      documentLabel({ tipoDocumento: 'CE', numeroDocumento: '001234567' }),
+    ).toBe('Carné de extranjería 001234567')
+  })
+
+  it('es null si no tiene documento registrado', () => {
+    expect(
+      documentLabel({ tipoDocumento: null, numeroDocumento: null }),
+    ).toBeNull()
   })
 })
 
@@ -82,7 +116,7 @@ describe('afterLogin', () => {
 
   it('con la contraseña temporal, primero a cambiarla', () => {
     expect(
-      afterLogin(session({ mustChangePassword: true }), '/core/users'),
+      afterLogin(session({ debeCambiarContrasena: true }), '/core/users'),
     ).toBe('/change-password')
   })
 
@@ -94,17 +128,20 @@ describe('afterLogin', () => {
 describe('loginSchema', () => {
   it('acepta un documento o un correo, sin espacios alrededor', () => {
     expect(
-      loginSchema.parse({ identifier: '  45678912 ', password: 'x' }).identifier,
+      loginSchema.parse({ identificador: '  45678912 ', contrasena: 'x' })
+        .identificador,
     ).toBe('45678912')
     expect(
-      loginSchema.safeParse({ identifier: 'ana@taller.local', password: 'x' })
-        .success,
+      loginSchema.safeParse({
+        identificador: 'ana@taller.local',
+        contrasena: 'x',
+      }).success,
     ).toBe(true)
   })
 
   it('si parece un correo, tiene que serlo', () => {
     expect(
-      loginSchema.safeParse({ identifier: 'ana@', password: 'x' }).error
+      loginSchema.safeParse({ identificador: 'ana@', contrasena: 'x' }).error
         ?.issues[0]?.message,
     ).toBe('Ingresa un correo válido')
   })
@@ -112,7 +149,7 @@ describe('loginSchema', () => {
   it('pide el documento o correo y la contraseña', () => {
     expect(
       loginSchema
-        .safeParse({ identifier: ' ', password: '' })
+        .safeParse({ identificador: ' ', contrasena: '' })
         .error?.issues.map((issue) => issue.message),
     ).toEqual(['Ingresa tu documento o correo', 'Ingresa la contraseña'])
   })
@@ -120,9 +157,9 @@ describe('loginSchema', () => {
 
 describe('changePasswordFormSchema', () => {
   const valid = {
-    currentPassword: 'Temporal123',
-    newPassword: 'Mi-clave-nueva',
-    confirmation: 'Mi-clave-nueva',
+    contrasenaActual: 'Temporal123',
+    contrasenaNueva: 'Mi-clave-nueva',
+    confirmacion: 'Mi-clave-nueva',
   }
 
   it('acepta una nueva de 8 o más, confirmada y distinta de la actual', () => {
@@ -131,24 +168,24 @@ describe('changePasswordFormSchema', () => {
 
   it('marca la confirmación distinta y la nueva igual a la actual', () => {
     expect(
-      changePasswordFormSchema.safeParse({ ...valid, confirmation: 'otra' })
+      changePasswordFormSchema.safeParse({ ...valid, confirmacion: 'otra' })
         .error?.issues,
     ).toMatchObject([
-      { path: ['confirmation'], message: 'Las contraseñas no coinciden' },
+      { path: ['confirmacion'], message: 'Las contraseñas no coinciden' },
     ])
     expect(
       changePasswordFormSchema.safeParse({
-        currentPassword: 'Igual-1234',
-        newPassword: 'Igual-1234',
-        confirmation: 'Igual-1234',
+        contrasenaActual: 'Igual-1234',
+        contrasenaNueva: 'Igual-1234',
+        confirmacion: 'Igual-1234',
       }).error?.issues,
-    ).toMatchObject([{ path: ['newPassword'] }])
+    ).toMatchObject([{ path: ['contrasenaNueva'] }])
   })
 
   it('a la API no viaja la confirmación', () => {
     expect(changePasswordRequestSchema.parse(valid)).toStrictEqual({
-      currentPassword: 'Temporal123',
-      newPassword: 'Mi-clave-nueva',
+      contrasenaActual: 'Temporal123',
+      contrasenaNueva: 'Mi-clave-nueva',
     })
   })
 })

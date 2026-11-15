@@ -42,13 +42,13 @@ export function RemoveItemDialog({
           <>
             <DialogHeader>
               <DialogTitle>
-                {item.type === 'PRODUCT'
+                {item.tipo === 'PRODUCTO'
                   ? 'Quitar repuesto'
                   : 'Quitar servicio'}
               </DialogTitle>
               <DialogDescription>
-                Se quitará <strong>{item.description}</strong> de la orden.
-                {item.type === 'PRODUCT' &&
+                Se quitará <strong>{item.descripcion}</strong> de la orden.
+                {item.tipo === 'PRODUCTO' &&
                   ` Su cantidad (${formatItemQuantity(item)}) vuelve al stock.`}
               </DialogDescription>
             </DialogHeader>
@@ -63,9 +63,9 @@ export function RemoveItemDialog({
                 onClick={() =>
                   remove.mutate(
                     {
-                      workOrderId,
-                      workOrderItemId: item.workOrderItemId,
-                      type: item.type,
+                      ordenTrabajoId: workOrderId,
+                      detalleOrdenId: item.detalleOrdenId,
+                      tipo: item.tipo,
                     },
                     { onSuccess: () => onOpenChange(false) },
                   )

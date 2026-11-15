@@ -11,21 +11,21 @@ export type ServiceCatalogItem = components['schemas']['ServiceCatalogItem']
  * `MoneyField` y como lo recibe la API: así no se pierden decimales.
  */
 export const serviceCatalogItemFormSchema = z.object({
-  name: z
+  nombre: z
     .string()
     .trim()
     .min(1, 'Ingresa el nombre del servicio')
     .max(120, 'El nombre tiene como máximo 120 caracteres'),
-  laborPrice: z
+  precioManoObra: z
     .string()
     .trim()
     .min(1, 'Ingresa el precio de mano de obra')
     .pipe(moneySchema('El precio de mano de obra')),
-  description: z
+  descripcion: z
     .string()
     .trim()
     .max(1000, 'La descripción tiene como máximo 1000 caracteres'),
-  isActive: z.boolean(),
+  activo: z.boolean(),
 })
 
 export type ServiceCatalogItemFormValues = z.infer<
@@ -33,10 +33,10 @@ export type ServiceCatalogItemFormValues = z.infer<
 >
 
 export const emptyServiceCatalogItemForm: ServiceCatalogItemFormValues = {
-  name: '',
-  laborPrice: '',
-  description: '',
-  isActive: true,
+  nombre: '',
+  precioManoObra: '',
+  descripcion: '',
+  activo: true,
 }
 
 /** Los valores del formulario para editar un servicio existente. */
@@ -44,10 +44,10 @@ export function serviceCatalogItemToForm(
   item: ServiceCatalogItem,
 ): ServiceCatalogItemFormValues {
   return {
-    name: item.name,
-    laborPrice: item.laborPrice,
-    description: item.description ?? '',
-    isActive: item.isActive,
+    nombre: item.nombre,
+    precioManoObra: item.precioManoObra,
+    descripcion: item.descripcion ?? '',
+    activo: item.activo,
   }
 }
 
@@ -55,7 +55,7 @@ export function serviceCatalogItemToForm(
 export const serviceCatalogItemInputSchema =
   serviceCatalogItemFormSchema.transform((value) => ({
     ...value,
-    description: value.description || null,
+    descripcion: value.descripcion || null,
   }))
 
 export type ServiceCatalogItemInput = z.input<
@@ -67,35 +67,32 @@ export type ServiceCatalogItemInput = z.input<
  * mano de obra, que es el que se sugiere al agregarlo a una orden.
  */
 export function serviceCatalogItemOption(
-  item: Pick<
-    ServiceCatalogItem,
-    'serviceCatalogItemId' | 'name' | 'laborPrice'
-  >,
+  item: Pick<ServiceCatalogItem, 'servicioId' | 'nombre' | 'precioManoObra'>,
 ): ComboboxOption {
   return {
-    value: item.serviceCatalogItemId,
-    label: item.name,
-    description: `Mano de obra: ${formatMoney(item.laborPrice)}`,
+    value: item.servicioId,
+    label: item.nombre,
+    description: `Mano de obra: ${formatMoney(item.precioManoObra)}`,
   }
 }
 
-export const serviceCatalogItemIdSchema = z.object({
-  serviceCatalogItemId: z.uuid(),
+export const servicioIdSchema = z.object({
+  servicioId: z.uuid(),
 })
 
 export const updateServiceCatalogItemRequestSchema = z.object({
-  serviceCatalogItemId: z.uuid(),
+  servicioId: z.uuid(),
   values: serviceCatalogItemInputSchema,
 })
 
 export const SERVICE_CATALOG_SORT_FIELDS = [
-  'name',
-  'laborPrice',
-  'createdAt',
+  'nombre',
+  'precioManoObra',
+  'creadoEn',
 ] as const
 
 // Un precio del filtro en la URL. El router guarda los números como números
-// (`?minPrice=50`), así que se valida el número y se le exigen las mismas
+// (`?precioMinimo=50`), así que se valida el número y se le exigen las mismas
 // reglas que a un monto: un valor que la API rechazaría cae a «sin filtro».
 const priceParam = z
   .number()
@@ -115,11 +112,11 @@ export const serviceCatalogSearchSchema = z.object({
     .refine((size) => (PAGE_SIZES as readonly number[]).includes(size))
     .catch(10),
   search: z.string().trim().max(100).optional().catch(undefined),
-  isActive: z.boolean().optional().catch(undefined),
-  minPrice: priceParam,
-  maxPrice: priceParam,
-  sortBy: z.enum(SERVICE_CATALOG_SORT_FIELDS).catch('name'),
-  sortOrder: z.enum(['asc', 'desc']).catch('asc'),
+  activo: z.boolean().optional().catch(undefined),
+  precioMinimo: priceParam,
+  precioMaximo: priceParam,
+  ordenarPor: z.enum(SERVICE_CATALOG_SORT_FIELDS).catch('nombre'),
+  sentido: z.enum(['asc', 'desc']).catch('asc'),
 })
 
 export type ServiceCatalogSearch = z.infer<typeof serviceCatalogSearchSchema>
@@ -139,8 +136,8 @@ export const defaultServiceCatalogSearch: ServiceCatalogSearch =
  */
 export const SERVICE_CATALOG_FILTERS_CLEARED = {
   search: undefined,
-  isActive: undefined,
-  minPrice: undefined,
-  maxPrice: undefined,
+  activo: undefined,
+  precioMinimo: undefined,
+  precioMaximo: undefined,
   page: 1,
 } satisfies Partial<ServiceCatalogSearch>

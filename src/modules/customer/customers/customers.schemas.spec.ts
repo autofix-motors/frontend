@@ -8,9 +8,9 @@ import {
 
 const valid = {
   ...emptyCustomerForm,
-  documentNumber: '45678912',
-  name: 'Juan Pérez',
-  phone: '987 654 321',
+  numeroDocumento: '45678912',
+  nombre: 'Juan Pérez',
+  telefono: '987 654 321',
 }
 
 const messagesOf = (values: unknown) => {
@@ -24,35 +24,35 @@ describe('customerFormSchema', () => {
   })
 
   it('valida el número según el tipo, igual que la API', () => {
-    expect(messagesOf({ ...valid, documentType: 'RUC' })).toEqual([
+    expect(messagesOf({ ...valid, tipoDocumento: 'RUC' })).toEqual([
       'El RUC tiene 11 dígitos y empieza en 10, 15, 16, 17 o 20',
     ])
     expect(
       messagesOf({
         ...valid,
-        documentType: 'RUC',
-        documentNumber: '20-123456789',
+        tipoDocumento: 'RUC',
+        numeroDocumento: '20-123456789',
       }),
     ).toEqual([])
   })
 
   it('rechaza un correo mal escrito pero acepta dejarlo vacío', () => {
-    expect(messagesOf({ ...valid, email: 'juan@' })).toEqual([
+    expect(messagesOf({ ...valid, correo: 'juan@' })).toEqual([
       'Ingresa un correo válido',
     ])
-    expect(messagesOf({ ...valid, email: '' })).toEqual([])
+    expect(messagesOf({ ...valid, correo: '' })).toEqual([])
   })
 })
 
 describe('customerInputSchema', () => {
   it('normaliza el documento y manda null en los opcionales vacíos', () => {
     expect(
-      customerInputSchema.parse({ ...valid, documentNumber: '4567-8912' }),
+      customerInputSchema.parse({ ...valid, numeroDocumento: '4567-8912' }),
     ).toMatchObject({
-      documentNumber: '45678912',
-      email: null,
-      address: null,
-      notes: null,
+      numeroDocumento: '45678912',
+      correo: null,
+      direccion: null,
+      notas: null,
     })
   })
 })
@@ -64,8 +64,8 @@ describe('customersSearchSchema', () => {
     expect(customersSearchSchema.parse({})).toStrictEqual({
       page: 1,
       pageSize: 10,
-      sortBy: 'name',
-      sortOrder: 'asc',
+      ordenarPor: 'nombre',
+      sentido: 'asc',
     })
   })
 
@@ -74,10 +74,10 @@ describe('customersSearchSchema', () => {
       page: 3,
       pageSize: 20,
       search: 'trans',
-      documentType: 'RUC',
-      isActive: true,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      tipoDocumento: 'RUC',
+      activo: true,
+      ordenarPor: 'creadoEn',
+      sentido: 'desc',
     })
     // Así lo combina la ruta al navegar: el cambio sobre la búsqueda actual.
     // JSON hace lo que la URL: las claves en undefined no viajan.
@@ -88,8 +88,8 @@ describe('customersSearchSchema', () => {
     expect(JSON.parse(JSON.stringify(next))).toStrictEqual({
       page: 1,
       pageSize: 20,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      ordenarPor: 'creadoEn',
+      sentido: 'desc',
     })
   })
 
@@ -98,8 +98,8 @@ describe('customersSearchSchema', () => {
       customersSearchSchema.parse({
         page: -3,
         pageSize: 7,
-        documentType: 'XYZ',
+        tipoDocumento: 'XYZ',
       }),
-    ).toMatchObject({ page: 1, pageSize: 10, documentType: undefined })
+    ).toMatchObject({ page: 1, pageSize: 10, tipoDocumento: undefined })
   })
 })

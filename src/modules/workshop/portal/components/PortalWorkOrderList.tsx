@@ -14,8 +14,8 @@ import { PortalPager } from './PortalPager'
 import { PortalWorkOrderCard } from './PortalWorkOrderCard'
 
 const EMPTY: Record<PortalWorkOrderState, string> = {
-  OPEN: 'No tienes vehículos en el taller ahora mismo.',
-  CLOSED: 'Todavía no hay reparaciones anteriores.',
+  EN_CURSO: 'No tienes vehículos en el taller ahora mismo.',
+  ANTERIORES: 'Todavía no hay reparaciones anteriores.',
 }
 
 /**
@@ -42,9 +42,9 @@ export function PortalWorkOrderList({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Tabs
-          value={search.state}
+          value={search.estado}
           onValueChange={(value) =>
-            onSearchChange({ state: value as PortalWorkOrderState, page: 1 })
+            onSearchChange({ estado: value as PortalWorkOrderState, page: 1 })
           }
         >
           <TabsList>
@@ -55,13 +55,13 @@ export function PortalWorkOrderList({
             ))}
           </TabsList>
         </Tabs>
-        {search.vehicleId && (
+        {search.vehiculoId && (
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onSearchChange({ vehicleId: undefined, page: 1 })}
+            onClick={() => onSearchChange({ vehiculoId: undefined, page: 1 })}
           >
-            Vehículo {vehicle?.plate ?? 'elegido'}
+            Vehículo {vehicle?.placa ?? 'elegido'}
             <XIcon />
           </Button>
         )}
@@ -75,11 +75,11 @@ export function PortalWorkOrderList({
       >
         {page.items.length ? (
           page.items.map((order) => (
-            <PortalWorkOrderCard key={order.workOrderId} order={order} />
+            <PortalWorkOrderCard key={order.ordenTrabajoId} order={order} />
           ))
         ) : (
           <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-            {EMPTY[search.state]}
+            {EMPTY[search.estado]}
           </p>
         )}
       </div>

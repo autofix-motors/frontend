@@ -24,8 +24,8 @@ export const Route = createFileRoute('/_app/inventory/stock-movements/')({
   loader: ({ context: { queryClient }, deps }) =>
     Promise.all([
       queryClient.ensureQueryData(stockMovementsQueries.list(deps)),
-      deps.productId &&
-        queryClient.prefetchQuery(productsQueries.detail(deps.productId)),
+      deps.productoId &&
+        queryClient.prefetchQuery(productsQueries.detail(deps.productoId)),
     ]),
   head: () => ({ meta: [{ title: 'Movimientos de stock · AutoFix Motors' }] }),
   component: StockMovementsPage,
@@ -52,7 +52,7 @@ function StockMovementsPage() {
         page={data}
         search={search}
         isFetching={isFetching}
-        canManage={hasRole(session, 'ADMIN')}
+        canManage={hasRole(session, 'ADMINISTRADOR')}
         onSearchChange={(changes) =>
           void navigate({ search: (previous) => ({ ...previous, ...changes }) })
         }

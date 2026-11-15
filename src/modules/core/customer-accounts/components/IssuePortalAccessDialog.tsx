@@ -29,7 +29,7 @@ export function IssuePortalAccessDialog({
   onIssued: (customer: Customer, credentials: PortalCredentials) => void
 }) {
   const issue = useIssuePortalAccess()
-  const isReset = Boolean(customer?.portalAccess)
+  const isReset = Boolean(customer?.accesoPortal)
 
   return (
     <Dialog
@@ -42,12 +42,14 @@ export function IssuePortalAccessDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isReset ? 'Restablecer contraseña del portal' : 'Dar acceso al portal'}
+            {isReset
+              ? 'Restablecer contraseña del portal'
+              : 'Dar acceso al portal'}
           </DialogTitle>
           <DialogDescription>
             {isReset
-              ? `Se generará una contraseña temporal nueva para ${customer?.name ?? ''}: la anterior deja de servir y se cierra su sesión.`
-              : `${customer?.name ?? ''} podrá seguir sus reparaciones y responder sus presupuestos. Se generará una contraseña temporal para compartirle; al entrar elegirá una propia.`}
+              ? `Se generará una contraseña temporal nueva para ${customer?.nombre ?? ''}: la anterior deja de servir y se cierra su sesión.`
+              : `${customer?.nombre ?? ''} podrá seguir sus reparaciones y responder sus presupuestos. Se generará una contraseña temporal para compartirle; al entrar elegirá una propia.`}
           </DialogDescription>
         </DialogHeader>
         {issue.error && <FieldError>{issue.error.message}</FieldError>}
@@ -62,7 +64,7 @@ export function IssuePortalAccessDialog({
             disabled={issue.isPending}
             onClick={() =>
               customer &&
-              issue.mutate(customer.customerId, {
+              issue.mutate(customer.clienteId, {
                 onSuccess: ({ credentials }) => {
                   onOpenChange(false)
                   onIssued(customer, credentials)

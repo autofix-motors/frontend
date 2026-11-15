@@ -30,7 +30,7 @@ export function PortalWorkOrderView({
   order: PortalWorkOrderDetail
 }) {
   const pending = pendingQuote(order)
-  const [decision, setDecision] = useState<PortalDecision>('APPROVED')
+  const [decision, setDecision] = useState<PortalDecision>('APROBADO')
   const [deciding, setDeciding] = useState(false)
 
   const answer = (value: PortalDecision) => {
@@ -50,12 +50,12 @@ export function PortalWorkOrderView({
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-heading text-2xl font-semibold">
-            {order.vehicle.brand} {order.vehicle.model}
+            {order.vehiculo.marca} {order.vehiculo.modelo}
           </h1>
-          <WorkOrderStatusBadge status={order.status} />
+          <WorkOrderStatusBadge status={order.estado} />
         </div>
         <p className="text-sm text-muted-foreground">
-          Placa {order.vehicle.plate} · Código {order.trackingCode}
+          Placa {order.vehiculo.placa} · Código {order.codigoSeguimiento}
         </p>
       </div>
 
@@ -71,16 +71,16 @@ export function PortalWorkOrderView({
               <strong className="tabular-nums">
                 {formatMoney(pending.total)}
               </strong>{' '}
-              el {formatDateTime(pending.sentAt)}. Revísalo abajo y danos tu
+              el {formatDateTime(pending.enviadoEn)}. Revísalo abajo y danos tu
               respuesta.
             </span>
           </p>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button onClick={() => answer('APPROVED')}>
+            <Button onClick={() => answer('APROBADO')}>
               <CheckIcon />
               Aprobar
             </Button>
-            <Button variant="outline" onClick={() => answer('REJECTED')}>
+            <Button variant="outline" onClick={() => answer('RECHAZADO')}>
               <XIcon />
               Rechazar
             </Button>
@@ -98,7 +98,7 @@ export function PortalWorkOrderView({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <PortalQuotes quotes={order.quotes} />
+              <PortalQuotes quotes={order.presupuestos} />
             </CardContent>
           </Card>
 
@@ -110,10 +110,10 @@ export function PortalWorkOrderView({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {order.items.length ? (
+              {order.detalles.length ? (
                 <PortalLinesTable
-                  lines={order.items}
-                  total={order.totals.total}
+                  lines={order.detalles}
+                  total={order.totales.total}
                 />
               ) : (
                 <p className="text-sm text-muted-foreground">
@@ -129,7 +129,7 @@ export function PortalWorkOrderView({
               <CardDescription>Lo que pasó con tu vehículo.</CardDescription>
             </CardHeader>
             <CardContent>
-              <PortalTimeline events={order.events} />
+              <PortalTimeline events={order.eventos} />
             </CardContent>
           </Card>
         </div>
@@ -142,25 +142,25 @@ export function PortalWorkOrderView({
             <CardContent>
               <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
                 <dt className="text-muted-foreground">Ingresó</dt>
-                <dd>{formatDateTime(order.receivedAt)}</dd>
+                <dd>{formatDateTime(order.recibidaEn)}</dd>
                 <dt className="text-muted-foreground">Kilometraje</dt>
                 <dd className="tabular-nums">
-                  {order.mileageIn.toLocaleString('es-PE')} km
+                  {order.kilometrajeIngreso.toLocaleString('es-PE')} km
                 </dd>
-                {order.promisedDate && (
+                {order.fechaPrometida && (
                   <>
                     <dt className="text-muted-foreground">Prometido</dt>
-                    <dd>{formatDateOnly(order.promisedDate)}</dd>
+                    <dd>{formatDateOnly(order.fechaPrometida)}</dd>
                   </>
                 )}
-                {order.deliveredAt && (
+                {order.entregadaEn && (
                   <>
                     <dt className="text-muted-foreground">Entregado</dt>
-                    <dd>{formatDateTime(order.deliveredAt)}</dd>
+                    <dd>{formatDateTime(order.entregadaEn)}</dd>
                   </>
                 )}
                 <dt className="text-muted-foreground">Mecánico</dt>
-                <dd>{order.mechanicName ?? 'Por asignar'}</dd>
+                <dd>{order.nombreMecanico ?? 'Por asignar'}</dd>
               </dl>
             </CardContent>
           </Card>
@@ -170,7 +170,7 @@ export function PortalWorkOrderView({
               <CardTitle>Motivo del ingreso</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm whitespace-pre-line">{order.reason}</p>
+              <p className="text-sm whitespace-pre-line">{order.motivo}</p>
             </CardContent>
           </Card>
 
@@ -180,20 +180,20 @@ export function PortalWorkOrderView({
             </CardHeader>
             <CardContent>
               <p className="text-sm whitespace-pre-line">
-                {order.diagnosis ??
+                {order.diagnostico ??
                   'El mecánico todavía no registra el diagnóstico.'}
               </p>
             </CardContent>
           </Card>
 
-          {order.cancelReason && (
+          {order.motivoCancelacion && (
             <Card>
               <CardHeader>
                 <CardTitle>Motivo de la cancelación</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-line">
-                  {order.cancelReason}
+                  {order.motivoCancelacion}
                 </p>
               </CardContent>
             </Card>
@@ -202,7 +202,7 @@ export function PortalWorkOrderView({
       </div>
 
       <DecideMyQuoteDialog
-        workOrderId={order.workOrderId}
+        workOrderId={order.ordenTrabajoId}
         quote={deciding ? pending : undefined}
         decision={decision}
         onClose={() => setDeciding(false)}

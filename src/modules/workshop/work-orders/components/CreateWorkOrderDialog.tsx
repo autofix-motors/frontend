@@ -76,7 +76,7 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
           onDone()
           void navigate({
             to: '/workshop/work-orders/$workOrderId',
-            params: { workOrderId: workOrder.workOrderId },
+            params: { workOrderId: workOrder.ordenTrabajoId },
           })
         },
         () => undefined,
@@ -84,10 +84,10 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
   })
 
   // El vehículo elegido, con su dueño: es el cliente que queda en la orden.
-  const vehicleId = useStore(form.store, (state) => state.values.vehicleId)
+  const vehiculoId = useStore(form.store, (state) => state.values.vehiculoId)
   const vehicle = useQuery({
-    ...vehiclesQueries.detail(vehicleId),
-    enabled: Boolean(vehicleId),
+    ...vehiclesQueries.detail(vehiculoId),
+    enabled: Boolean(vehiculoId),
   }).data
 
   return (
@@ -98,7 +98,7 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
       }}
     >
       <FieldGroup>
-        <form.AppField name="vehicleId">
+        <form.AppField name="vehiculoId">
           {(field) => (
             <field.ComboboxField
               label="Vehículo"
@@ -113,16 +113,16 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
           <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
             <UserRoundIcon className="size-4 text-muted-foreground" />
             <span>
-              Cliente de la orden: <strong>{vehicle.customer.name}</strong>{' '}
+              Cliente de la orden: <strong>{vehicle.cliente.nombre}</strong>{' '}
               <span className="text-muted-foreground">
-                ({DOCUMENT_TYPE_LABELS[vehicle.customer.documentType]}{' '}
-                {vehicle.customer.documentNumber})
+                ({DOCUMENT_TYPE_LABELS[vehicle.cliente.tipoDocumento]}{' '}
+                {vehicle.cliente.numeroDocumento})
               </span>
             </span>
           </div>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="mileageIn">
+          <form.AppField name="kilometrajeIngreso">
             {(field) => (
               <field.TextField
                 label="Kilometraje al ingreso"
@@ -131,7 +131,7 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
               />
             )}
           </form.AppField>
-          <form.AppField name="promisedDate">
+          <form.AppField name="fechaPrometida">
             {(field) => (
               <field.DateField
                 label="Fecha prometida (opcional)"
@@ -140,7 +140,7 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
             )}
           </form.AppField>
         </div>
-        <form.AppField name="reason">
+        <form.AppField name="motivo">
           {(field) => (
             <field.TextareaField
               label="Motivo del ingreso"
@@ -149,7 +149,7 @@ function CreateWorkOrderForm({ onDone }: { onDone: () => void }) {
             />
           )}
         </form.AppField>
-        <form.AppField name="mechanicId">
+        <form.AppField name="mecanicoId">
           {(field) => (
             <field.ComboboxField
               label="Mecánico (opcional)"

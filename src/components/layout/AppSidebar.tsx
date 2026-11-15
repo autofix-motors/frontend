@@ -22,7 +22,7 @@ import { GENERAL_ITEMS, SECTIONS, visibleSections } from './navigation'
  */
 export function AppSidebar({ session }: { session: StaffSession }) {
   const matchRoute = useMatchRoute()
-  const sections = visibleSections(SECTIONS, session.role)
+  const sections = visibleSections(SECTIONS, session.rol)
 
   return (
     <Sidebar collapsible="icon">

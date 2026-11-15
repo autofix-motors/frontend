@@ -80,7 +80,7 @@ function ServiceCatalogItemForm({
     onSubmit: ({ value }) =>
       (item
         ? update.mutateAsync({
-            serviceCatalogItemId: item.serviceCatalogItemId,
+            servicioId: item.servicioId,
             values: value,
           })
         : create.mutateAsync(value)
@@ -96,14 +96,14 @@ function ServiceCatalogItemForm({
     >
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <form.AppField name="name">
+          <form.AppField name="nombre">
             {(field) => <field.TextField label="Nombre" autoFocus />}
           </form.AppField>
-          <form.AppField name="laborPrice">
+          <form.AppField name="precioManoObra">
             {(field) => <field.MoneyField label="Mano de obra" />}
           </form.AppField>
         </div>
-        <form.AppField name="description">
+        <form.AppField name="descripcion">
           {(field) => (
             <field.TextareaField
               label="Descripción (opcional)"
@@ -112,7 +112,7 @@ function ServiceCatalogItemForm({
             />
           )}
         </form.AppField>
-        <form.AppField name="isActive">
+        <form.AppField name="activo">
           {(field) => (
             <field.SwitchField
               label="Activo"

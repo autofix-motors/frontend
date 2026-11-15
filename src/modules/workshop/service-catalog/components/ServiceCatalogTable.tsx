@@ -45,26 +45,26 @@ type RowActions = {
 /** Las columnas; las acciones solo si quien mira puede modificar el catálogo. */
 function serviceCatalogColumns(actions: RowActions | undefined) {
   return column.columns([
-    column.accessor('name', {
+    column.accessor('nombre', {
       header: 'Servicio',
       cell: (info) => (
         <div className="flex max-w-md flex-col">
           <span className="font-medium">{info.getValue()}</span>
-          {info.row.original.description && (
+          {info.row.original.descripcion && (
             <span className="truncate text-xs text-muted-foreground">
-              {info.row.original.description}
+              {info.row.original.descripcion}
             </span>
           )}
         </div>
       ),
     }),
-    column.accessor('laborPrice', {
+    column.accessor('precioManoObra', {
       header: 'Mano de obra',
       cell: (info) => (
         <span className="tabular-nums">{formatMoney(info.getValue())}</span>
       ),
     }),
-    column.accessor('isActive', {
+    column.accessor('activo', {
       header: 'Estado',
       enableSorting: false,
       cell: (info) =>
@@ -74,7 +74,7 @@ function serviceCatalogColumns(actions: RowActions | undefined) {
           <Badge variant="outline">Inactivo</Badge>
         ),
     }),
-    column.accessor('createdAt', {
+    column.accessor('creadoEn', {
       header: 'Registrado',
       cell: (info) => formatDateTime(info.getValue()),
     }),
@@ -160,9 +160,9 @@ export function ServiceCatalogTable({
 
   const isFiltered = Boolean(
     search.search ||
-    search.isActive !== undefined ||
-    search.minPrice !== undefined ||
-    search.maxPrice !== undefined,
+    search.activo !== undefined ||
+    search.precioMinimo !== undefined ||
+    search.precioMaximo !== undefined,
   )
 
   return (
@@ -179,11 +179,11 @@ export function ServiceCatalogTable({
         }
         onPageChange={(next) => onSearchChange({ page: next })}
         onPageSizeChange={(pageSize) => onSearchChange({ pageSize, page: 1 })}
-        sort={{ sortBy: search.sortBy, sortOrder: search.sortOrder }}
+        sort={{ ordenarPor: search.ordenarPor, sentido: search.sentido }}
         onSortChange={(sort) =>
           onSearchChange({
-            sortBy: sort.sortBy as ServiceCatalogSearch['sortBy'],
-            sortOrder: sort.sortOrder,
+            ordenarPor: sort.ordenarPor as ServiceCatalogSearch['ordenarPor'],
+            sentido: sort.sentido,
           })
         }
         toolbar={
@@ -212,19 +212,17 @@ export function ServiceCatalogTable({
               allLabel="Todos los estados"
               options={STATUS_OPTIONS}
               value={
-                search.isActive === undefined
-                  ? undefined
-                  : String(search.isActive)
+                search.activo === undefined ? undefined : String(search.activo)
               }
               onChange={(value) =>
                 filter({
-                  isActive: value === undefined ? undefined : value === 'true',
+                  activo: value === undefined ? undefined : value === 'true',
                 })
               }
             />
             <PriceRangeFilter
-              minPrice={search.minPrice}
-              maxPrice={search.maxPrice}
+              precioMinimo={search.precioMinimo}
+              precioMaximo={search.precioMaximo}
               onChange={filter}
             />
           </DataTableToolbar>

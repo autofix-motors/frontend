@@ -53,7 +53,7 @@ export function DecideQuoteDialog({
             </DialogHeader>
             {/* Se monta con cada versión: el formulario empieza vacío. */}
             <DecideQuoteForm
-              key={quote.quoteId}
+              key={quote.presupuestoId}
               workOrderId={workOrderId}
               quote={quote}
               onDone={() => onOpenChange(false)}
@@ -83,7 +83,11 @@ function DecideQuoteForm({
     // abierto con su mensaje y no se relanza.
     onSubmit: ({ value }) =>
       decide
-        .mutateAsync({ workOrderId, quoteId: quote.quoteId, values: value })
+        .mutateAsync({
+          ordenTrabajoId: workOrderId,
+          presupuestoId: quote.presupuestoId,
+          values: value,
+        })
         .then(onDone, () => undefined),
   })
 
@@ -105,7 +109,7 @@ function DecideQuoteForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="channel">
+          <form.AppField name="canal">
             {(field) => (
               <field.SelectField
                 label="Respondió por"
@@ -124,7 +128,7 @@ function DecideQuoteForm({
             )
           }
         </form.Subscribe>
-        <form.AppField name="note">
+        <form.AppField name="nota">
           {(field) => (
             <field.TextareaField
               id="decision-note"

@@ -30,7 +30,7 @@ import type { WorkOrder, WorkOrderDetail } from './work-orders.schemas'
 export const listWorkOrders = createServerFn({ method: 'GET' })
   .validator(workOrdersSearchSchema)
   .handler(({ data }) =>
-    // La lista de estados viaja separada por coma («RECEIVED,DIAGNOSIS»):
+    // La lista de estados viaja separada por coma («RECIBIDO,EN_DIAGNOSTICO»):
     // así la recibe la API.
     callApiPage<WorkOrder>(`/work-orders${toQueryString(data)}`),
   )
@@ -39,7 +39,9 @@ export const getWorkOrder = createServerFn({ method: 'GET' })
   .validator(workOrderIdSchema)
   .handler(async ({ data }) => {
     try {
-      return await callApi<WorkOrderDetail>(`/work-orders/${data.workOrderId}`)
+      return await callApi<WorkOrderDetail>(
+        `/work-orders/${data.ordenTrabajoId}`,
+      )
     } catch (error) {
       // Una orden que no existe —o que es de otro mecánico, que para la API
       // es lo mismo— no es una falla: la página muestra «no encontrada» con
@@ -67,38 +69,38 @@ export const createWorkOrder = createServerFn({ method: 'POST' })
 export const updateWorkOrder = createServerFn({ method: 'POST' })
   .validator(updateWorkOrderRequestSchema)
   .handler(({ data }) =>
-    send(`/work-orders/${data.workOrderId}`, 'PATCH', data.values),
+    send(`/work-orders/${data.ordenTrabajoId}`, 'PATCH', data.values),
   )
 
 export const updateWorkOrderDiagnosis = createServerFn({ method: 'POST' })
   .validator(updateDiagnosisRequestSchema)
   .handler(({ data }) =>
-    send(`/work-orders/${data.workOrderId}/diagnosis`, 'PUT', data.values),
+    send(`/work-orders/${data.ordenTrabajoId}/diagnosis`, 'PUT', data.values),
   )
 
 export const changeWorkOrderStatus = createServerFn({ method: 'POST' })
   .validator(changeStatusRequestSchema)
-  .handler(({ data: { workOrderId, ...body } }) =>
-    send(`/work-orders/${workOrderId}/status`, 'POST', body),
+  .handler(({ data: { ordenTrabajoId, ...body } }) =>
+    send(`/work-orders/${ordenTrabajoId}/status`, 'POST', body),
   )
 
 export const addWorkOrderNote = createServerFn({ method: 'POST' })
   .validator(addNoteRequestSchema)
   .handler(({ data }) =>
-    send(`/work-orders/${data.workOrderId}/notes`, 'POST', data.values),
+    send(`/work-orders/${data.ordenTrabajoId}/notes`, 'POST', data.values),
   )
 
 export const addWorkOrderItem = createServerFn({ method: 'POST' })
   .validator(addItemRequestSchema)
   .handler(({ data }) =>
-    send(`/work-orders/${data.workOrderId}/items`, 'POST', data.values),
+    send(`/work-orders/${data.ordenTrabajoId}/items`, 'POST', data.values),
   )
 
 export const updateWorkOrderItem = createServerFn({ method: 'POST' })
   .validator(updateItemRequestSchema)
   .handler(({ data }) =>
     send(
-      `/work-orders/${data.workOrderId}/items/${data.workOrderItemId}`,
+      `/work-orders/${data.ordenTrabajoId}/items/${data.detalleOrdenId}`,
       'PATCH',
       data.values,
     ),
@@ -106,15 +108,15 @@ export const updateWorkOrderItem = createServerFn({ method: 'POST' })
 
 export const sendQuote = createServerFn({ method: 'POST' })
   .validator(sendQuoteRequestSchema)
-  .handler(({ data: { workOrderId, ...body } }) =>
-    send(`/work-orders/${workOrderId}/quotes`, 'POST', body),
+  .handler(({ data: { ordenTrabajoId, ...body } }) =>
+    send(`/work-orders/${ordenTrabajoId}/quotes`, 'POST', body),
   )
 
 export const decideQuote = createServerFn({ method: 'POST' })
   .validator(decideQuoteRequestSchema)
   .handler(({ data }) =>
     send(
-      `/work-orders/${data.workOrderId}/quotes/${data.quoteId}/decision`,
+      `/work-orders/${data.ordenTrabajoId}/quotes/${data.presupuestoId}/decision`,
       'POST',
       data.values,
     ),
@@ -125,7 +127,7 @@ export const removeWorkOrderItem = createServerFn({ method: 'POST' })
   .validator(removeItemRequestSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/work-orders/${data.workOrderId}/items/${data.workOrderItemId}`,
+      `/work-orders/${data.ordenTrabajoId}/items/${data.detalleOrdenId}`,
       { method: 'DELETE' },
     )
     return { message }
@@ -135,7 +137,7 @@ export const deleteWorkOrder = createServerFn({ method: 'POST' })
   .validator(workOrderIdSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/work-orders/${data.workOrderId}`,
+      `/work-orders/${data.ordenTrabajoId}`,
       { method: 'DELETE' },
     )
     return { message }

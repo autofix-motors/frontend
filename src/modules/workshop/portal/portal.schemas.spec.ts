@@ -9,22 +9,22 @@ import {
 import type { PortalQuote } from './portal.schemas'
 
 const quote = (overrides: Partial<PortalQuote> = {}): PortalQuote => ({
-  quoteId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
+  presupuestoId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
   version: 1,
-  status: 'PENDING',
+  estado: 'PENDIENTE',
   total: '200.00',
-  sentAt: '2026-10-18T15:30:00.000Z',
-  decidedAt: null,
-  decisionChannel: null,
-  decisionNote: null,
-  items: [],
+  enviadoEn: '2026-10-18T15:30:00.000Z',
+  decididoEn: null,
+  canalDecision: null,
+  notaDecision: null,
+  detalles: [],
   ...overrides,
 })
 
 describe('portalWorkOrdersSearchSchema', () => {
   it('por omisión, la pestaña «En curso» en la primera página', () => {
     expect(defaultPortalWorkOrdersSearch).toStrictEqual({
-      state: 'OPEN',
+      estado: 'EN_CURSO',
       page: 1,
     })
   })
@@ -32,11 +32,11 @@ describe('portalWorkOrdersSearchSchema', () => {
   it('cae al valor por defecto si alguien edita la URL a mano', () => {
     expect(
       portalWorkOrdersSearchSchema.parse({
-        state: 'TODAS',
-        vehicleId: 'no-es-uuid',
+        estado: 'TODAS',
+        vehiculoId: 'no-es-uuid',
         page: 0,
       }),
-    ).toMatchObject({ state: 'OPEN', vehicleId: undefined, page: 1 })
+    ).toMatchObject({ estado: 'EN_CURSO', vehiculoId: undefined, page: 1 })
   })
 })
 
@@ -59,19 +59,19 @@ describe('portalVehiclesSearchSchema', () => {
 })
 
 describe('pendingQuote', () => {
-  it('es la versión PENDING mientras la orden espera aprobación', () => {
+  it('es la versión PENDIENTE mientras la orden espera aprobación', () => {
     const pending = quote()
     expect(
       pendingQuote({
-        status: 'WAITING_APPROVAL',
-        quotes: [pending, quote({ version: 0, status: 'REJECTED' })],
+        estado: 'ESPERANDO_APROBACION',
+        presupuestos: [pending, quote({ version: 0, estado: 'RECHAZADO' })],
       }),
     ).toBe(pending)
   })
 
   it('no hay respuesta que dar si la orden ya no espera (la cancelaron)', () => {
     expect(
-      pendingQuote({ status: 'CANCELLED', quotes: [quote()] }),
+      pendingQuote({ estado: 'CANCELADO', presupuestos: [quote()] }),
     ).toBeUndefined()
   })
 })
@@ -80,21 +80,21 @@ describe('portalDecisionRequestSchema', () => {
   it('manda la decisión y la nota vacía como null', () => {
     expect(
       portalDecisionRequestSchema.parse({
-        workOrderId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
-        quoteId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
-        decision: 'APPROVED',
-        note: '   ',
+        ordenTrabajoId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
+        presupuestoId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
+        decision: 'APROBADO',
+        nota: '   ',
       }),
-    ).toMatchObject({ decision: 'APPROVED', note: null })
+    ).toMatchObject({ decision: 'APROBADO', nota: null })
   })
 
   it('solo aprobado o rechazado', () => {
     expect(
       portalDecisionRequestSchema.safeParse({
-        workOrderId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
-        quoteId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
-        decision: 'SUPERSEDED',
-        note: '',
+        ordenTrabajoId: '0b6f4a8e-3c1d-4e2f-9a7b-5c8d1e2f3a4b',
+        presupuestoId: '7b1e4c8a-2f3d-4e5f-8a9b-0c1d2e3f4a5b',
+        decision: 'REEMPLAZADO',
+        nota: '',
       }).success,
     ).toBe(false)
   })

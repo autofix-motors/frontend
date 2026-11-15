@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { vehiclesKeys } from '#/modules/customer/vehicles/vehicles.queries'
 import { productsKeys } from '#/modules/inventory/products/products.queries'
 import { stockMovementsKeys } from '#/modules/inventory/stock-movements/stock-movements.queries'
+import { dashboardKeys } from '#/modules/workshop/dashboard/dashboard.queries'
 import {
   addWorkOrderItem,
   addWorkOrderNote,
@@ -43,8 +44,8 @@ export const workOrdersKeys = {
   all: ['work-orders'] as const,
   list: (search: WorkOrdersSearch) =>
     [...workOrdersKeys.all, 'list', search] as const,
-  detail: (workOrderId: string) =>
-    [...workOrdersKeys.all, 'detail', workOrderId] as const,
+  detail: (ordenTrabajoId: string) =>
+    [...workOrdersKeys.all, 'detail', ordenTrabajoId] as const,
 }
 
 export const workOrdersQueries = {
@@ -56,10 +57,10 @@ export const workOrdersQueries = {
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
     }),
-  detail: (workOrderId: string) =>
+  detail: (ordenTrabajoId: string) =>
     queryOptions({
-      queryKey: workOrdersKeys.detail(workOrderId),
-      queryFn: () => getWorkOrder({ data: { workOrderId } }),
+      queryKey: workOrdersKeys.detail(ordenTrabajoId),
+      queryFn: () => getWorkOrder({ data: { ordenTrabajoId } }),
     }),
 }
 
@@ -74,12 +75,16 @@ async function onChanged(
 ) {
   toast.success(message)
   queryClient.setQueryData(
-    workOrdersKeys.detail(workOrder.workOrderId),
+    workOrdersKeys.detail(workOrder.ordenTrabajoId),
     workOrder,
   )
-  await queryClient.invalidateQueries({
-    queryKey: [...workOrdersKeys.all, 'list'],
-  })
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: [...workOrdersKeys.all, 'list'],
+    }),
+    // El panel de inicio cuenta órdenes por estado, vencidas y entregadas.
+    queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+  ])
 }
 
 export function useCreateWorkOrder() {
@@ -99,7 +104,7 @@ export function useUpdateWorkOrder() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (request: {
-      workOrderId: string
+      ordenTrabajoId: string
       values: UpdateWorkOrderInput
     }) => updateWorkOrder({ data: request }),
     onSuccess: (result) => onChanged(queryClient, result),
@@ -110,7 +115,7 @@ export function useUpdateWorkOrderDiagnosis() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (request: {
-      workOrderId: string
+      ordenTrabajoId: string
       values: DiagnosisFormValues
     }) => updateWorkOrderDiagnosis({ data: request }),
     onSuccess: (result) => onChanged(queryClient, result),
@@ -129,7 +134,7 @@ export function useChangeWorkOrderStatus() {
 export function useAddWorkOrderNote() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: { workOrderId: string; values: NoteFormValues }) =>
+    mutationFn: (request: { ordenTrabajoId: string; values: NoteFormValues }) =>
       addWorkOrderNote({ data: request }),
     onSuccess: (result) => onChanged(queryClient, result),
   })
@@ -138,8 +143,8 @@ export function useAddWorkOrderNote() {
 export function useDeleteWorkOrder() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (workOrderId: string) =>
-      deleteWorkOrder({ data: { workOrderId } }),
+    mutationFn: (ordenTrabajoId: string) =>
+      deleteWorkOrder({ data: { ordenTrabajoId } }),
     // El detalle no se toca: la pantalla que borró sigue montada hasta que
     // navega al listado, y volver a pedirlo daría un 404 de paso.
     onSuccess: async ({ message }) => {
@@ -149,6 +154,7 @@ export function useDeleteWorkOrder() {
           queryKey: [...workOrdersKeys.all, 'list'],
         }),
         queryClient.invalidateQueries({ queryKey: vehiclesKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ])
     },
   })
@@ -158,11 +164,13 @@ export function useDeleteWorkOrder() {
  * Un repuesto que entra o sale de una orden mueve el stock: se invalidan los
  * repuestos (su stock) y el kardex (el movimiento nuevo).
  */
-async function onStockMoved(queryClient: QueryClient, type: ItemType) {
-  if (type !== 'PRODUCT') return
+async function onStockMoved(queryClient: QueryClient, tipo: ItemType) {
+  if (tipo !== 'PRODUCTO') return
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: productsKeys.all }),
     queryClient.invalidateQueries({ queryKey: stockMovementsKeys.all }),
+    // El panel de inicio muestra los productos con stock bajo.
+    queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
   ])
 }
 
@@ -173,7 +181,7 @@ export function useAddWorkOrderItem() {
       addWorkOrderItem({ data: request }),
     onSuccess: async (result, request) => {
       await onChanged(queryClient, result)
-      await onStockMoved(queryClient, request.values.type)
+      await onStockMoved(queryClient, request.values.tipo)
     },
   })
 }
@@ -195,26 +203,27 @@ export function useRemoveWorkOrderItem() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (request: {
-      workOrderId: string
-      workOrderItemId: string
-      type: ItemType
+      ordenTrabajoId: string
+      detalleOrdenId: string
+      tipo: ItemType
     }) =>
       removeWorkOrderItem({
         data: {
-          workOrderId: request.workOrderId,
-          workOrderItemId: request.workOrderItemId,
+          ordenTrabajoId: request.ordenTrabajoId,
+          detalleOrdenId: request.detalleOrdenId,
         },
       }),
     onSuccess: async ({ message }, request) => {
       toast.success(message)
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: workOrdersKeys.detail(request.workOrderId),
+          queryKey: workOrdersKeys.detail(request.ordenTrabajoId),
         }),
         queryClient.invalidateQueries({
           queryKey: [...workOrdersKeys.all, 'list'],
         }),
-        onStockMoved(queryClient, request.type),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+        onStockMoved(queryClient, request.tipo),
       ])
     },
   })

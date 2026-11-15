@@ -15,7 +15,11 @@ import { WorkOrderView } from '#/modules/workshop/work-orders/components/WorkOrd
 export const Route = createFileRoute('/_app/workshop/work-orders/$workOrderId')(
   {
     loader: ({ context: { queryClient }, params }) => {
-      if (!workOrderIdSchema.safeParse(params).success) throw notFound()
+      if (
+        !workOrderIdSchema.safeParse({ ordenTrabajoId: params.workOrderId })
+          .success
+      )
+        throw notFound()
       return queryClient.ensureQueryData(
         workOrdersQueries.detail(params.workOrderId),
       )
@@ -23,7 +27,7 @@ export const Route = createFileRoute('/_app/workshop/work-orders/$workOrderId')(
     head: ({ loaderData }) => ({
       meta: [
         {
-          title: `${loaderData ? formatWorkOrderNumber(loaderData.number) : 'Orden de trabajo'} · AutoFix Motors`,
+          title: `${loaderData ? formatWorkOrderNumber(loaderData.numero) : 'Orden de trabajo'} · AutoFix Motors`,
         },
       ],
     }),
@@ -37,5 +41,5 @@ function WorkOrderPage() {
   const { session } = Route.useRouteContext()
   const { data } = useSuspenseQuery(workOrdersQueries.detail(workOrderId))
 
-  return <WorkOrderView workOrder={data} role={session.role} />
+  return <WorkOrderView workOrder={data} role={session.rol} />
 }

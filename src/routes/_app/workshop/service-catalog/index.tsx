@@ -44,7 +44,7 @@ function ServiceCatalogPage() {
         page={data}
         search={search}
         isFetching={isFetching}
-        canManage={hasRole(session, 'ADMIN')}
+        canManage={hasRole(session, 'ADMINISTRADOR')}
         onSearchChange={(changes) =>
           void navigate({ search: (previous) => ({ ...previous, ...changes }) })
         }

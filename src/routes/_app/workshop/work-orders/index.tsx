@@ -25,18 +25,18 @@ export const Route = createFileRoute('/_app/workshop/work-orders/')({
   // página se muestra igual. Solo para el administrador: esos listados son
   // suyos.
   loader: ({ context: { queryClient, session }, deps }) => {
-    const isAdmin = hasRole(session, 'ADMIN')
+    const isAdmin = hasRole(session, 'ADMINISTRADOR')
     return Promise.all([
       queryClient.ensureQueryData(workOrdersQueries.list(deps)),
       isAdmin &&
-        deps.mechanicId &&
-        queryClient.prefetchQuery(usersQueries.detail(deps.mechanicId)),
+        deps.mecanicoId &&
+        queryClient.prefetchQuery(usersQueries.detail(deps.mecanicoId)),
       isAdmin &&
-        deps.vehicleId &&
-        queryClient.prefetchQuery(vehiclesQueries.detail(deps.vehicleId)),
+        deps.vehiculoId &&
+        queryClient.prefetchQuery(vehiclesQueries.detail(deps.vehiculoId)),
       isAdmin &&
-        deps.customerId &&
-        queryClient.prefetchQuery(customersQueries.detail(deps.customerId)),
+        deps.clienteId &&
+        queryClient.prefetchQuery(customersQueries.detail(deps.clienteId)),
     ])
   },
   head: () => ({ meta: [{ title: 'Órdenes de trabajo · AutoFix Motors' }] }),
@@ -48,7 +48,7 @@ function WorkOrdersPage() {
   const navigate = Route.useNavigate()
   const { session } = Route.useRouteContext()
   const { data, isFetching } = useSuspenseQuery(workOrdersQueries.list(search))
-  const isAdmin = hasRole(session, 'ADMIN')
+  const isAdmin = hasRole(session, 'ADMINISTRADOR')
 
   return (
     <div className="flex flex-col gap-6">

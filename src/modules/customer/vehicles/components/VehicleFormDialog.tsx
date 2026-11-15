@@ -77,7 +77,7 @@ function VehicleForm({
     // abierto con su mensaje y no se relanza: quedaría sin capturar.
     onSubmit: ({ value }) =>
       (vehicle
-        ? update.mutateAsync({ vehicleId: vehicle.vehicleId, values: value })
+        ? update.mutateAsync({ vehiculoId: vehicle.vehiculoId, values: value })
         : create.mutateAsync(value)
       ).then(onDone, () => undefined),
   })
@@ -90,7 +90,7 @@ function VehicleForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="customerId">
+        <form.AppField name="clienteId">
           {(field) => (
             <field.ComboboxField
               label="Cliente"
@@ -100,12 +100,12 @@ function VehicleForm({
               optionsQuery={activeCustomerOptions}
               // Al editar, el dueño actual se muestra aunque no salga en la
               // primera página de resultados (o esté inactivo).
-              selectedOption={vehicle && customerOption(vehicle.customer)}
+              selectedOption={vehicle && customerOption(vehicle.cliente)}
             />
           )}
         </form.AppField>
         <div className="grid gap-4 sm:grid-cols-3">
-          <form.AppField name="plate">
+          <form.AppField name="placa">
             {(field) => (
               <field.TextField
                 label="Placa"
@@ -114,15 +114,15 @@ function VehicleForm({
               />
             )}
           </form.AppField>
-          <form.AppField name="brand">
+          <form.AppField name="marca">
             {(field) => <field.TextField label="Marca" placeholder="Toyota" />}
           </form.AppField>
-          <form.AppField name="model">
+          <form.AppField name="modelo">
             {(field) => <field.TextField label="Modelo" placeholder="Yaris" />}
           </form.AppField>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          <form.AppField name="year">
+          <form.AppField name="anio">
             {(field) => (
               <field.TextField
                 label="Año (opcional)"
@@ -143,7 +143,7 @@ function VehicleForm({
             )}
           </form.AppField>
         </div>
-        <form.AppField name="notes">
+        <form.AppField name="notas">
           {(field) => <field.TextareaField label="Notas (opcional)" rows={3} />}
         </form.AppField>
         {mutation.error && <FieldError>{mutation.error.message}</FieldError>}

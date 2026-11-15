@@ -14,7 +14,7 @@ export const Route = createFileRoute('/portal')({
       throw redirect({ to: '/login', search: { redirect: location.href } })
     }
     // El personal tiene su app; con la contraseña temporal, solo se cambia.
-    if (!isCustomerSession(session) || session.mustChangePassword) {
+    if (!isCustomerSession(session) || session.debeCambiarContrasena) {
       throw redirect({ href: homeFor(session) })
     }
     return { session }

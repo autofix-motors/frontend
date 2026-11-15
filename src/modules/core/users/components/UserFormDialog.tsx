@@ -59,7 +59,7 @@ export function UserFormDialog({
           (user ? (
             <EditUserForm
               user={user}
-              isSelf={user.userId === currentUserId}
+              isSelf={user.usuarioId === currentUserId}
               onDone={onDone}
             />
           ) : (
@@ -98,23 +98,23 @@ function NewUserForm({ onDone }: { onDone: (issued: IssuedUser) => void }) {
       }}
     >
       <FieldGroup>
-        <form.AppField name="name">
+        <form.AppField name="nombre">
           {(field) => <field.TextField label="Nombre" autoFocus />}
         </form.AppField>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="email">
+          <form.AppField name="correo">
             {(field) => (
               <field.TextField label="Correo" type="email" autoComplete="off" />
             )}
           </form.AppField>
-          <form.AppField name="documentNumber">
+          <form.AppField name="numeroDocumento">
             {(field) => (
               <field.TextField label="DNI" inputMode="numeric" maxLength={12} />
             )}
           </form.AppField>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="phone">
+          <form.AppField name="telefono">
             {(field) => (
               <field.TextField
                 label="Celular (opcional)"
@@ -123,10 +123,8 @@ function NewUserForm({ onDone }: { onDone: (issued: IssuedUser) => void }) {
               />
             )}
           </form.AppField>
-          <form.AppField name="role">
-            {(field) => (
-              <field.SelectField label="Rol" options={roleOptions} />
-            )}
+          <form.AppField name="rol">
+            {(field) => <field.SelectField label="Rol" options={roleOptions} />}
           </form.AppField>
         </div>
         {create.error && <FieldError>{create.error.message}</FieldError>}
@@ -162,7 +160,7 @@ function EditUserForm({
     validators: { onChange: userFormSchema },
     onSubmit: async ({ value }) => {
       try {
-        await update.mutateAsync({ userId: user.userId, values: value })
+        await update.mutateAsync({ usuarioId: user.usuarioId, values: value })
       } catch {
         // El mensaje queda en `update.error`; relanzarlo lo dejaría sin
         // capturar en la consola.
@@ -183,29 +181,27 @@ function EditUserForm({
       }}
     >
       <FieldGroup>
-        <form.AppField name="name">
+        <form.AppField name="nombre">
           {(field) => <field.TextField label="Nombre" autoFocus />}
         </form.AppField>
         <div className="grid gap-4 sm:grid-cols-2">
-          <form.AppField name="email">
+          <form.AppField name="correo">
             {(field) => (
               <field.TextField label="Correo" type="email" autoComplete="off" />
             )}
           </form.AppField>
-          <form.AppField name="documentNumber">
+          <form.AppField name="numeroDocumento">
             {(field) => (
               <field.TextField label="DNI" inputMode="numeric" maxLength={12} />
             )}
           </form.AppField>
         </div>
-        <form.AppField name="phone">
-          {(field) => (
-            <field.TextField label="Celular (opcional)" type="tel" />
-          )}
+        <form.AppField name="telefono">
+          {(field) => <field.TextField label="Celular (opcional)" type="tel" />}
         </form.AppField>
         {/* La API no deja que nadie se quite el rol ni se desactive a sí
             mismo: en el propio usuario esos campos no se ofrecen. */}
-        <form.AppField name="role">
+        <form.AppField name="rol">
           {(field) => (
             <field.SelectField
               label="Rol"
@@ -214,7 +210,7 @@ function EditUserForm({
             />
           )}
         </form.AppField>
-        <form.AppField name="isActive">
+        <form.AppField name="activo">
           {(field) => (
             <field.SwitchField
               label="Activo"

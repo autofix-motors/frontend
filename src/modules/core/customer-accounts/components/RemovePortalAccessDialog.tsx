@@ -39,7 +39,7 @@ export function RemovePortalAccessDialog({
         <DialogHeader>
           <DialogTitle>Quitar acceso al portal</DialogTitle>
           <DialogDescription>
-            {customer?.name ?? ''} ya no podrá entrar a su portal y se cerrará
+            {customer?.nombre ?? ''} ya no podrá entrar a su portal y se cerrará
             su sesión. Sus órdenes no cambian, y puedes volver a darle acceso
             cuando quieras.
           </DialogDescription>
@@ -57,7 +57,7 @@ export function RemovePortalAccessDialog({
             disabled={remove.isPending}
             onClick={() =>
               customer &&
-              remove.mutate(customer.customerId, {
+              remove.mutate(customer.clienteId, {
                 onSuccess: () => onOpenChange(false),
               })
             }

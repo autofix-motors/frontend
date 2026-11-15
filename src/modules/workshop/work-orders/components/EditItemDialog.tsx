@@ -47,13 +47,13 @@ export function EditItemDialog({
             <DialogHeader>
               <DialogTitle>Editar ítem</DialogTitle>
               <DialogDescription>
-                {item.type === 'PRODUCT'
+                {item.tipo === 'PRODUCTO'
                   ? `La cantidad (${formatItemQuantity(item)}) ya se descontó del stock: para cambiarla, quita el repuesto y vuelve a agregarlo.`
-                  : item.description}
+                  : item.descripcion}
               </DialogDescription>
             </DialogHeader>
             <EditItemForm
-              key={item.workOrderItemId}
+              key={item.detalleOrdenId}
               workOrderId={workOrderId}
               item={item}
               role={role}
@@ -78,8 +78,8 @@ function EditItemForm({
   onDone: () => void
 }) {
   const update = useUpdateWorkOrderItem()
-  const canEditQuantity = item.type === 'SERVICE'
-  const canEditPrice = role === 'ADMIN'
+  const canEditQuantity = item.tipo === 'SERVICIO'
+  const canEditPrice = role === 'ADMINISTRADOR'
 
   const form = useAppForm({
     defaultValues: itemToEditForm(item),
@@ -102,20 +102,20 @@ function EditItemForm({
     >
       <FieldGroup>
         {canEditPrice && (
-          <form.AppField name="description">
+          <form.AppField name="descripcion">
             {(field) => <field.TextField label="Descripción" autoFocus />}
           </form.AppField>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           {canEditQuantity && (
-            <form.AppField name="quantity">
+            <form.AppField name="cantidad">
               {(field) => (
                 <field.QuantityField label="Veces" autoFocus={!canEditPrice} />
               )}
             </form.AppField>
           )}
           {canEditPrice && (
-            <form.AppField name="unitPrice">
+            <form.AppField name="precioUnitario">
               {(field) => <field.MoneyField label="Precio unitario" />}
             </form.AppField>
           )}

@@ -39,7 +39,7 @@ export function DeleteUserDialog({
         <DialogHeader>
           <DialogTitle>Eliminar usuario</DialogTitle>
           <DialogDescription>
-            Se eliminará a <strong>{user?.name}</strong> de forma definitiva.
+            Se eliminará a <strong>{user?.nombre}</strong> de forma definitiva.
             Esta acción no se puede deshacer. Si ya trabajó en el taller,
             desactívalo en su lugar.
           </DialogDescription>
@@ -54,7 +54,7 @@ export function DeleteUserDialog({
             disabled={!user || remove.isPending}
             onClick={() => {
               if (!user) return
-              remove.mutate(user.userId, {
+              remove.mutate(user.usuarioId, {
                 onSuccess: () => onOpenChange(false),
               })
             }}

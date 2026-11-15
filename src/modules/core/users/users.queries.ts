@@ -27,7 +27,8 @@ type UserOptionsParams = { search: string; onlyActive: boolean }
 export const usersKeys = {
   all: ['users'] as const,
   list: (search: UsersSearch) => [...usersKeys.all, 'list', search] as const,
-  detail: (userId: string) => [...usersKeys.all, 'detail', userId] as const,
+  detail: (usuarioId: string) =>
+    [...usersKeys.all, 'detail', usuarioId] as const,
   options: (params: UserOptionsParams) =>
     [...usersKeys.all, 'options', params] as const,
 }
@@ -41,15 +42,15 @@ export const usersQueries = {
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
     }),
-  detail: (userId: string) =>
+  detail: (usuarioId: string) =>
     queryOptions({
-      queryKey: usersKeys.detail(userId),
-      queryFn: () => getUser({ data: { userId } }),
+      queryKey: usersKeys.detail(usuarioId),
+      queryFn: () => getUser({ data: { usuarioId } }),
     }),
   /**
    * El personal para elegir en un combobox, buscado en la API con el mismo
-   * listado (20 por vez, por nombre o correo). Al asignar una herramienta
-   * solo se ofrecen los activos; un filtro los ofrece todos. Como `/users`,
+   * listado (20 por vez, por nombre o correo). Al asignar un mecánico solo
+   * se ofrecen los activos; un filtro los ofrece todos. Como `/users`,
    * solo para el administrador.
    */
   options: (params: UserOptionsParams) =>
@@ -61,7 +62,7 @@ export const usersQueries = {
             ...defaultUsersSearch,
             pageSize: 20,
             search: params.search || undefined,
-            isActive: params.onlyActive || undefined,
+            activo: params.onlyActive || undefined,
           },
         })
         return page.items.map(userOption)
@@ -88,7 +89,7 @@ export function useCreateUser() {
 export function useUpdateUser() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: { userId: string; values: UpdateUserInput }) =>
+    mutationFn: (request: { usuarioId: string; values: UpdateUserInput }) =>
       updateUser({ data: request }),
     onSuccess: ({ message }) => onChanged(queryClient, message),
   })
@@ -97,8 +98,8 @@ export function useUpdateUser() {
 export function useIssueUserTemporaryPassword() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (userId: string) =>
-      issueUserTemporaryPassword({ data: { userId } }),
+    mutationFn: (usuarioId: string) =>
+      issueUserTemporaryPassword({ data: { usuarioId } }),
     // El listado muestra quién tiene la contraseña temporal.
     onSuccess: ({ message }) => onChanged(queryClient, message),
   })
@@ -107,7 +108,7 @@ export function useIssueUserTemporaryPassword() {
 export function useDeleteUser() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (userId: string) => deleteUser({ data: { userId } }),
+    mutationFn: (usuarioId: string) => deleteUser({ data: { usuarioId } }),
     onSuccess: ({ message }) => onChanged(queryClient, message),
   })
 }

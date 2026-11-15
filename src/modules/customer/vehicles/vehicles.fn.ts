@@ -24,7 +24,7 @@ export const listVehicles = createServerFn({ method: 'GET' })
 
 export const getVehicle = createServerFn({ method: 'GET' })
   .validator(vehicleIdSchema)
-  .handler(({ data }) => callApi<Vehicle>(`/vehicles/${data.vehicleId}`))
+  .handler(({ data }) => callApi<Vehicle>(`/vehicles/${data.vehiculoId}`))
 
 export const listVehicleBrands = createServerFn({ method: 'GET' }).handler(() =>
   callApi<VehicleBrand[]>('/vehicles/brands'),
@@ -44,7 +44,7 @@ export const updateVehicle = createServerFn({ method: 'POST' })
   .validator(updateVehicleRequestSchema)
   .handler(async ({ data }) => {
     const { data: vehicle, message } = await callApiEnvelope<Vehicle>(
-      `/vehicles/${data.vehicleId}`,
+      `/vehicles/${data.vehiculoId}`,
       { method: 'PATCH', body: JSON.stringify(data.values) },
     )
     return { vehicle, message }
@@ -54,7 +54,7 @@ export const deleteVehicle = createServerFn({ method: 'POST' })
   .validator(vehicleIdSchema)
   .handler(async ({ data }) => {
     const { message } = await callApiEnvelope<null>(
-      `/vehicles/${data.vehicleId}`,
+      `/vehicles/${data.vehiculoId}`,
       { method: 'DELETE' },
     )
     return { message }

@@ -22,8 +22,8 @@ export const productsKeys = {
   all: ['products'] as const,
   list: (search: ProductsSearch) =>
     [...productsKeys.all, 'list', search] as const,
-  detail: (productId: string) =>
-    [...productsKeys.all, 'detail', productId] as const,
+  detail: (productoId: string) =>
+    [...productsKeys.all, 'detail', productoId] as const,
   options: (params: ProductOptionsParams) =>
     [...productsKeys.all, 'options', params] as const,
 }
@@ -37,10 +37,10 @@ export const productsQueries = {
       // anterior (atenuada) hasta que llega la nueva, en vez de vaciarse.
       placeholderData: keepPreviousData,
     }),
-  detail: (productId: string) =>
+  detail: (productoId: string) =>
     queryOptions({
-      queryKey: productsKeys.detail(productId),
-      queryFn: () => getProduct({ data: { productId } }),
+      queryKey: productsKeys.detail(productoId),
+      queryFn: () => getProduct({ data: { productoId } }),
     }),
   /**
    * Los productos para elegir en un combobox, buscados en la API con el mismo
@@ -56,7 +56,7 @@ export const productsQueries = {
             ...defaultProductsSearch,
             pageSize: 20,
             search: params.search || undefined,
-            isActive: params.onlyActive || undefined,
+            activo: params.onlyActive || undefined,
           },
         })
         return page.items.map(productOption)
@@ -82,7 +82,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: { productId: string; values: ProductInput }) =>
+    mutationFn: (request: { productoId: string; values: ProductInput }) =>
       updateProduct({ data: request }),
     onSuccess: async ({ message }) => {
       toast.success(message)
@@ -94,7 +94,7 @@ export function useUpdateProduct() {
 export function useDeleteProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (productId: string) => deleteProduct({ data: { productId } }),
+    mutationFn: (productoId: string) => deleteProduct({ data: { productoId } }),
     onSuccess: async ({ message }) => {
       toast.success(message)
       await queryClient.invalidateQueries({ queryKey: productsKeys.all })
